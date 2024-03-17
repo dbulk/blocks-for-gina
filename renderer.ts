@@ -1,26 +1,34 @@
 import GameSettings from "./gamesettings.js";
 
+
+interface Block {
+    i: number;
+    j: number;
+    id: number;
+  }
+
+  
 class Renderer {
   private canvas: HTMLCanvasElement;
   private ctx: CanvasRenderingContext2D | null;
-  private grid: (number | null)[][];
+  private blocks: (Block | null)[] = [];
   private gameSettings: GameSettings;
 
   constructor(
     canvas: HTMLCanvasElement,
-    grid: (number | null)[][],
+    blocks: (Block | null)[] = [],
     gameSettings: GameSettings
   ) {
     this.canvas = canvas;
     this.ctx = canvas.getContext("2d");
-    this.grid = grid;
+    this.blocks = blocks;
     this.gameSettings = gameSettings;
     
     this.adjustCanvasSize();
     window.addEventListener("resize", this.adjustCanvasSize.bind(this));
   }
 
-  renderGrid() {
+  renderBlocks() {
     // Implement rendering logic
     if (!this.ctx) {
       return;
@@ -28,19 +36,28 @@ class Renderer {
     // Clear canvas
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
-    // Render game elements
-    for (let row = 0; row < this.gameSettings.numBlocksY; row++) {
-      for (let col = 0; col < this.gameSettings.numBlocksX; col++) {
-        const identity = this.grid[row][col];
-        if (identity !== null) {
-          // Only render blocks with non-null identity
-          const color = this.gameSettings.blockColors[identity];
-          const x = col * this.gameSettings.blockSize;
-          const y = row * this.gameSettings.blockSize;
-          this.renderBlock(x, y, this.gameSettings.blockSize, this.gameSettings.blockSize, color);
+    for(const block of this.blocks){
+        if(block){
+            const color = this.gameSettings.blockColors[block.id];
+            const x = block.j * this.gameSettings.blockSize;
+            const y = block.i * this.gameSettings.blockSize;
+            this.renderBlock(x,y,this.gameSettings.blockSize, this.gameSettings.blockSize, color);
         }
-      }
+        
     }
+    // // Render game elements
+    // for (let row = 0; row < this.gameSettings.numBlocksY; row++) {
+    //   for (let col = 0; col < this.gameSettings.numBlocksX; col++) {
+    //     const identity = this.grid[row][col];
+    //     if (identity !== null) {
+    //       // Only render blocks with non-null identity
+    //       const color = this.gameSettings.blockColors[identity];
+    //       const x = col * this.gameSettings.blockSize;
+    //       const y = row * this.gameSettings.blockSize;
+    //       this.renderBlock(x, y, this.gameSettings.blockSize, this.gameSettings.blockSize, color);
+    //     }
+    //   }
+    // }
   }
 
   adjustCanvasSize() {
@@ -54,7 +71,7 @@ class Renderer {
     this.canvas.height = this.canvas.width * AR; // Maintain square aspect ratio (optional)
 
     this.gameSettings.blockSize = this.canvas.width / this.gameSettings.numBlocksX;
-    this.renderGrid();
+    this.renderBlocks();
   }
 
   getGridIndicesFromMouse(mouseX: number, mouseY: number): [number, number] {
