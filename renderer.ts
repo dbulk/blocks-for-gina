@@ -46,8 +46,8 @@ class Renderer {
         
     }
     // // Render game elements
-    // for (let row = 0; row < this.gameSettings.numBlocksY; row++) {
-    //   for (let col = 0; col < this.gameSettings.numBlocksX; col++) {
+    // for (let row = 0; row < this.gameSettings.numRows; row++) {
+    //   for (let col = 0; col < this.gameSettings.numColumns; col++) {
     //     const identity = this.grid[row][col];
     //     if (identity !== null) {
     //       // Only render blocks with non-null identity
@@ -63,14 +63,14 @@ class Renderer {
   adjustCanvasSize() {
     // Calculate new canvas width based on 50% of window width
     const windowWidth = window.innerWidth;
-    const newCanvasWidth = Math.round((windowWidth * 0.8) / this.gameSettings.numBlocksX) * this.gameSettings.numBlocksX;
+    const newCanvasWidth = Math.round((windowWidth * 0.8) / this.gameSettings.numColumns) * this.gameSettings.numColumns;
 
     // Set canvas size
     this.canvas.width = newCanvasWidth;
-    const AR = this.gameSettings.numBlocksY / this.gameSettings.numBlocksX;
+    const AR = this.gameSettings.numRows / this.gameSettings.numColumns;
     this.canvas.height = this.canvas.width * AR; // Maintain square aspect ratio (optional)
 
-    this.gameSettings.blockSize = this.canvas.width / this.gameSettings.numBlocksX;
+    this.gameSettings.blockSize = this.canvas.width / this.gameSettings.numColumns;
     this.renderBlocks();
   }
 
