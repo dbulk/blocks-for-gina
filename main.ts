@@ -1,45 +1,28 @@
 import Renderer from "./renderer.js";
+import GameSettings from "./gamesettings.js";
 
 
 // Get the canvas element
 const canvas = document.getElementById("myCanvas") as HTMLCanvasElement;
 
-// constants for the dimensions
-const numBlocksX = 20; // Number of blocks in X direction
-const numBlocksY = 10; // Number of blocks in Y direction
-let blockSize = 10;
-
-// 2D array to store block colors
-const blockColors: string[] = [
-  "#007B7F",
-  "#FF6F61",
-  "#4F86F7",
-  "#B6D94C",
-  "#8368F2",
-];
+const gameSettings = new GameSettings(10, 20, 10, ["#007B7F","#FF6F61","#4F86F7","#B6D94C","#8368F2"]);
 
 const grid: (number | null)[][] = [];
-for (let row = 0; row < numBlocksY; row++) {
+for (let row = 0; row < gameSettings.numBlocksY; row++) {
   grid[row] = [];
-  for (let col = 0; col < numBlocksX; col++) {
+  for (let col = 0; col < gameSettings.numBlocksX; col++) {
     // Randomly assign a block identity to each grid cell
-    const randomIdentity = Math.floor(Math.random() * blockColors.length);
+    const randomIdentity = Math.floor(Math.random() * gameSettings.numBlockTypes);
     grid[row][col] = randomIdentity; // Set null for empty blocks
   }
 }
 
-const numBlocksInColumn: number[] = new Array(numBlocksX).fill(numBlocksY);
+const numBlocksInColumn: number[] = new Array(gameSettings.numBlocksX).fill(gameSettings.numBlocksY);
 
 // Flood fill algorithm to nullify adjacent blocks of the same identity
 function floodFill(row: number, col: number, targetIdentity: number) {
   // Check if current block is within grid bounds and has the target identity
-  if (
-    row < 0 ||
-    row >= numBlocksY ||
-    col < 0 ||
-    col >= numBlocksX ||
-    grid[row][col] !== targetIdentity
-  ) {
+  if (row < 0 || row >= gameSettings.numBlocksY || col < 0 || col >= gameSettings.numBlocksX || grid[row][col] !== targetIdentity) {
     return;
   }
 
@@ -57,9 +40,9 @@ function floodFill(row: number, col: number, targetIdentity: number) {
 function updateGame() {
   // Update game state (if needed)
   // Handle block movement after flood fill
-  for (let col = 0; col < numBlocksX; col++) {
+  for (let col = 0; col < gameSettings.numBlocksX; col++) {
     // Move blocks down if there's a null underneath
-    for (let row = numBlocksY - 2; row >= 0; row--) {
+    for (let row = gameSettings.numBlocksY - 2; row >= 0; row--) {
       if (grid[row][col] !== null && grid[row + 1][col] === null) {
         // Move the block down
         grid[row + 1][col] = grid[row][col];
@@ -69,19 +52,19 @@ function updateGame() {
   }
 
   // Accumulate the number of moves needed to shift blocks left
-  const numMovesToLeft: number[] = new Array(numBlocksX).fill(0);
-  for (let col = numBlocksX - 1; col >= 0; col--) {
+  const numMovesToLeft: number[] = new Array(gameSettings.numBlocksX).fill(0);
+  for (let col = gameSettings.numBlocksX - 1; col >= 0; col--) {
     if (numBlocksInColumn[col] === 0) {
       // Count the number of blocks to the right that need to move left
-      for (let moveCol = col + 1; moveCol < numBlocksX; moveCol++) {
+      for (let moveCol = col + 1; moveCol < gameSettings.numBlocksX; moveCol++) {
         numMovesToLeft[moveCol]++;
       }
     }
   }
 
-  for (let col = 0; col < numBlocksX; col++) {
+  for (let col = 0; col < gameSettings.numBlocksX; col++) {
     if (numMovesToLeft[col]) {
-      for (let row = 0; row < numBlocksY; row++) {
+      for (let row = 0; row < gameSettings.numBlocksY; row++) {
         grid[row][col - numMovesToLeft[col]] = grid[row][col];
         grid[row][col] = null;
       }
@@ -92,11 +75,7 @@ function updateGame() {
 }
 
 
-const renderer = new Renderer(canvas, blockSize, grid, numBlocksX, numBlocksY, blockColors);
-renderer.adjustCanvasSize(numBlocksX, numBlocksY);
-window.addEventListener("resize", () =>
-renderer.adjustCanvasSize(numBlocksX, numBlocksY)
-);
+const renderer = new Renderer(canvas, grid, gameSettings);
 
 function handleMouseClick(event: MouseEvent) {
 // Get mouse coordinates relative to canvas

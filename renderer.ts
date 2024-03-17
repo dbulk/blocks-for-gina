@@ -1,70 +1,65 @@
+import GameSettings from "./gamesettings.js";
+
 class Renderer {
   private canvas: HTMLCanvasElement;
-  private ctx: (CanvasRenderingContext2D | null);
-  private blockSize: number;
+  private ctx: CanvasRenderingContext2D | null;
   private grid: (number | null)[][];
-  private numBlocksX: number;
-  private numBlocksY: number;
-  private blockColors: string[];
+  private gameSettings: GameSettings;
 
   constructor(
     canvas: HTMLCanvasElement,
-    blockSize: number,
     grid: (number | null)[][],
-    numBlocksX: number,
-    numBlocksY: number,
-    blockColors: string[]
+    gameSettings: GameSettings
   ) {
     this.canvas = canvas;
     this.ctx = canvas.getContext("2d");
-    this.blockSize = blockSize;
     this.grid = grid;
-    this.numBlocksX = numBlocksX;
-    this.numBlocksY = numBlocksY;
-    this.blockColors = blockColors;
+    this.gameSettings = gameSettings;
+    
+    this.adjustCanvasSize();
+    window.addEventListener("resize", this.adjustCanvasSize.bind(this));
   }
 
   renderGrid() {
     // Implement rendering logic
-    if(!this.ctx) {
-        return;
+    if (!this.ctx) {
+      return;
     }
     // Clear canvas
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
     // Render game elements
-    for (let row = 0; row < this.numBlocksY; row++) {
-      for (let col = 0; col < this.numBlocksX; col++) {
+    for (let row = 0; row < this.gameSettings.numBlocksY; row++) {
+      for (let col = 0; col < this.gameSettings.numBlocksX; col++) {
         const identity = this.grid[row][col];
         if (identity !== null) {
           // Only render blocks with non-null identity
-          const color = this.blockColors[identity];
-          const x = col * this.blockSize;
-          const y = row * this.blockSize;
-          this.renderBlock(x, y, this.blockSize, this.blockSize, color);
+          const color = this.gameSettings.blockColors[identity];
+          const x = col * this.gameSettings.blockSize;
+          const y = row * this.gameSettings.blockSize;
+          this.renderBlock(x, y, this.gameSettings.blockSize, this.gameSettings.blockSize, color);
         }
       }
     }
   }
 
-  adjustCanvasSize(numBlocksX: number, numBlocksY: number) {
+  adjustCanvasSize() {
     // Calculate new canvas width based on 50% of window width
     const windowWidth = window.innerWidth;
-    const newCanvasWidth =
-      Math.round((windowWidth * 0.8) / numBlocksX) * numBlocksX;
+    const newCanvasWidth = Math.round((windowWidth * 0.8) / this.gameSettings.numBlocksX) * this.gameSettings.numBlocksX;
 
     // Set canvas size
     this.canvas.width = newCanvasWidth;
-    const AR = numBlocksY / numBlocksX;
+    const AR = this.gameSettings.numBlocksY / this.gameSettings.numBlocksX;
     this.canvas.height = this.canvas.width * AR; // Maintain square aspect ratio (optional)
 
-    this.blockSize = this.canvas.width / numBlocksX;
+    this.gameSettings.blockSize = this.canvas.width / this.gameSettings.numBlocksX;
     this.renderGrid();
   }
 
   getGridIndicesFromMouse(mouseX: number, mouseY: number): [number, number] {
-    const clickedCol = Math.floor(mouseX / this.blockSize);
-    const clickedRow = Math.floor(mouseY / this.blockSize);
+    const clickedCol = Math.floor(mouseX / this.gameSettings.blockSize);
+    const clickedRow = Math.floor(mouseY / this.gameSettings.blockSize);
     return [clickedRow, clickedCol];
   }
 
@@ -75,6 +70,9 @@ class Renderer {
     height: number,
     color: string
   ) {
+    if (!this.ctx) {
+      return;
+    }
     const gradient = this.ctx.createLinearGradient(x, y, x + width, y + height);
     gradient.addColorStop(1, color);
     gradient.addColorStop(0, this.lightenColor(color, 30));
