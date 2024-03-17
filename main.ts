@@ -67,10 +67,6 @@ function handleMouseClick(event: MouseEvent) {
     // Perform flood fill to nullify adjacent blocks of the same identity
     floodFill(clickedRow, clickedCol, clickedIdentity);
   }
-
-  console.log(clickedIdentity);
-  // Log the updated grid after flood fill
-  console.log("Grid after flood fill:", grid);
 }
 
 // Flood fill algorithm to nullify adjacent blocks of the same identity
@@ -114,27 +110,45 @@ function updateGame() {
     }
   }
 
-    // Accumulate the number of moves needed to shift blocks left
-    const numMovesToLeft: number[] = new Array(numBlocksX).fill(0);
-    for (let col = numBlocksX - 1; col >= 0; col--) {
-        if (numBlocksInColumn[col] === 0) {
-            // Count the number of blocks to the right that need to move left
-            for (let moveCol = col + 1; moveCol < numBlocksX; moveCol++) {
-                numMovesToLeft[moveCol]++;
-            }
-        }
+  // Accumulate the number of moves needed to shift blocks left
+  const numMovesToLeft: number[] = new Array(numBlocksX).fill(0);
+  for (let col = numBlocksX - 1; col >= 0; col--) {
+    if (numBlocksInColumn[col] === 0) {
+      // Count the number of blocks to the right that need to move left
+      for (let moveCol = col + 1; moveCol < numBlocksX; moveCol++) {
+        numMovesToLeft[moveCol]++;
+      }
     }
+  }
 
-    for (let col = 0; col < numBlocksX; col++) {
-        if(numMovesToLeft[col]) {
-            for (let row = 0; row < numBlocksY; row++) {
-                grid[row][col - numMovesToLeft[col]] = grid[row][col];
-                grid[row][col] = null;
-            }
-            numBlocksInColumn[col-numMovesToLeft[col]]=numBlocksInColumn[col];
-            numBlocksInColumn[col]=0;
-        }
+  for (let col = 0; col < numBlocksX; col++) {
+    if (numMovesToLeft[col]) {
+      for (let row = 0; row < numBlocksY; row++) {
+        grid[row][col - numMovesToLeft[col]] = grid[row][col];
+        grid[row][col] = null;
+      }
+      numBlocksInColumn[col - numMovesToLeft[col]] = numBlocksInColumn[col];
+      numBlocksInColumn[col] = 0;
     }
+  }
+}
+function renderBlock(ctx: CanvasRenderingContext2D, x: number, y: number, width: number, height: number, color: string) {
+    const gradient = ctx.createLinearGradient(x, y, x + width, y + height);
+    gradient.addColorStop(1, color); // Start color (specified color)
+    gradient.addColorStop(0, lightenColor(color, 30)); // End color (lightened version of specified color)
+
+    ctx.fillStyle = gradient;
+    ctx.fillRect(x, y, width, height);
+}
+
+function lightenColor(color: string, percent: number): string {
+    const num = parseInt(color.replace("#", ""), 16);
+    const amt = Math.round(2.55 * percent);
+    const R = (num >> 16) + amt;
+    const G = (num >> 8 & 0x00FF) + amt;
+    const B = (num & 0x0000FF) + amt;
+
+    return "#" + (0x1000000 + (R < 255 ? (R < 1 ? 0 : R) : 255) * 0x10000 + (G < 255 ? (G < 1 ? 0 : G) : 255) * 0x100 + (B < 255 ? (B < 1 ? 0 : B) : 255)).toString(16).slice(1);
 }
 
 function renderGame() {
@@ -153,8 +167,9 @@ function renderGame() {
         const color = blockColors[identity];
         const x = col * blockSize;
         const y = row * blockSize;
-        ctx.fillStyle = color;
-        ctx.fillRect(x, y, blockSize, blockSize);
+        renderBlock(ctx, x, y, blockSize, blockSize, color);
+        //ctx.fillStyle = color;
+        //ctx.fillRect(x, y, blockSize, blockSize);
       }
     }
   }
