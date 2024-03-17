@@ -1,82 +1,175 @@
 // Get the canvas element
-const canvas = document.getElementById('myCanvas') as HTMLCanvasElement;
-const ctx = canvas.getContext('2d');
+const canvas = document.getElementById("myCanvas") as HTMLCanvasElement;
+const ctx = canvas.getContext("2d");
 
 // constants for the dimensions
-const numBlocksX = 10; // Number of blocks in X direction
+const numBlocksX = 20; // Number of blocks in X direction
 const numBlocksY = 10; // Number of blocks in Y direction
 let blockSize = 10;
 
 // 2D array to store block colors
-const blockColors: string[][] = [];
+const blockColors: string[] = [
+  "#007B7F",
+  "#FF6F61",
+  "#4F86F7",
+  "#B6D94C",
+  "#8368F2",
+  // Add more colors as needed
+];
 
-// Initialize blockColors array with random colors
+const grid: (number | null)[][] = [];
 for (let row = 0; row < numBlocksY; row++) {
-    blockColors[row] = [];
-    for (let col = 0; col < numBlocksX; col++) {
-        // Generate random color (hex format)
-        const randomColor = '#' + Math.floor(Math.random()*16777215).toString(16);
-        blockColors[row][col] = randomColor;
-    }
+  grid[row] = [];
+  for (let col = 0; col < numBlocksX; col++) {
+    // Randomly assign a block identity to each grid cell
+    const randomIdentity = Math.floor(Math.random() * blockColors.length);
+    grid[row][col] = randomIdentity; // Set null for empty blocks
+  }
 }
+
+const numBlocksInColumn: number[] = new Array(numBlocksX).fill(numBlocksY);
 
 // Set initial canvas size
 adjustCanvasSize();
 
 // Listen for window resize event
-window.addEventListener('resize', adjustCanvasSize);
+window.addEventListener("resize", adjustCanvasSize);
 
 function adjustCanvasSize() {
-    // Calculate new canvas width based on 50% of window width
-    const windowWidth = window.innerWidth;
-    const newCanvasWidth = Math.round(windowWidth * 0.8);
+  // Calculate new canvas width based on 50% of window width
+  const windowWidth = window.innerWidth;
+  const newCanvasWidth =
+    Math.round((windowWidth * 0.8) / numBlocksX) * numBlocksX;
 
-    // Set canvas size
-    canvas.width = newCanvasWidth;
-    canvas.height = canvas.width; // Maintain square aspect ratio (optional)
+  // Set canvas size
+  canvas.width = newCanvasWidth;
+  const AR = numBlocksY / numBlocksX;
+  canvas.height = canvas.width * AR; // Maintain square aspect ratio (optional)
 
-    blockSize = canvas.width / numBlocksX;
-    renderGame();
+  blockSize = canvas.width / numBlocksX;
+  renderGame();
 }
+
+// Function to handle mouse click event
+function handleMouseClick(event: MouseEvent) {
+  // Get mouse coordinates relative to canvas
+  const rect = canvas.getBoundingClientRect();
+  const mouseX = event.clientX - rect.left;
+  const mouseY = event.clientY - rect.top;
+
+  // Convert mouse coordinates to grid indices
+  const clickedCol = Math.floor(mouseX / blockSize);
+  const clickedRow = Math.floor(mouseY / blockSize);
+
+  // Get identity of clicked block
+  const clickedIdentity = grid[clickedRow][clickedCol];
+  if (clickedIdentity !== null) {
+    // Perform flood fill to nullify adjacent blocks of the same identity
+    floodFill(clickedRow, clickedCol, clickedIdentity);
+  }
+
+  console.log(clickedIdentity);
+  // Log the updated grid after flood fill
+  console.log("Grid after flood fill:", grid);
+}
+
+// Flood fill algorithm to nullify adjacent blocks of the same identity
+function floodFill(row: number, col: number, targetIdentity: number) {
+  // Check if current block is within grid bounds and has the target identity
+  if (
+    row < 0 ||
+    row >= numBlocksY ||
+    col < 0 ||
+    col >= numBlocksX ||
+    grid[row][col] !== targetIdentity
+  ) {
+    return;
+  }
+
+  // Nullify current block
+  grid[row][col] = null;
+  numBlocksInColumn[col]--;
+
+  // Recursively flood fill adjacent blocks
+  floodFill(row + 1, col, targetIdentity); // Down
+  floodFill(row - 1, col, targetIdentity); // Up
+  floodFill(row, col + 1, targetIdentity); // Right
+  floodFill(row, col - 1, targetIdentity); // Left
+}
+
+// Add event listener for mouse clicks on the canvas
+canvas.addEventListener("click", handleMouseClick);
 
 function updateGame() {
-    // Update game state (if needed)
-}
+  // Update game state (if needed)
+  // Handle block movement after flood fill
+  for (let col = 0; col < numBlocksX; col++) {
+    // Move blocks down if there's a null underneath
+    for (let row = numBlocksY - 2; row >= 0; row--) {
+      if (grid[row][col] !== null && grid[row + 1][col] === null) {
+        // Move the block down
+        grid[row + 1][col] = grid[row][col];
+        grid[row][col] = null;
+      }
+    }
+  }
 
-function renderGame() {
-    // Clear canvas
-    if (!ctx) return;
+    // Accumulate the number of moves needed to shift blocks left
+    const numMovesToLeft: number[] = new Array(numBlocksX).fill(0);
+    for (let col = numBlocksX - 1; col >= 0; col--) {
+        if (numBlocksInColumn[col] === 0) {
+            // Count the number of blocks to the right that need to move left
+            for (let moveCol = col + 1; moveCol < numBlocksX; moveCol++) {
+                numMovesToLeft[moveCol]++;
+            }
+        }
+    }
 
-    // Clear canvas
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    // Render grid of blocks
-    for (let row = 0; row < numBlocksY; row++) {
-        for (let col = 0; col < numBlocksX; col++) {
-            // Calculate block position
-            const x = col * blockSize;
-            const y = row * blockSize;
-
-            // Set block color
-            ctx.fillStyle = blockColors[row][col];
-
-            // Draw block
-            ctx.fillRect(x, y, blockSize, blockSize);
+    for (let col = 0; col < numBlocksX; col++) {
+        if(numMovesToLeft[col]) {
+            for (let row = 0; row < numBlocksY; row++) {
+                grid[row][col - numMovesToLeft[col]] = grid[row][col];
+                grid[row][col] = null;
+            }
+            numBlocksInColumn[col-numMovesToLeft[col]]=numBlocksInColumn[col];
+            numBlocksInColumn[col]=0;
         }
     }
 }
 
-function gameLoop() {
-    // Update phase
-    updateGame();
+function renderGame() {
+  // Clear canvas
+  if (!ctx) return;
 
-    // Render phase
-    renderGame();
+  // Clear canvas
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // Schedule the next iteration of the game loop
-    requestAnimationFrame(gameLoop);
+  // Render game elements
+  for (let row = 0; row < numBlocksY; row++) {
+    for (let col = 0; col < numBlocksX; col++) {
+      const identity = grid[row][col];
+      if (identity !== null) {
+        // Only render blocks with non-null identity
+        const color = blockColors[identity];
+        const x = col * blockSize;
+        const y = row * blockSize;
+        ctx.fillStyle = color;
+        ctx.fillRect(x, y, blockSize, blockSize);
+      }
+    }
+  }
 }
 
+function gameLoop() {
+  // Update phase
+  updateGame();
+
+  // Render phase
+  renderGame();
+
+  // Schedule the next iteration of the game loop
+  requestAnimationFrame(gameLoop);
+}
 
 // Start the game loop
 gameLoop();
