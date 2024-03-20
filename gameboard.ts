@@ -9,6 +9,8 @@ class GameBoard {
   grid: (number | null)[][] = [];
   numBlocksInColumn: number[] = [];
   needsgravity = false;
+  blocksToPop : coordinate[] = [];
+  hoverCache: (coordinate | null) = null;
 
   constructor(gameSettings: GameSettings) {
     this.gameSettings = gameSettings;
@@ -26,23 +28,36 @@ class GameBoard {
     );
   }
 
-  click(clicktarget : coordinate) {
-    // Get identity of clicked block
-    const blockid = this.grid[clicktarget.row][clicktarget.col];
-
-    if (blockid !== null) {
-      const coords = this.getFloodedCoordinates(clicktarget);
-      if (coords.length < 2) {
-        // at least two adjacent blocks
-        return;
-      }
-
-      this.needsgravity = true;
-      for (const coord of coords) {
+  click() {
+    if(this.blocksToPop.length){
+      for (const coord of this.blocksToPop) {
         this.grid[coord.row][coord.col] = null;
         this.numBlocksInColumn[coord.col]--;
       }
+      this.needsgravity = true;
+      this.blocksToPop=[];
+      this.hoverCache = null;
     }
+  }
+
+  hover(target : coordinate) {
+    // todo: i need to have this set a mouse position that and have blockToPop update in the game loop - if i pop some blocks 
+    // then nothing updates blockToPop after gravity
+    if(!this.isLocationInGrid(target)) {
+      this.hoverCache = null;
+      this.blocksToPop = [];
+      return;
+    }
+    if(this.hoverCache === null || target.row !== this.hoverCache.row || target.col !== this.hoverCache.col){
+      const blocks = this.getFloodedCoordinates(target);
+      this.blocksToPop = blocks.length > 1 ? blocks : [];
+      this.hoverCache = target;
+    }
+  }
+
+  mouseExit() {
+    this.hoverCache = null;
+    this.blocksToPop = [];
   }
 
   update() {
@@ -69,23 +84,23 @@ class GameBoard {
           }
         }
       }
+      // now move blocks to the left:
+      for (let col = 0; col < this.gameSettings.numColumns; col++){
+        if(this.numBlocksInColumn[col] == 0) {
+          // move the column to the left
+          for (let c = col; c < this.gameSettings.numColumns; c++){
+            for(let row = 0; row < this.gameSettings.numRows; row++){
+              grid[row][c] = grid[row][c+1];
+            }
+          }
+          this.numBlocksInColumn[col]=this.numBlocksInColumn[col+1];
+        }
+      }
       this.needsgravity = false;
     }
-    // if(this.needsGravity) {
-    //   for(const block of this.blocks) {
-    //     if(block !== null && block.i < this.gameSettings.numRows-1) {
-    //       let underblock = this.blocks[this.grid[block.i+1][block.j]];
-    //       // while(underblock === null) {
-
-    //       // }
-    //     }
-    //   }
-
-    //   this.needsGravity=false;
-    // }
   }
 
-  isLocationInGrid(c: coordinate): boolean {
+  private isLocationInGrid(c: coordinate): boolean {
     return (
       c.row >= 0 &&
       c.row < this.gameSettings.numRows &&

@@ -1,5 +1,9 @@
 import GameSettings from "./gamesettings.js";
 
+interface coordinate {
+  row: number;
+  col: number;
+}
 
 class Renderer {
   private canvas: HTMLCanvasElement;
@@ -38,9 +42,8 @@ class Renderer {
       }
     }
   }
-
   
-  renderPreview(coords) {
+  renderPreview(coords : coordinate[]) {
     // Implement rendering logic
     if (!this.ctx) {
       return;
@@ -48,7 +51,7 @@ class Renderer {
 
     for(const c of coords){
       const id = this.grid[c.row][c.col];
-        if(id!=null){
+        if(id!==null){
           this.renderBlock(c.row,c.col,id,false);
         }
     }
@@ -86,6 +89,8 @@ class Renderer {
       gradient.addColorStop(0, this.lightenColor(color,30));
       gradient.addColorStop(1,color);
       this.ctx.fillStyle = gradient;  
+    } else {
+      this.ctx.fillStyle = color;
     }
     
     this.ctx.fillRect(x,y,sz,sz);
