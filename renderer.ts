@@ -39,10 +39,7 @@ class Renderer {
     for (const row of this.grid) {
       for (const block of row) {
         if (block) {
-          const color = this.gameSettings.blockColors[block.id];
-          const x = block.col * this.gameSettings.blockSize;
-          const y = block.row * this.gameSettings.blockSize;
-          this.renderBlock(x, y, this.gameSettings.blockSize, this.gameSettings.blockSize, color);
+          this.renderBlock(block);
         }
       }
     }
@@ -68,22 +65,20 @@ class Renderer {
     return [clickedRow, clickedCol];
   }
 
-  private renderBlock(
-    x: number,
-    y: number,
-    width: number,
-    height: number,
-    color: string
-  ) {
-    if (!this.ctx) {
-      return;
-    }
-    const gradient = this.ctx.createLinearGradient(x, y, x + width, y + height);
-    gradient.addColorStop(1, color);
-    gradient.addColorStop(0, this.lightenColor(color, 30));
+  private renderBlock(b: Block): void {
+    if(!this.ctx){return;}
+    const sz = this.gameSettings.blockSize;
+    const color = this.gameSettings.blockColors[b.id];
+    const x = b.col * sz;
+    const y = b.row * sz;
+        
+    const gradient = this.ctx.createLinearGradient(x,y,x+sz,y+sz);
+    gradient.addColorStop(0, this.lightenColor(color,30));
+    gradient.addColorStop(1,color);
 
     this.ctx.fillStyle = gradient;
-    this.ctx.fillRect(x, y, width, height);
+    this.ctx.fillRect(x,y,sz,sz);
+    
   }
 
   private lightenColor(color: string, percent: number): string {
