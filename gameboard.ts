@@ -8,7 +8,7 @@ class GameBoard {
   private gameSettings: GameSettings;
   grid: (number | null)[][] = [];
   numBlocksInColumn: number[] = [];
-  needsgravity = false;
+  needsPop = false;
   blocksToPop : coordinate[] = [];
   hoverCache: (coordinate | null) = null;
 
@@ -30,19 +30,12 @@ class GameBoard {
 
   click() {
     if(this.blocksToPop.length){
-      for (const coord of this.blocksToPop) {
-        this.grid[coord.row][coord.col] = null;
-        this.numBlocksInColumn[coord.col]--;
-      }
-      this.needsgravity = true;
-      this.blocksToPop=[];
-      this.hoverCache = null;
+      // Clicking just indicates that blocks should pop on the next update
+      this.needsPop = true;
     }
   }
 
   hover(target : coordinate) {
-    // todo: i need to have this set a mouse position that and have blockToPop update in the game loop - if i pop some blocks 
-    // then nothing updates blockToPop after gravity
     if(!this.isLocationInGrid(target)) {
       this.hoverCache = null;
       this.blocksToPop = [];
@@ -61,7 +54,14 @@ class GameBoard {
   }
 
   update() {
-    if (this.needsgravity) {
+    if(this.needsPop){
+      for (const coord of this.blocksToPop) {
+        this.grid[coord.row][coord.col] = null;
+        this.numBlocksInColumn[coord.col]--;
+      }
+      this.blocksToPop=[];
+      const gridloc = this.hoverCache ? {row: this.hoverCache.row, col: this.hoverCache.col} : null;      
+      this.hoverCache = null;
       const grid = this.grid;
       for (let col = 0; col < grid[0].length; col++) {
         // Iterate over each row from bottom to top
@@ -96,7 +96,10 @@ class GameBoard {
           this.numBlocksInColumn[col]=this.numBlocksInColumn[col+1];
         }
       }
-      this.needsgravity = false;
+      this.needsPop = false;
+      if(gridloc){
+        this.hover(gridloc);
+      }
     }
   }
 
