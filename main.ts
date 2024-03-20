@@ -52,7 +52,7 @@ async function main() {
     //   }
   }
 
-  const renderer = new Renderer(canvas, gameBoard.blocks, gameSettings);
+  const renderer = new Renderer(canvas, gameBoard.grid, gameSettings);
 
   function handleMouseClick(event: MouseEvent) {
     // Get mouse coordinates relative to canvas

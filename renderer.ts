@@ -2,28 +2,28 @@ import GameSettings from "./gamesettings.js";
 
 
 interface Block {
-    i: number;
-    j: number;
-    id: number;
-  }
+  row: number;
+  col: number;
+  id: number;
+}
 
-  
+
 class Renderer {
   private canvas: HTMLCanvasElement;
   private ctx: CanvasRenderingContext2D | null;
-  private blocks: (Block | null)[] = [];
+  private grid!: (Block | null)[][];
   private gameSettings: GameSettings;
 
   constructor(
     canvas: HTMLCanvasElement,
-    blocks: (Block | null)[] = [],
+    grid: (Block | null)[][],
     gameSettings: GameSettings
   ) {
     this.canvas = canvas;
     this.ctx = canvas.getContext("2d");
-    this.blocks = blocks;
+    this.grid = grid;
     this.gameSettings = gameSettings;
-    
+
     this.adjustCanvasSize();
     window.addEventListener("resize", this.adjustCanvasSize.bind(this));
   }
@@ -36,28 +36,16 @@ class Renderer {
     // Clear canvas
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
-    for(const block of this.blocks){
-        if(block){
-            const color = this.gameSettings.blockColors[block.id];
-            const x = block.j * this.gameSettings.blockSize;
-            const y = block.i * this.gameSettings.blockSize;
-            this.renderBlock(x,y,this.gameSettings.blockSize, this.gameSettings.blockSize, color);
+    for (const row of this.grid) {
+      for (const block of row) {
+        if (block) {
+          const color = this.gameSettings.blockColors[block.id];
+          const x = block.col * this.gameSettings.blockSize;
+          const y = block.row * this.gameSettings.blockSize;
+          this.renderBlock(x, y, this.gameSettings.blockSize, this.gameSettings.blockSize, color);
         }
-        
+      }
     }
-    // // Render game elements
-    // for (let row = 0; row < this.gameSettings.numRows; row++) {
-    //   for (let col = 0; col < this.gameSettings.numColumns; col++) {
-    //     const identity = this.grid[row][col];
-    //     if (identity !== null) {
-    //       // Only render blocks with non-null identity
-    //       const color = this.gameSettings.blockColors[identity];
-    //       const x = col * this.gameSettings.blockSize;
-    //       const y = row * this.gameSettings.blockSize;
-    //       this.renderBlock(x, y, this.gameSettings.blockSize, this.gameSettings.blockSize, color);
-    //     }
-    //   }
-    // }
   }
 
   adjustCanvasSize() {
