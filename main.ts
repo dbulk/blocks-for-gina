@@ -28,7 +28,6 @@ async function main() {
     gameBoard.hover({row,col})
   }
   canvas.addEventListener("mousemove", handleMouseHover);
-
   canvas.addEventListener("mouseleave", gameBoard.mouseExit.bind(gameBoard));
 
   function gameLoop() {
@@ -36,6 +35,7 @@ async function main() {
     
     renderer.renderBlocks();
     renderer.renderPreview(gameBoard.blocksToPop);
+    renderer.renderScoreBoard();
 
     // Schedule the next iteration of the game loop
     requestAnimationFrame(gameLoop);
