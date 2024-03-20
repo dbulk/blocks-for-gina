@@ -1,9 +1,12 @@
+import { countReset } from "console";
 import GameSettings from "./gamesettings.js";
+import { timingSafeEqual } from "crypto";
 
 interface coordinate {
   row: number;
   col: number;
 }
+
 class GameBoard {
   private gameSettings: GameSettings;
   grid: (number | null)[][] = [];
@@ -19,8 +22,9 @@ class GameBoard {
     for (let row = 0; row < gameSettings.numRows; row++) {
       this.grid[row] = Array(this.gameSettings.numColumns).fill(null);
       for (let col = 0; col < gameSettings.numColumns; col++) {
-        const id = Math.floor(Math.random() * gameSettings.numBlockTypes);
-        this.grid[row][col] = id;
+        //const id = Math.floor(Math.random() * gameSettings.numBlockTypes);
+        const id = col % gameSettings.numBlockTypes
+                this.grid[row][col] = id;
       }
     }
     this.numBlocksInColumn = new Array(gameSettings.numColumns).fill(
@@ -55,50 +59,51 @@ class GameBoard {
 
   update() {
     if(this.needsPop){
+      const blocksToMove: Map<String, number> = new Map();
+
       for (const coord of this.blocksToPop) {
         this.grid[coord.row][coord.col] = null;
+        // now add all rows less than this row to the map:
+        for(let row = 0; row < coord.row; row++){
+          const key = `${row},${coord.col}`;
+          const prevValue = blocksToMove.get(key);
+          blocksToMove.set(key, prevValue ? prevValue+1 : 1);
+        }
         this.numBlocksInColumn[coord.col]--;
       }
       this.blocksToPop=[];
-      const gridloc = this.hoverCache ? {row: this.hoverCache.row, col: this.hoverCache.col} : null;      
+      const cursorLocation = this.hoverCache ? {row: this.hoverCache.row, col: this.hoverCache.col} : null;      
       this.hoverCache = null;
-      const grid = this.grid;
-      for (let col = 0; col < grid[0].length; col++) {
-        // Iterate over each row from bottom to top
-        for (let row = grid.length - 1; row >= 0; row--) {
-          // If the current block is empty, search for the nearest non-empty block above it
-          if (grid[row][col] === null) {
-            // Start searching from the current row and move upwards
-            let aboveRow = row - 1;
-            while (aboveRow >= 0) {
-              // If a non-empty block is found, move it down to fill the empty space
-              if (grid[aboveRow][col] !== null) {
-                // Move the block down
-                grid[row][col] = grid[aboveRow][col];
-                // Set the original position to empty
-                grid[aboveRow][col] = null;
-                break; // Exit the loop once the block is moved
-              }
-              aboveRow--;
-            }
+
+      // Important to apply the move from bottom to top:
+      for(let row = this.grid.length-2;row >=0;row--){
+        for(let col = 0; col < this.grid[0].length; col++){
+          const key = `${row},${col}`;
+          const val = blocksToMove.get(key);
+          if(val !== undefined){
+            this.grid[row+val][col] = this.grid[row][col];
+            this.grid[row][col] = null;
           }
         }
       }
+
       // now move blocks to the left:
-      for (let col = 0; col < this.gameSettings.numColumns; col++){
-        if(this.numBlocksInColumn[col] == 0) {
-          // move the column to the left
-          for (let c = col; c < this.gameSettings.numColumns; c++){
-            for(let row = 0; row < this.gameSettings.numRows; row++){
-              grid[row][c] = grid[row][c+1];
-            }
+      const leftShift = this.numBlocksInColumn.map((val)=>val===0).map((sum => value => sum += value ? 1 : 0)(0));
+
+      for (let col = 1; col < this.gameSettings.numColumns; col++) {
+        const mv = leftShift[col-1];
+        if(mv) {
+          for(let row = 0; row < this.gameSettings.numRows; row++) {
+            this.grid[row][col-mv] = this.grid[row][col];
+            this.grid[row][col]=null;
           }
-          this.numBlocksInColumn[col]=this.numBlocksInColumn[col+1];
+          this.numBlocksInColumn[col-mv]=this.numBlocksInColumn[col];
+          this.numBlocksInColumn[col]=0;
         }
       }
       this.needsPop = false;
-      if(gridloc){
-        this.hover(gridloc);
+      if(cursorLocation){
+        this.hover(cursorLocation);
       }
     }
   }

@@ -16,7 +16,7 @@ async function main() {
   await gameSettings.loadSettings(settingsFilePath);
 
   const gameBoard = new GameBoard(gameSettings);
-  const renderer = new Renderer(canvas, gameBoard.grid, gameSettings);
+  const renderer = new Renderer(canvas, gameBoard, gameSettings);
 
   canvas.addEventListener("click", gameBoard.click.bind(gameBoard));
 

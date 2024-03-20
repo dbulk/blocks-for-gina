@@ -1,7 +1,5 @@
 import GameSettings from "./gamesettings.js";
-
-
-const scorePanelSize = 50;
+import GameBoard from "./gameboard.js";
 
 interface coordinate {
   row: number;
@@ -11,17 +9,18 @@ interface coordinate {
 class Renderer {
   private canvas: HTMLCanvasElement;
   private ctx: CanvasRenderingContext2D | null;
-  private grid: (number | null)[][];
+  private board: GameBoard;
   private gameSettings: GameSettings;
+  private scorePanelSize = 50;
 
   constructor(
     canvas: HTMLCanvasElement,
-    grid: (number | null)[][],
+    gameboard: GameBoard,
     gameSettings: GameSettings
   ) {
     this.canvas = canvas;
     this.ctx = canvas.getContext("2d");
-    this.grid = grid;
+    this.board = gameboard;
     this.gameSettings = gameSettings;
 
     this.adjustCanvasSize();
@@ -29,16 +28,15 @@ class Renderer {
   }
 
   renderBlocks() {
-    // Implement rendering logic
     if (!this.ctx) {
       return;
     }
     // Clear canvas
-    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height-scorePanelSize);
+    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height+this.scorePanelSize);
 
-    for(let row = 0; row < this.grid.length; row++){
-      for(let col = 0; col < this.grid[row].length; col++){
-        const id = this.grid[row][col];
+    for(let row = 0; row < this.board.grid.length; row++){
+      for(let col = 0; col < this.board.grid[row].length; col++){
+        const id = this.board.grid[row][col];
         if(id!=null){
           this.renderBlock(row,col,30);
         }
@@ -53,7 +51,7 @@ class Renderer {
     }
 
     for(const c of coords){
-      const id = this.grid[c.row][c.col];
+      const id = this.board.grid[c.row][c.col];
         if(id!==null){
           this.renderBlock(c.row,c.col,-10);
         }
@@ -68,7 +66,10 @@ class Renderer {
     // Set canvas size
     this.canvas.width = newCanvasWidth;
     const AR = this.gameSettings.numRows / this.gameSettings.numColumns;
-    this.canvas.height = this.canvas.width * AR + scorePanelSize;
+
+    const boardheight = this.canvas.width * AR;
+    this.scorePanelSize = boardheight * .1;
+    this.canvas.height = boardheight + this.scorePanelSize;
 
     this.gameSettings.blockSize = this.canvas.width / this.gameSettings.numColumns;
     this.renderBlocks();
@@ -76,18 +77,18 @@ class Renderer {
 
   getGridIndicesFromMouse(mouseX: number, mouseY: number): [number, number] {
     const clickedCol = Math.floor(mouseX / this.gameSettings.blockSize);
-    const clickedRow = Math.floor((mouseY-scorePanelSize) / this.gameSettings.blockSize);
+    const clickedRow = Math.floor((mouseY-this.scorePanelSize) / this.gameSettings.blockSize);
     return [clickedRow, clickedCol];
   }
 
   private renderBlock(row: number, col: number, lightenPercent: number): void {
     if(!this.ctx){return;}
-    const id = this.grid[row][col];
+    const id = this.board.grid[row][col];
     if(id===null){return;};
     const sz = this.gameSettings.blockSize;
     const color = this.gameSettings.blockColors[id];
     const x = col * sz;
-    const y = row * sz+scorePanelSize;
+    const y = row * sz+this.scorePanelSize;
     
       const gradient = this.ctx.createLinearGradient(x,y,x+sz,y+sz);
       gradient.addColorStop(0, this.lightenColor(color, lightenPercent));
@@ -122,14 +123,25 @@ class Renderer {
       return;
     }
     this.ctx.fillStyle = "grey";
-    this.ctx.fillRect(0,0,this.canvas.width,scorePanelSize);
+    this.ctx.fillRect(0,0,this.canvas.width,this.scorePanelSize);
     
     this.ctx.strokeStyle = "black";
     this.ctx.lineWidth = 2; // Adjust the line width as needed
     this.ctx.beginPath();
-    this.ctx.moveTo(0, scorePanelSize); // Start from the top-left corner of the rectangle
-    this.ctx.lineTo(this.canvas.width, scorePanelSize); // Draw a line to the top-right corner
-    this.ctx.stroke(); // Draw the line
+    this.ctx.moveTo(0, this.scorePanelSize); // Start from the top-left corner of the rectangle
+    this.ctx.lineTo(this.canvas.width, this.scorePanelSize); // Draw a line to the top-right corner
+    this.ctx.stroke(); // Draw the lin
+    
+    
+    const fontSize = this.scorePanelSize-10; // Font size in pixels
+    const fontFamily = 'Arial'; // Font family
+    this.ctx.font = `${fontSize}px ${fontFamily}`;
+    this.ctx.fillStyle="black";
+    this.ctx.textAlign = "left";
+    this.ctx.textBaseline = "ideographic";
+    const blocksleft = this.board.numBlocksInColumn.reduce((a,v) => a+v,0);
+    this.ctx.fillText(`Blocks: ${blocksleft}`,10,this.scorePanelSize-5);
+    
   }
 }
 
