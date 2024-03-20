@@ -2,6 +2,10 @@ import Renderer from "./renderer.js";
 import GameSettings from "./gamesettings.js";
 import GameBoard from "./gameboard.js"
 
+interface coordinate {
+  row: number;
+  col: number;
+}
 
 // Get the canvas element
 const canvas = document.getElementById("myCanvas") as HTMLCanvasElement;
@@ -12,46 +16,6 @@ async function main() {
   await gameSettings.loadSettings(settingsFilePath);
 
   const gameBoard = new GameBoard(gameSettings);
-
-  function updateGame() {
-    // Update game state (if needed)
-    // Handle block movement after flood fill
-    //   for (let col = 0; col < gameSettings.numColumns; col++) {
-    //     // Move blocks down if there's a null underneath
-    //     for (let row = gameSettings.numRows - 2; row >= 0; row--) {
-    //       if (grid[row][col] !== null && grid[row + 1][col] === null) {
-    //         // Move the block down
-    //         grid[row + 1][col] = grid[row][col];
-    //         grid[row][col] = null;
-    //       }
-    //     }
-    //   }
-    //   // Accumulate the number of moves needed to shift blocks left
-    //   const numMovesToLeft: number[] = new Array(gameSettings.numColumns).fill(0);
-    //   for (let col = gameSettings.numColumns - 1; col >= 0; col--) {
-    //     if (numBlocksInColumn[col] === 0) {
-    //       // Count the number of blocks to the right that need to move left
-    //       for (
-    //         let moveCol = col + 1;
-    //         moveCol < gameSettings.numColumns;
-    //         moveCol++
-    //       ) {
-    //         numMovesToLeft[moveCol]++;
-    //       }
-    //     }
-    //   }
-    //   for (let col = 0; col < gameSettings.numColumns; col++) {
-    //     if (numMovesToLeft[col]) {
-    //       for (let row = 0; row < gameSettings.numRows; row++) {
-    //         grid[row][col - numMovesToLeft[col]] = grid[row][col];
-    //         grid[row][col] = null;
-    //       }
-    //       numBlocksInColumn[col - numMovesToLeft[col]] = numBlocksInColumn[col];
-    //       numBlocksInColumn[col] = 0;
-    //     }
-    //   }
-  }
-
   const renderer = new Renderer(canvas, gameBoard.grid, gameSettings);
 
   function handleMouseClick(event: MouseEvent) {
@@ -61,14 +25,38 @@ async function main() {
     const mouseY = event.clientY - rect.top;
 
     // Convert mouse coordinates to grid indices
-    const [clickedRow, clickedCol] = renderer.getGridIndicesFromMouse(
+    const [row, col] = renderer.getGridIndicesFromMouse(
       mouseX,
       mouseY
     );
 
-    gameBoard.click(clickedRow, clickedCol);
+    gameBoard.click({row, col});
   }  
   canvas.addEventListener("click", handleMouseClick);
+
+  const hoverCache: coordinate = {row: -1, col: -1};
+
+  let previewBlocks : coordinate[] = [];
+  function handleMouseHover(event: MouseEvent) {
+    const rect = canvas.getBoundingClientRect();
+    const mouseX = event.clientX - rect.left;
+    const mouseY = event.clientY - rect.top;
+
+    const [row, col] = renderer.getGridIndicesFromMouse(mouseX, mouseY);
+    if((row != hoverCache.row || col != hoverCache.col) && gameBoard.isLocationInGrid({row, col})) {
+      const coords = gameBoard.getFloodedCoordinates({row,col});
+      previewBlocks = coords.length > 1 ? coords : [];
+      hoverCache.row = row;
+      hoverCache.col = col;
+    }
+  }
+  canvas.addEventListener("mousemove", handleMouseHover);
+
+  function handleMouseExit(event:MouseEvent) {
+    hoverCache.row = -1;
+    hoverCache.col = -1;
+  }
+  canvas.addEventListener("mouseleave", handleMouseExit);
 
   function gameLoop() {
     gameBoard.update();
@@ -78,6 +66,7 @@ async function main() {
     // Render phase
     // renderGame();
     renderer.renderBlocks();
+    renderer.renderPreview(previewBlocks);
 
     // Schedule the next iteration of the game loop
     requestAnimationFrame(gameLoop);

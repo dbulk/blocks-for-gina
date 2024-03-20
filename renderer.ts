@@ -1,22 +1,15 @@
 import GameSettings from "./gamesettings.js";
 
 
-interface Block {
-  row: number;
-  col: number;
-  id: number;
-}
-
-
 class Renderer {
   private canvas: HTMLCanvasElement;
   private ctx: CanvasRenderingContext2D | null;
-  private grid!: (Block | null)[][];
+  private grid: (number | null)[][];
   private gameSettings: GameSettings;
 
   constructor(
     canvas: HTMLCanvasElement,
-    grid: (Block | null)[][],
+    grid: (number | null)[][],
     gameSettings: GameSettings
   ) {
     this.canvas = canvas;
@@ -36,12 +29,28 @@ class Renderer {
     // Clear canvas
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
-    for (const row of this.grid) {
-      for (const block of row) {
-        if (block) {
-          this.renderBlock(block);
+    for(let row = 0; row < this.grid.length; row++){
+      for(let col = 0; col < this.grid[row].length; col++){
+        const id = this.grid[row][col];
+        if(id!=null){
+          this.renderBlock(row,col,id);
         }
       }
+    }
+  }
+
+  
+  renderPreview(coords) {
+    // Implement rendering logic
+    if (!this.ctx) {
+      return;
+    }
+
+    for(const c of coords){
+      const id = this.grid[c.row][c.col];
+        if(id!=null){
+          this.renderBlock(c.row,c.col,id,false);
+        }
     }
   }
 
@@ -65,20 +74,21 @@ class Renderer {
     return [clickedRow, clickedCol];
   }
 
-  private renderBlock(b: Block): void {
+  private renderBlock(row: number, col: number, id: number, dolighten: boolean = true): void {
     if(!this.ctx){return;}
     const sz = this.gameSettings.blockSize;
-    const color = this.gameSettings.blockColors[b.id];
-    const x = b.col * sz;
-    const y = b.row * sz;
-        
-    const gradient = this.ctx.createLinearGradient(x,y,x+sz,y+sz);
-    gradient.addColorStop(0, this.lightenColor(color,30));
-    gradient.addColorStop(1,color);
-
-    this.ctx.fillStyle = gradient;
-    this.ctx.fillRect(x,y,sz,sz);
+    const color = this.gameSettings.blockColors[id];
+    const x = col * sz;
+    const y = row * sz;
     
+    if(dolighten){
+      const gradient = this.ctx.createLinearGradient(x,y,x+sz,y+sz);
+      gradient.addColorStop(0, this.lightenColor(color,30));
+      gradient.addColorStop(1,color);
+      this.ctx.fillStyle = gradient;  
+    }
+    
+    this.ctx.fillRect(x,y,sz,sz);
   }
 
   private lightenColor(color: string, percent: number): string {
