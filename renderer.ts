@@ -145,7 +145,9 @@ class Renderer {
     this.ctx.fillText( blocksSelected ? `Blocks: ${blocksRemaining} (${blocksSelected})` : `Blocks: ${blocksRemaining}`,10,this.scorePanelSize-5);
     
     this.ctx.textAlign = "right";
-    this.ctx.fillText( blocksSelected ? `Score: ${this.board.score} (${blocksSelected**2})` : `Score: ${this.board.score}`,this.canvas.width-10,this.scorePanelSize-5);
+    const score = this.board.score;
+    const selScore = this.board.computeScore(blocksSelected);
+    this.ctx.fillText( blocksSelected ? `Score: ${score} (${selScore})` : `Score: ${score}`,this.canvas.width-10,this.scorePanelSize-5);
   }
 }
 
