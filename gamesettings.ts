@@ -1,6 +1,5 @@
 
 class GameSettings {
-    blockSize!: number;
     numColumns!: number;
     numRows!: number;
     blockColors!: string[];
@@ -15,7 +14,6 @@ class GameSettings {
             }
             const settings = await response.json();
 
-            this.blockSize = settings.blockSize;
             this.numColumns = settings.numColumns;
             this.numRows = settings.numRows;
             this.blockColors = settings.colors;

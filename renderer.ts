@@ -12,6 +12,7 @@ class Renderer {
   private board: GameBoard;
   private gameSettings: GameSettings;
   private scorePanelSize = 50;
+  private blockSize: number = 0;
 
   constructor(
     canvas: HTMLCanvasElement,
@@ -68,16 +69,17 @@ class Renderer {
     const AR = this.gameSettings.numRows / this.gameSettings.numColumns;
 
     const boardheight = this.canvas.width * AR;
-    this.scorePanelSize = boardheight * .1;
+    this.scorePanelSize = Math.min(boardheight * .1,50);
     this.canvas.height = boardheight + this.scorePanelSize;
 
-    this.gameSettings.blockSize = this.canvas.width / this.gameSettings.numColumns;
+    this.blockSize = this.canvas.width / this.gameSettings.numColumns;
     this.renderBlocks();
   }
 
   getGridIndicesFromMouse(mouseX: number, mouseY: number): [number, number] {
-    const clickedCol = Math.floor(mouseX / this.gameSettings.blockSize);
-    const clickedRow = Math.floor((mouseY-this.scorePanelSize) / this.gameSettings.blockSize);
+    
+    const clickedCol = Math.floor(mouseX / this.blockSize);
+    const clickedRow = Math.floor((mouseY-this.scorePanelSize) / this.blockSize);
     return [clickedRow, clickedCol];
   }
 
@@ -85,7 +87,7 @@ class Renderer {
     if(!this.ctx){return;}
     const id = this.board.grid[row][col];
     if(id===null){return;};
-    const sz = this.gameSettings.blockSize;
+    const sz = this.blockSize;
     const color = this.gameSettings.blockColors[id];
     const x = col * sz;
     const y = row * sz+this.scorePanelSize;

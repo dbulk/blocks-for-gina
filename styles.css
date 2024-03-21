@@ -7,7 +7,7 @@ html, body {
 .container {
     display: flex;
     justify-content: center; /* Center horizontally */
-    align-items: center; /* Center vertically */
+    align-items: start; /* Center vertically */
     height: 100%;
 }
 
