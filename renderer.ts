@@ -89,17 +89,17 @@ class Renderer {
     if (id === null) { return; };
     const sz = this.blockSize;
     const color = this.gameSettings.blockColors[id];
-    const x = col * sz;
-    const y = row * sz + this.scorePanelSize;
+    const offsetx = this.board.offsetx[row][col] * sz;
+    const offsety = this.board.offsety[row][col] * sz;
+    const x = col * sz + offsetx;
+    const y = row * sz + this.scorePanelSize - offsety;
 
     const gradient = this.ctx.createLinearGradient(x, y, x + sz, y + sz);
     gradient.addColorStop(0, this.lightenColor(color, lightenPercent));
     gradient.addColorStop(1, color);
     this.ctx.fillStyle = gradient;
-
     this.ctx.fillRect(x, y, sz, sz);
 
-    
     if(this.gameSettings.blockLabels){
       const fontFamily = 'Arial'; // Font family
       this.ctx.font = `${this.blockSize/2}px ${fontFamily}`;

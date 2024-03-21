@@ -8,6 +8,9 @@ interface coordinate {
 class GameBoard {
   private gameSettings: GameSettings;
   grid: (number | null)[][] = [];
+  offsety: number[][] = [];
+  offsetx: number[][] = [];
+  doAnimation = false;
   numBlocksInColumn: number[] = [];
   needsPop = false;
   blocksToPop: coordinate[] = [];
@@ -64,6 +67,10 @@ class GameBoard {
       this.hoverCache = null;
 
       // Important to apply the move from bottom to top:
+      for (let row = 0; row < this.gameSettings.numRows; row++) {
+        this.offsety[row] = Array(this.gameSettings.numColumns).fill(0);
+        this.offsetx[row] = Array(this.gameSettings.numColumns).fill(0);
+      }
       for (let row = this.grid.length - 2; row >= 0; row--) {
         for (let col = 0; col < this.grid[0].length; col++) {
           const key = `${row},${col}`;
@@ -71,6 +78,8 @@ class GameBoard {
           if (val !== undefined) {
             this.grid[row + val][col] = this.grid[row][col];
             this.grid[row][col] = null;
+            this.offsety[row+val][col] = val;
+            this.doAnimation = true;
           }
         }
       }
@@ -83,6 +92,7 @@ class GameBoard {
         if (mv) {
           for (let row = 0; row < this.gameSettings.numRows; row++) {
             this.grid[row][col - mv] = this.grid[row][col];
+            this.offsetx[row][col-mv] = mv;
             this.grid[row][col] = null;
           }
           this.numBlocksInColumn[col - mv] = this.numBlocksInColumn[col];
@@ -163,6 +173,10 @@ class GameBoard {
     this.numBlocksInColumn = new Array(this.gameSettings.numColumns).fill(
       this.gameSettings.numRows
     );
+    for (let row = 0; row < this.gameSettings.numRows; row++) {
+      this.offsetx[row] = Array(this.gameSettings.numColumns).fill(0);
+      this.offsety[row] = Array(this.gameSettings.numColumns).fill(0);
+    }
   }
 }
 export default GameBoard;

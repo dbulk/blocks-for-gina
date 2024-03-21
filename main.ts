@@ -30,9 +30,34 @@ async function main() {
   canvas.addEventListener("mousemove", handleMouseHover);
   canvas.addEventListener("mouseleave", gameBoard.mouseExit.bind(gameBoard));
 
+  const moverate = 0.2;
+  function animationLoop(){
+    renderer.renderBlocks();
+    
+    // todo: add a clock
+    let turnItOff = true;
+    for(let r = 0; r < gameSettings.numRows; r++){
+      for(let c = 0; c < gameSettings.numColumns; c++){
+        gameBoard.offsetx[r][c] = Math.max(gameBoard.offsetx[r][c] - moverate, 0);
+        gameBoard.offsety[r][c] = Math.max(gameBoard.offsety[r][c] - moverate, 0);
+        if(gameBoard.offsetx[r][c]>0 || gameBoard.offsety[r][c]>0){
+          turnItOff=false;
+        }
+      }
+    }
+    if(turnItOff){
+      gameBoard.doAnimation = false;
+    } else {
+      requestAnimationFrame(animationLoop);
+    }
+  }
   function gameLoop() {
     gameBoard.update();
     
+    if (gameBoard.doAnimation) {
+      requestAnimationFrame(animationLoop);
+    }
+  
     renderer.renderBlocks();
     renderer.renderPreview(gameBoard.blocksToPop);
     renderer.renderScoreBoard();
