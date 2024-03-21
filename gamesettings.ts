@@ -5,6 +5,7 @@ class GameSettings {
     blockColors!: string[];
     numBlockTypes!: number;
     clusterStrength!: number;
+    blockLabels!: boolean
       
     async loadSettings(filePath: string): Promise<void> {
         try {
@@ -19,6 +20,7 @@ class GameSettings {
             this.blockColors = settings.colors;
             this.numBlockTypes = this.blockColors.length;
             this.clusterStrength = settings.clusterStrength;            
+            this.blockLabels = settings.blockLabels;
         } catch (error: any) {
             throw new Error('Error loading game settings: ' + error.message);
         }
