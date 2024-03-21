@@ -146,7 +146,7 @@ class GameBoard {
   }
 
   computeScore(n: number): number {
-    return 10 * (n ** 2 + 2 * n + (n > 12 ? n ** 3 : 0));
+    return 5 * (n ** 2 + 2 * n + (n > 12 ? n ** 3 : 0));
   }
 
 
