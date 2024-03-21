@@ -130,18 +130,22 @@ class Renderer {
     this.ctx.beginPath();
     this.ctx.moveTo(0, this.scorePanelSize); // Start from the top-left corner of the rectangle
     this.ctx.lineTo(this.canvas.width, this.scorePanelSize); // Draw a line to the top-right corner
-    this.ctx.stroke(); // Draw the lin
+    this.ctx.stroke(); // Draw the line
     
     
     const fontSize = this.scorePanelSize-10; // Font size in pixels
     const fontFamily = 'Arial'; // Font family
     this.ctx.font = `${fontSize}px ${fontFamily}`;
     this.ctx.fillStyle="black";
+
     this.ctx.textAlign = "left";
     this.ctx.textBaseline = "ideographic";
-    const blocksleft = this.board.numBlocksInColumn.reduce((a,v) => a+v,0);
-    this.ctx.fillText(`Blocks: ${blocksleft}`,10,this.scorePanelSize-5);
+    const blocksRemaining = this.board.numBlocksInColumn.reduce((a,v) => a+v,0);
+    const blocksSelected = this.board.blocksToPop.length;
+    this.ctx.fillText( blocksSelected ? `Blocks: ${blocksRemaining} (${blocksSelected})` : `Blocks: ${blocksRemaining}`,10,this.scorePanelSize-5);
     
+    this.ctx.textAlign = "right";
+    this.ctx.fillText( blocksSelected ? `Score: ${this.board.score} (${blocksSelected**2})` : `Score: ${this.board.score}`,this.canvas.width-10,this.scorePanelSize-5);
   }
 }
 

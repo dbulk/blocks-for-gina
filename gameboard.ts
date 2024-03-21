@@ -1,6 +1,4 @@
-import { countReset } from "console";
 import GameSettings from "./gamesettings.js";
-import { timingSafeEqual } from "crypto";
 
 interface coordinate {
   row: number;
@@ -14,17 +12,29 @@ class GameBoard {
   needsPop = false;
   blocksToPop : coordinate[] = [];
   hoverCache: (coordinate | null) = null;
+  score: number = 0;
 
   constructor(gameSettings: GameSettings) {
     this.gameSettings = gameSettings;
 
+    const clusterstrength = 0.1;
     // initialize blocks
     for (let row = 0; row < gameSettings.numRows; row++) {
       this.grid[row] = Array(this.gameSettings.numColumns).fill(null);
       for (let col = 0; col < gameSettings.numColumns; col++) {
-        //const id = Math.floor(Math.random() * gameSettings.numBlockTypes);
-        const id = col % gameSettings.numBlockTypes
-                this.grid[row][col] = id;
+        let id = Math.floor(Math.random() * gameSettings.numBlockTypes);
+        //const id = col % gameSettings.numBlockTypes
+        if(Math.random() < clusterstrength && (row > 0 || col > 0)) {
+          const neighbors = [];
+          if(row > 0) neighbors.push({row: row-1, col: col});
+          if(col > 0) neighbors.push({row: row, col: col-1});
+          if(row > 0 && col>0) neighbors.push({row: row-1, col: col-1});
+          const src = neighbors[Math.floor(Math.random() * neighbors.length)];
+          const newid = this.grid[src.row][src.col]
+          if(newid !== null) id = newid;
+
+        }
+        this.grid[row][col] = id;
       }
     }
     this.numBlocksInColumn = new Array(gameSettings.numColumns).fill(
@@ -36,6 +46,7 @@ class GameBoard {
     if(this.blocksToPop.length){
       // Clicking just indicates that blocks should pop on the next update
       this.needsPop = true;
+      this.score+=this.blocksToPop.length**2;
     }
   }
 
@@ -145,6 +156,10 @@ class GameBoard {
 
     fill(coord);
     return ret;
+  }
+
+  computeScore(n : number) : number {
+    return n**2 + 2*n + n > 12 ? n**3 : 0;
   }
 }
 export default GameBoard;
