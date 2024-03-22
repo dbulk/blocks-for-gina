@@ -2,6 +2,24 @@ import Renderer from "./renderer.js";
 import GameSettings from "./gamesettings.js";
 import GameBoard from "./gameboard.js"
 
+
+// todo:
+/// cleanups:
+///   concerns...
+///     game state
+///     rendering
+///     settings
+///     score?
+///
+/// instancing?
+/// scoreboard update out of render
+/// game settings on web
+/// new game button
+/// clock for animation
+/// ability to save and load state
+/// high score in cookies
+/// minify
+
 interface coordinate {
   row: number;
   col: number;

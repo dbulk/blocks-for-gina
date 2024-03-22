@@ -6,6 +6,9 @@ interface coordinate {
   col: number;
 }
 
+ // todo: compute this? compute max num blocks?
+const MAXBLOCKSIZE = 100;
+
 class Renderer {
   private canvas: HTMLCanvasElement;
   private ctx: CanvasRenderingContext2D | null;
@@ -13,6 +16,7 @@ class Renderer {
   private gameSettings: GameSettings;
   private scorePanelSize = 50;
   private blockSize: number = 0;
+  private blockCanvases: HTMLCanvasElement[] = [];
 
   constructor(
     canvas: HTMLCanvasElement,
@@ -24,6 +28,14 @@ class Renderer {
     this.board = gameboard;
     this.gameSettings = gameSettings;
 
+    // create an offscreen canvas for each block type:
+    for (let i = 0; i < gameSettings.blockColors.length; i++) {
+        const canvas = document.createElement('canvas');
+        canvas.width = MAXBLOCKSIZE;
+        canvas.height = MAXBLOCKSIZE;
+        this.blockCanvases.push(canvas);
+    }
+    
     this.adjustCanvasSize();
     window.addEventListener("resize", this.adjustCanvasSize.bind(this));
   }
@@ -32,6 +44,10 @@ class Renderer {
     if (!this.ctx) {
       return;
     }
+
+    // Set up an offscreen canvas for each block type
+    this.createOffscrenCanvases(30);
+
     // Clear canvas
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height + this.scorePanelSize);
 
@@ -39,7 +55,7 @@ class Renderer {
       for (let col = 0; col < this.board.grid[row].length; col++) {
         const id = this.board.grid[row][col];
         if (id != null) {
-          this.renderBlock(row, col, 30);
+          this.renderBlock(row, col);
         }
       }
     }
@@ -50,11 +66,12 @@ class Renderer {
     if (!this.ctx) {
       return;
     }
+    this.createOffscrenCanvases(-10);
 
     for (const c of coords) {
       const id = this.board.grid[c.row][c.col];
       if (id !== null) {
-        this.renderBlock(c.row, c.col, -10);
+        this.renderBlock(c.row, c.col);
       }
     }
   }
@@ -83,32 +100,44 @@ class Renderer {
     return [clickedRow, clickedCol];
   }
 
-  private renderBlock(row: number, col: number, lightenPercent: number): void {
+  private createOffscrenCanvases(lightStrength: number):void {
+    for (let i = 0; i < this.blockCanvases.length; i++) {
+      const canvas = this.blockCanvases[i];
+      const color = this.gameSettings.blockColors[i];
+      const ctx = canvas.getContext('2d');
+      if(ctx) {
+        const gradient = ctx.createLinearGradient(0, 0, MAXBLOCKSIZE, MAXBLOCKSIZE);
+        gradient.addColorStop(0, this.lightenColor(color, lightStrength));
+        gradient.addColorStop(1, color);
+        ctx.fillStyle = gradient;
+        // todo: 100 is the MAXBLOCKSIZE
+        ctx.fillRect(0, 0, MAXBLOCKSIZE, MAXBLOCKSIZE);
+        
+        if(this.gameSettings.blockLabels){
+          const fontFamily = 'Arial'; // Font family
+          ctx.font = `${MAXBLOCKSIZE/2}px ${fontFamily}`;
+          ctx.fillStyle = "black";
+          ctx.textAlign = "center";
+          ctx.textBaseline = "middle";
+          const lbl = String.fromCharCode('A'.charCodeAt(0) + i);
+          ctx.fillText(`${lbl}`, MAXBLOCKSIZE/2, MAXBLOCKSIZE/2);  
+        }
+      }
+    }
+
+  }
+  private renderBlock(row: number, col: number): void {
     if (!this.ctx) { return; }
     const id = this.board.grid[row][col];
     if (id === null) { return; };
     const sz = this.blockSize;
-    const color = this.gameSettings.blockColors[id];
     const offsetx = this.board.offsetx[row][col] * sz;
     const offsety = this.board.offsety[row][col] * sz;
     const x = col * sz + offsetx;
     const y = row * sz + this.scorePanelSize - offsety;
 
-    const gradient = this.ctx.createLinearGradient(x, y, x + sz, y + sz);
-    gradient.addColorStop(0, this.lightenColor(color, lightenPercent));
-    gradient.addColorStop(1, color);
-    this.ctx.fillStyle = gradient;
-    this.ctx.fillRect(x, y, sz, sz);
+    this.ctx.drawImage(this.blockCanvases[id], x, y, sz, sz);
 
-    if(this.gameSettings.blockLabels){
-      const fontFamily = 'Arial'; // Font family
-      this.ctx.font = `${this.blockSize/2}px ${fontFamily}`;
-      this.ctx.fillStyle = "black";
-      this.ctx.textAlign = "center";
-      this.ctx.textBaseline = "middle";
-      const lbl = String.fromCharCode('A'.charCodeAt(0) + id);
-      this.ctx.fillText(`${lbl}`, x+this.blockSize/2, y+this.blockSize/2);  
-    }
   }
 
   private lightenColor(color: string, percent: number): string {
