@@ -34,19 +34,78 @@ import GameBoard from "./gameboard.js"
 /// FR tracking
 /// adjust score algo
 /// add clock
+/// sounds
+/// make it a custom
+interface elements {
+  canvas: HTMLCanvasElement;
+  ui: HTMLDivElement;
+}
+function setupPage(): (elements | null) {
+  const divTarget = document.getElementById('Blocks4Gina');
+  if (!divTarget) {
+    console.error("no div for game found");
+    return null;
+  }
 
-interface coordinate {
-  row: number;
-  col: number;
+  const div = document.createElement('div');
+  div.className = "blocks4Gina";
+  const styleElement = document.createElement("style");
+  styleElement.textContent = `  
+  .blocks4Gina canvas {
+    border: 1px solid;
+  }
+    
+  .blocks4Gina button {
+    background-color: #555;
+    border: none;
+    color: #fff;
+    padding: 15px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    cursor: pointer;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  }
+
+  .blocks4Gina button:hover {
+    background-color: #777;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+  }
+
+  .blocks4Gina button:active {
+    background-color: #444;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  }
+  `;
+
+  divTarget.style.display = "flex";
+  divTarget.style.justifyContent = "center";
+  divTarget.style.alignItems = "start";
+  divTarget.style.height = "100%";
+
+
+    document.head.appendChild(styleElement);
+  (divTarget as HTMLElement).appendChild(div);
+
+  const canvas = document.createElement('canvas');
+  const ui = document.createElement('div');
+
+  canvas.style.display = "block";
+  ui.style.display = "block";
+
+  div.appendChild(canvas);
+  div.appendChild(ui);
+  return { canvas, ui };
 }
 
-const divTarget = document.getElementById('Blocks4Gina');
-const canvas = document.createElement('canvas');
-if(divTarget) divTarget.appendChild(canvas)
-
-async function main() {
+async function main(el: elements) {
+  const canvas = el.canvas;
+  const gameSettingsUI = el.ui;
   const settingsFilePath = "./settings.json";
-  const gameSettings = new GameSettings();
+  const gameSettings = new GameSettings(gameSettingsUI);
   await gameSettings.loadSettings(settingsFilePath);
 
   const gameBoard = new GameBoard(gameSettings);
@@ -116,4 +175,7 @@ async function main() {
   gameLoop();
 }
 
-main();
+const el = setupPage();
+if (el) {
+  main(el);
+}
