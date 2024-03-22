@@ -90,7 +90,7 @@ class Renderer {
     this.canvas.height = boardheight + this.scorePanelSize;
 
     this.blockSize = this.canvas.width / this.gameSettings.numColumns;
-    this.renderBlocks();
+    this.board.blocksDirty=true;
   }
 
   getGridIndicesFromMouse(mouseX: number, mouseY: number): [number, number] {

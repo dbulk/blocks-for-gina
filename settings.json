@@ -1,6 +1,6 @@
 {
     "numColumns": 30,
-    "numRows": 20,
+    "numRows": 15,
     "colors": ["#007B7F","#FF6F61","#4F86F7","#B6D94C","#8368F2"],
     "clusterStrength": 0.5,
     "blockLabels": false

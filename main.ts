@@ -51,6 +51,7 @@ async function main() {
   const moverate = 0.2;
   function animationLoop(){
     renderer.renderBlocks();
+    renderer.renderScoreBoard();
     
     // todo: add a clock
     let turnItOff = true;
@@ -65,6 +66,7 @@ async function main() {
     }
     if(turnItOff){
       gameBoard.doAnimation = false;
+      gameBoard.blocksDirty = true;
     } else {
       requestAnimationFrame(animationLoop);
     }
@@ -76,9 +78,12 @@ async function main() {
       requestAnimationFrame(animationLoop);
     }
   
-    renderer.renderBlocks();
-    renderer.renderPreview(gameBoard.blocksToPop);
-    renderer.renderScoreBoard();
+    if(gameBoard.blocksDirty){
+      renderer.renderBlocks();
+      renderer.renderPreview(gameBoard.blocksToPop);
+      renderer.renderScoreBoard();
+      gameBoard.blocksDirty=false;
+    }
 
     // Schedule the next iteration of the game loop
     requestAnimationFrame(gameLoop);

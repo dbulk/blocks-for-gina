@@ -7,6 +7,7 @@ interface coordinate {
 
 class GameBoard {
   private gameSettings: GameSettings;
+  blocksDirty = true;
   grid: (number | null)[][] = [];
   offsety: number[][] = [];
   offsetx: number[][] = [];
@@ -27,6 +28,7 @@ class GameBoard {
       // Clicking just indicates that blocks should pop on the next update
       this.needsPop = true;
       this.score += this.computeScore(this.blocksToPop.length);
+      this.blocksDirty = true;
     }
   }
 
@@ -40,6 +42,7 @@ class GameBoard {
       const blocks = this.getFloodedCoordinates(target);
       this.blocksToPop = blocks.length > 1 ? blocks : [];
       this.hoverCache = target;
+      this.blocksDirty = true;
     }
   }
 
