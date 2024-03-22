@@ -40,8 +40,9 @@ interface coordinate {
   col: number;
 }
 
-// Get the canvas element
-const canvas = document.getElementById("myCanvas") as HTMLCanvasElement;
+const divTarget = document.getElementById('Blocks4Gina');
+const canvas = document.createElement('canvas');
+if(divTarget) divTarget.appendChild(canvas)
 
 async function main() {
   const settingsFilePath = "./settings.json";

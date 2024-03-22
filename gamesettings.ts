@@ -7,6 +7,10 @@ class GameSettings {
     clusterStrength!: number;
     blockLabels!: boolean
       
+    constructor() {
+        // let's try making some nodes
+        
+    }
     async loadSettings(filePath: string): Promise<void> {
         try {
             const response = await fetch(filePath);
