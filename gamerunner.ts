@@ -19,8 +19,6 @@ class GameRunner {
     renderer.setGameBoard(this.board);
     this.page = page;
     this.canvas = this.page.canvas as HTMLCanvasElement;
-
-    
     this.attachListeners();
 
     this.gameLoop();
@@ -41,7 +39,7 @@ class GameRunner {
     }
 
     // Schedule the next iteration of the game loop
-    requestAnimationFrame(this.gameLoop);
+    requestAnimationFrame(this.gameLoop.bind(this));
   }
 
   private animationLoop(startTime: number) {

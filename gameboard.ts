@@ -19,15 +19,15 @@ class GameBoard {
   score: number = 0;
   audio: HTMLAudioElement;
   music: HTMLAudioElement;
-  oneshot =false;
 
   constructor(gameSettings: GameSettings) {
     this.gameSettings = gameSettings;
     this.audio = new Audio("./sound.wav");
     this.music = new Audio("./scott-buckley-permafrost(chosic.com).mp3");
     this.initializeGrid();
+    this.audio.play();
     this.music.loop = true;
-
+    this.music.play();
   }
 
   click() {
@@ -36,12 +36,6 @@ class GameBoard {
       this.needsPop = true;
       this.score += this.computeScore(this.blocksToPop.length);
       this.blocksDirty = true;
-      this.audio.play();
-      if(!this.oneshot){
-        // todo: music needs to come after first interaction, but if i had a splash screen i could fix it.
-        this.music.play();
-        this.oneshot=true;
-      }
     }
   }
 
