@@ -22,7 +22,7 @@ class GameBoard {
 
   constructor(gameSettings: GameSettings, soundEffect: Function) {
     this.gameSettings = gameSettings;
-    this.soundEffect=soundEffect;
+    this.soundEffect = soundEffect;
     this.reset();
   }
 
