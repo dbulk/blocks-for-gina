@@ -1,11 +1,60 @@
+import htmlInterface from "./htmlinterface.js";
+import GameRunner from "./gamerunner.js";
+import GameSettings from "./gamesettings.js";
+import Renderer from "./renderer.js";
+
+// Set up the page:
+function run(){
+    const page = new htmlInterface();
+    if(!page.isvalid) {
+        return;
+    }
+
+    const canvas = page.canvas as HTMLCanvasElement;
+    const ui = page.ui as HTMLDivElement;
+    const gameSettings = new GameSettings(ui);
+
+    const renderer = new Renderer(canvas, gameSettings);
+    renderer.adjustCanvasSize();
+
+    (page.startButton as HTMLButtonElement).addEventListener("click", () => {
+         page.showControls();
+         page.hideStartButton();
+         const game = new GameRunner(renderer, gameSettings, page);
+        }, {once: true});
+}
+
+run();
+
+
+// const renderer = new Renderer(canvas, gameBoard, gameSettings);
+// const splash = new SplashScreen();
+
+//const game = new GameRunner();
+
+/*
 import Renderer from "./renderer.js";
 import GameSettings from "./gamesettings.js";
 import GameBoard from "./gameboard.js"
 import styleElement from "./gamestyle.js";
 
 // todo:
+// 0. 
+// 1. Make a splash screen show up on load...
+//  - it needs a start button
+//  - the canvas should be 'sized'
+//  - there should be credits
+//  - everything should be loaded
+//
+// 2. Wire up the new game and sound buttons
+//
+// 3. Refactors
+//
 /// cleanups:
 ///   concerns...
+///     gameRunner -
+///         the main game loop, to distinguish from the menu and loader actions
+///         
 ///     gameState - 
 ///       this has everything about the current state of the game and interfaces to manipulate the state
 ///       serializing/deserializing gameState should be sufficient to reload the game
@@ -28,6 +77,7 @@ import styleElement from "./gamestyle.js";
 ///
 /// scoreboard update out of render
 /// game settings on web
+/// :: this got messy because css, consider using emotion or styled components or something for styling?
 /// new game button
 /// ability to save and load state
 /// game history in cookies, settings in cookies, last game in cookies?
@@ -38,6 +88,7 @@ import styleElement from "./gamestyle.js";
 /// add clock
 /// sounds
 /// make it a custom
+
 interface elements {
   canvas: HTMLCanvasElement;
   ui: HTMLDivElement;
@@ -148,3 +199,5 @@ const el = setupPage();
 if (el) {
   main(el);
 }
+
+*/

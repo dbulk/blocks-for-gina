@@ -6,38 +6,38 @@ interface coordinate {
   col: number;
 }
 
- // todo: compute this? compute max num blocks?
+// todo: compute this? compute max num blocks?
 const MAXBLOCKSIZE = 100;
 
 class Renderer {
   private canvas: HTMLCanvasElement;
   private ctx: CanvasRenderingContext2D | null;
-  private board: GameBoard;
+  private board!: GameBoard;
   private gameSettings: GameSettings;
   private scorePanelSize = 50;
   private blockSize: number = 0;
   private blockCanvases: HTMLCanvasElement[] = [];
 
-  constructor(
-    canvas: HTMLCanvasElement,
-    gameboard: GameBoard,
-    gameSettings: GameSettings
-  ) {
+  constructor(canvas: HTMLCanvasElement, gameSettings: GameSettings) {
     this.canvas = canvas;
     this.ctx = canvas.getContext("2d");
-    this.board = gameboard;
     this.gameSettings = gameSettings;
 
     // create an offscreen canvas for each block type:
     for (let i = 0; i < gameSettings.blockColors.length; i++) {
-        const canvas = document.createElement('canvas');
-        canvas.width = MAXBLOCKSIZE;
-        canvas.height = MAXBLOCKSIZE;
-        this.blockCanvases.push(canvas);
+      const canvas = document.createElement("canvas");
+      canvas.width = MAXBLOCKSIZE;
+      canvas.height = MAXBLOCKSIZE;
+      this.blockCanvases.push(canvas);
     }
-    
+
     this.adjustCanvasSize();
     window.addEventListener("resize", this.adjustCanvasSize.bind(this));
+  }
+
+  setGameBoard(gameBoard: GameBoard) {
+    // temporary  until we move to gamestate
+    this.board = gameBoard;
   }
 
   renderBlocks() {
@@ -49,7 +49,12 @@ class Renderer {
     this.createOffscrenCanvases(30);
 
     // Clear canvas
-    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height + this.scorePanelSize);
+    this.ctx.clearRect(
+      0,
+      0,
+      this.canvas.width,
+      this.canvas.height + this.scorePanelSize
+    );
 
     for (let row = 0; row < this.board.grid.length; row++) {
       for (let col = 0; col < this.board.grid[row].length; col++) {
@@ -79,57 +84,70 @@ class Renderer {
   adjustCanvasSize() {
     // Calculate new canvas width based on 50% of window width
     const windowWidth = window.innerWidth;
-    const newCanvasWidth = Math.round((windowWidth * 0.8) / this.gameSettings.numColumns) * this.gameSettings.numColumns;
+    const newCanvasWidth =
+      Math.round((windowWidth * 0.8) / this.gameSettings.numColumns) *
+      this.gameSettings.numColumns;
 
     // Set canvas size
     this.canvas.width = newCanvasWidth;
     const AR = this.gameSettings.numRows / this.gameSettings.numColumns;
 
     const boardheight = this.canvas.width * AR;
-    this.scorePanelSize = Math.min(boardheight * .1, 50);
+    this.scorePanelSize = Math.min(boardheight * 0.1, 50);
     this.canvas.height = boardheight + this.scorePanelSize;
 
     this.blockSize = this.canvas.width / this.gameSettings.numColumns;
-    this.board.blocksDirty=true;
+    if(this.board){
+        this.board.blocksDirty = true;
+    }
   }
 
   getGridIndicesFromMouse(mouseX: number, mouseY: number): [number, number] {
-
     const clickedCol = Math.floor(mouseX / this.blockSize);
-    const clickedRow = Math.floor((mouseY - this.scorePanelSize) / this.blockSize);
+    const clickedRow = Math.floor(
+      (mouseY - this.scorePanelSize) / this.blockSize
+    );
     return [clickedRow, clickedCol];
   }
 
-  private createOffscrenCanvases(lightStrength: number):void {
+  private createOffscrenCanvases(lightStrength: number): void {
     for (let i = 0; i < this.blockCanvases.length; i++) {
       const canvas = this.blockCanvases[i];
       const color = this.gameSettings.blockColors[i];
-      const ctx = canvas.getContext('2d');
-      if(ctx) {
-        const gradient = ctx.createLinearGradient(0, 0, MAXBLOCKSIZE, MAXBLOCKSIZE);
+      const ctx = canvas.getContext("2d");
+      if (ctx) {
+        const gradient = ctx.createLinearGradient(
+          0,
+          0,
+          MAXBLOCKSIZE,
+          MAXBLOCKSIZE
+        );
         gradient.addColorStop(0, this.lightenColor(color, lightStrength));
         gradient.addColorStop(1, color);
         ctx.fillStyle = gradient;
         // todo: 100 is the MAXBLOCKSIZE
         ctx.fillRect(0, 0, MAXBLOCKSIZE, MAXBLOCKSIZE);
-        
-        if(this.gameSettings.blockLabels){
-          const fontFamily = 'Arial'; // Font family
-          ctx.font = `${MAXBLOCKSIZE/2}px ${fontFamily}`;
+
+        if (this.gameSettings.blockLabels) {
+          const fontFamily = "Arial"; // Font family
+          ctx.font = `${MAXBLOCKSIZE / 2}px ${fontFamily}`;
           ctx.fillStyle = "black";
           ctx.textAlign = "center";
           ctx.textBaseline = "middle";
-          const lbl = String.fromCharCode('A'.charCodeAt(0) + i);
-          ctx.fillText(`${lbl}`, MAXBLOCKSIZE/2, MAXBLOCKSIZE/2);  
+          const lbl = String.fromCharCode("A".charCodeAt(0) + i);
+          ctx.fillText(`${lbl}`, MAXBLOCKSIZE / 2, MAXBLOCKSIZE / 2);
         }
       }
     }
-
   }
   private renderBlock(row: number, col: number): void {
-    if (!this.ctx) { return; }
+    if (!this.ctx) {
+      return;
+    }
     const id = this.board.grid[row][col];
-    if (id === null) { return; };
+    if (id === null) {
+      return;
+    }
     const sz = this.blockSize;
     const offsetx = this.board.offsetx[row][col] * sz;
     const offsety = this.board.offsety[row][col] * sz;
@@ -137,7 +155,6 @@ class Renderer {
     const y = row * sz + this.scorePanelSize - offsety;
 
     this.ctx.drawImage(this.blockCanvases[id], x, y, sz, sz);
-
   }
 
   private lightenColor(color: string, percent: number): string {
@@ -175,20 +192,33 @@ class Renderer {
     this.ctx.stroke(); // Draw the line
 
     const fontSize = this.scorePanelSize - 10; // Font size in pixels
-    const fontFamily = 'Arial'; // Font family
+    const fontFamily = "Arial"; // Font family
     this.ctx.font = `${fontSize}px ${fontFamily}`;
     this.ctx.fillStyle = "black";
 
     this.ctx.textAlign = "left";
     this.ctx.textBaseline = "ideographic";
-    const blocksRemaining = this.board.numBlocksInColumn.reduce((a, v) => a + v, 0);
+    const blocksRemaining = this.board.numBlocksInColumn.reduce(
+      (a, v) => a + v,
+      0
+    );
     const blocksSelected = this.board.blocksToPop.length;
-    this.ctx.fillText(blocksSelected ? `Blocks: ${blocksRemaining} (${blocksSelected})` : `Blocks: ${blocksRemaining}`, 10, this.scorePanelSize - 5);
+    this.ctx.fillText(
+      blocksSelected
+        ? `Blocks: ${blocksRemaining} (${blocksSelected})`
+        : `Blocks: ${blocksRemaining}`,
+      10,
+      this.scorePanelSize - 5
+    );
 
     this.ctx.textAlign = "right";
     const score = this.board.score;
     const selScore = this.board.computeScore(blocksSelected);
-    this.ctx.fillText(blocksSelected ? `Score: ${score} (${selScore})` : `Score: ${score}`, this.canvas.width - 10, this.scorePanelSize - 5);
+    this.ctx.fillText(
+      blocksSelected ? `Score: ${score} (${selScore})` : `Score: ${score}`,
+      this.canvas.width - 10,
+      this.scorePanelSize - 5
+    );
   }
 }
 
