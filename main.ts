@@ -2,6 +2,7 @@ import htmlInterface from "./htmlinterface.js";
 import GameRunner from "./gamerunner.js";
 import GameSettings from "./gamesettings.js";
 import Renderer from "./renderer.js";
+import GameBoard from "./gameboard.js";
 
 // Set up the page:
 function run(){

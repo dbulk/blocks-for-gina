@@ -86,6 +86,9 @@ class GameRunner {
       "mouseleave",
       this.board.mouseExit.bind(this.board)
     );
+    
+    this.settings.cmdNewGame.addEventListener("click", this.board.reset.bind(this.board));
+    
   }
 }
 

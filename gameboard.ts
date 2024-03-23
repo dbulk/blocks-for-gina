@@ -24,10 +24,16 @@ class GameBoard {
     this.gameSettings = gameSettings;
     this.audio = new Audio("./sound.wav");
     this.music = new Audio("./scott-buckley-permafrost(chosic.com).mp3");
-    this.initializeGrid();
     this.audio.play();
     this.music.loop = true;
     this.music.play();
+    this.reset();
+  }
+
+  reset()  {
+    this.initializeGrid();
+    this.score=0;
+    this.blocksDirty=true;
   }
 
   click() {
