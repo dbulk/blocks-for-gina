@@ -17,16 +17,11 @@ class GameBoard {
   blocksToPop: coordinate[] = [];
   hoverCache: (coordinate | null) = null;
   score: number = 0;
-  audio: HTMLAudioElement;
-  music: HTMLAudioElement;
+  soundEffect: Function
 
-  constructor(gameSettings: GameSettings) {
+  constructor(gameSettings: GameSettings, soundEffect: Function) {
     this.gameSettings = gameSettings;
-    this.audio = new Audio("./sound.wav");
-    this.music = new Audio("./scott-buckley-permafrost(chosic.com).mp3");
-    this.audio.play();
-    this.music.loop = true;
-    this.music.play();
+    this.soundEffect=soundEffect;
     this.reset();
   }
 
@@ -42,6 +37,7 @@ class GameBoard {
       this.needsPop = true;
       this.score += this.computeScore(this.blocksToPop.length);
       this.blocksDirty = true;
+      this.soundEffect();
     }
   }
 

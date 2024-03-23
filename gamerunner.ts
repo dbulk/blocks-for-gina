@@ -11,16 +11,24 @@ class GameRunner {
   board: GameBoard;
   canvas: HTMLCanvasElement;
   page: htmlInterface;
+  audio: HTMLAudioElement;
+  music: HTMLAudioElement;
+  soundEnabled: boolean = true;
 
   constructor(renderer: Renderer, settings: GameSettings, page: htmlInterface) {
     this.renderer = renderer;
     this.settings = settings;
-    this.board = new GameBoard(settings);
+    this.audio = new Audio("./sound.wav");
+    this.board = new GameBoard(settings, this.playSoundEffect.bind(this));
     renderer.setGameBoard(this.board);
     this.page = page;
     this.canvas = this.page.canvas as HTMLCanvasElement;
     this.attachListeners();
 
+    this.music = new Audio("./scott-buckley-permafrost(chosic.com).mp3");
+    this.music.loop = true;
+    this.music.play();
+    this.audio.play();
     this.gameLoop();
   }
 
@@ -55,8 +63,14 @@ class GameRunner {
       turnItOff = true;
       for (let r = 0; r < this.board.grid.length; r++) {
         for (let c = 0; c < this.board.grid[0].length; c++) {
-          this.board.offsetx[r][c] = Math.max(this.board.offsetx[r][c] - 0.1, 0);
-          this.board.offsety[r][c] = Math.max(this.board.offsety[r][c] - 0.1, 0);
+          this.board.offsetx[r][c] = Math.max(
+            this.board.offsetx[r][c] - 0.1,
+            0
+          );
+          this.board.offsety[r][c] = Math.max(
+            this.board.offsety[r][c] - 0.1,
+            0
+          );
           if (this.board.offsetx[r][c] > 0 || this.board.offsety[r][c] > 0) {
             turnItOff = false;
           }
@@ -71,8 +85,6 @@ class GameRunner {
     }
   }
 
-  
-
   private attachListeners() {
     this.canvas.addEventListener("click", this.board.click.bind(this.board));
     this.canvas.addEventListener("mousemove", (event: MouseEvent) => {
@@ -86,9 +98,28 @@ class GameRunner {
       "mouseleave",
       this.board.mouseExit.bind(this.board)
     );
-    
-    this.settings.cmdNewGame.addEventListener("click", this.board.reset.bind(this.board));
-    
+
+    this.settings.cmdNewGame.addEventListener(
+      "click",
+      this.board.reset.bind(this.board)
+    );
+
+    this.settings.togMusic.addEventListener("click", () => {
+      if (this.settings.togMusic.classList.contains("active")) {
+        this.music.play();
+      } else {
+        this.music.pause();
+      }
+    });
+    this.settings.togSound.addEventListener("click", () => {
+      this.soundEnabled = this.settings.togSound.classList.contains("active");
+    });
+  }
+
+  playSoundEffect() {
+    if (this.soundEnabled) {
+      this.audio.play();
+    }
   }
 }
 
