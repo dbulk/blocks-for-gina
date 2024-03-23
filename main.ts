@@ -33,17 +33,6 @@ function run(){
 run();
 
 // todo:
-// 0. 
-// 1. Make a splash screen show up on load...
-//  - it needs a start button
-//  - the canvas should be 'sized'
-//  - there should be credits
-//  - everything should be loaded
-//
-// 2. Wire up the new game and sound buttons
-//
-// 3. Refactors
-//
 /// cleanups:
 ///   concerns...
 ///     gameRunner -
@@ -70,8 +59,7 @@ run();
 ///     gamestyle - css
 ///
 /// scoreboard update out of render
-/// game settings on web
-/// :: this got messy because css, consider using emotion or styled components or something for styling?
+/// game settings like grid and cluster strength
 /// ability to save and load state
 /// game history in cookies, settings in cookies, last game in cookies?
 /// minify
@@ -80,3 +68,4 @@ run();
 /// adjust score algo
 /// add clock
 /// make it a custom element
+/// game analysis

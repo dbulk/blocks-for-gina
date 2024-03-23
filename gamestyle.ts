@@ -43,6 +43,22 @@ styleElement.textContent = `
     background-color: #0089b3;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
   }
+  .blocks4Gina h1 {
+    color: #fff;
+    margin: 10px 10px;
+    font-size: 18px;
+    font-family: Helvetica, Arial, Sans-Serif;
+  }
+
+  .blocks4Gina p {
+    color: #fff;
+    margin: 0 10px;
+    font-size: 14px;
+    font-family: Helvetica, Arial, Sans-Serif;
+  }
+  .blocks4Gina a {
+    color: #dff;
+  }
 `;
 
 export default styleElement;
