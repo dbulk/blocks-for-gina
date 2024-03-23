@@ -48,7 +48,7 @@ class htmlInterface {
     <td>
     <p><b>Source</b></p>
     <p>Blocks4Gina by Dave Bulkin</p>
-    <p>Released under MIT License</p>
+    <p>Released under <a href = "./LICENSE" target="_blank"  rel="noopener noreferrer">MIT License</a></p>
     <p><a href = "https://dave.bulkin.net" target="_blank">dave.bulkin.net</a></p>
     <p><a href = "https://github.com/dbulk/blocks-for-gina" target="_blank">git</a></p>
     </td>
@@ -70,7 +70,6 @@ class htmlInterface {
     this.credits.style.position = "relative";
     this.credits.style.top = "-150px";
     this.credits.style.userSelect="none";
-    //this.credits.style.pointerEvents="none";
 
     div.appendChild(this.canvas);
     div.appendChild(this.startButton);
