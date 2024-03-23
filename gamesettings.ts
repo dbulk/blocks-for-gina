@@ -1,4 +1,14 @@
-import { buffer } from "stream/consumers";
+function makeButton(text:string, isToggle : boolean, div: HTMLDivElement){
+    const button = document.createElement("button");
+    button.textContent = text;
+    if(isToggle){
+        button.className="toggle";
+        button.classList.add('active');        
+        button.addEventListener('click', () => button.classList.toggle('active'));
+    }
+    div.appendChild(button);
+    return button;
+}
 
 class GameSettings {
     numColumns!: number;
@@ -10,29 +20,11 @@ class GameSettings {
       
     constructor(div : HTMLDivElement) {
         div.style.paddingTop = "10px";
-        // let's try making some nodes
-        const button = document.createElement("button");
-        button.textContent = "New Game";
-        
-        // Create a <style> element
-const styleElement = document.createElement('style');
-
-// // Define CSS rules
-// styleElement.textContent = `
-// `;
-
-// // Append the <style> element to the <head> of the document
-// document.head.appendChild(styleElement);
-div.appendChild(button);
-
-        // margin-top: 10px;
-        // padding: 5px 10px;
-        // border: none;
-        // border-radius: 3px;
-        // background-color: #007bff;
-        // color: #fff;
-        // cursor: pointer;
+        makeButton("New Game", false, div);
+        makeButton("🎵", true, div);
+        makeButton("🔊", true, div);
     }
+    
     async loadSettings(filePath: string): Promise<void> {
         try {
             const response = await fetch(filePath);

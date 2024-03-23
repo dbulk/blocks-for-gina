@@ -1,7 +1,7 @@
 import Renderer from "./renderer.js";
 import GameSettings from "./gamesettings.js";
 import GameBoard from "./gameboard.js"
-
+import styleElement from "./gamestyle.js";
 
 // todo:
 /// cleanups:
@@ -23,6 +23,8 @@ import GameBoard from "./gameboard.js"
 ///       it may also have utilities to create a ui for manipulating settings (i.e. there's a settings model and a setting control)
 ///
 ///     score? I think this should live in gameState
+///
+///     gamestyle - css
 ///
 /// scoreboard update out of render
 /// game settings on web
@@ -46,48 +48,15 @@ function setupPage(): (elements | null) {
     console.error("no div for game found");
     return null;
   }
-
-  const div = document.createElement('div');
-  div.className = "blocks4Gina";
-  const styleElement = document.createElement("style");
-  styleElement.textContent = `  
-  .blocks4Gina canvas {
-    border: 1px solid;
-  }
-    
-  .blocks4Gina button {
-    background-color: #555;
-    border: none;
-    color: #fff;
-    padding: 15px 32px;
-    text-align: center;
-    text-decoration: none;
-    display: inline-block;
-    font-size: 16px;
-    margin: 4px 2px;
-    cursor: pointer;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-  }
-
-  .blocks4Gina button:hover {
-    background-color: #777;
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
-  }
-
-  .blocks4Gina button:active {
-    background-color: #444;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-  }
-  `;
-
   divTarget.style.display = "flex";
   divTarget.style.justifyContent = "center";
   divTarget.style.alignItems = "start";
   divTarget.style.height = "100%";
 
-
-    document.head.appendChild(styleElement);
+  const div = document.createElement('div');
+  div.className = "blocks4Gina";
+  
+  document.head.appendChild(styleElement);
   (divTarget as HTMLElement).appendChild(div);
 
   const canvas = document.createElement('canvas');
