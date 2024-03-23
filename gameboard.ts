@@ -7,17 +7,18 @@ interface coordinate {
 
 class GameBoard {
   private gameSettings: GameSettings;
+  private numBlocksInColumn: number[] = [];
+  private needsPop = false;
+  private soundEffect: Function
+  private hoverCache: (coordinate | null) = null;
+
   blocksDirty = true;
   grid: (number | null)[][] = [];
   offsety: number[][] = [];
   offsetx: number[][] = [];
   doAnimation = false;
-  numBlocksInColumn: number[] = [];
-  needsPop = false;
   blocksToPop: coordinate[] = [];
-  hoverCache: (coordinate | null) = null;
   score: number = 0;
-  soundEffect: Function
 
   constructor(gameSettings: GameSettings, soundEffect: Function) {
     this.gameSettings = gameSettings;
@@ -190,6 +191,15 @@ class GameBoard {
       this.offsetx[row] = Array(this.gameSettings.numColumns).fill(0);
       this.offsety[row] = Array(this.gameSettings.numColumns).fill(0);
     }
+  }
+
+  
+  getNumberOfBlocks() {
+    const blocksRemaining = this.numBlocksInColumn.reduce(
+      (a, v) => a + v,
+      0
+    );
+    return blocksRemaining;
   }
 }
 export default GameBoard;

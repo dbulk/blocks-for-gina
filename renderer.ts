@@ -197,15 +197,11 @@ class Renderer {
 
     this.ctx.textAlign = "left";
     this.ctx.textBaseline = "ideographic";
-    const blocksRemaining = this.board.numBlocksInColumn.reduce(
-      (a, v) => a + v,
-      0
-    );
     const blocksSelected = this.board.blocksToPop.length;
     this.ctx.fillText(
       blocksSelected
-        ? `Blocks: ${blocksRemaining} (${blocksSelected})`
-        : `Blocks: ${blocksRemaining}`,
+        ? `Blocks: ${this.board.getNumberOfBlocks()} (${blocksSelected})`
+        : `Blocks: ${this.board.getNumberOfBlocks()}`,
       10,
       this.scorePanelSize - 5
     );
