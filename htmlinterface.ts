@@ -42,29 +42,35 @@ class htmlInterface {
 
     this.credits = document.createElement("div");
     this.credits.innerHTML = `
-    <h1>Credits</h1>
-    <p><u>Music</u></p>
-    <p>Permafrost by Scott Buckley<br>
-    <p>Released under CC-BY 4.0</p>
-    <p><a href = "www.scottbuckley.com.au" target="_blank">www.scottbuckley.com.au</a></p>
-    <br/>
-    <p><u>Source</u></p>
+    <table>
+    <tr style="vertical-align: top">
+
+    <td>
+    <p><b>Source</b></p>
     <p>Blocks4Gina by Dave Bulkin</p>
     <p>Released under MIT License</p>
     <p><a href = "https://dave.bulkin.net" target="_blank">dave.bulkin.net</a></p>
-    <p><a href = "https://github.com/dbulk/blocks-for-gina" target="_blank">git repo</a></p>
-    <br/>
-    <p><u>Inspo</u></p>
+    <p><a href = "https://github.com/dbulk/blocks-for-gina" target="_blank">git</a></p>
+    </td>
+    <td>
+    <p><b>Music</b></p>
+    <p>Permafrost by Scott Buckley<br>
+    <p>Released under CC-BY 4.0</p>
+    <p><a href = "www.scottbuckley.com.au" target="_blank">www.scottbuckley.com.au</a></p>
+    </td>
+    <td>
+    <p><b>Inspiration</b></p>
     <p>Gina Mason</p>
     <p><a href = "https://ginamason.net" target="_blank">ginamason.net</a></p>
-    <p></p>
-    `
-    
+    </td>
+    </tr>
+    </table>
+    `    
     this.credits.style.display="inline";
     this.credits.style.position = "relative";
-    this.credits.style.top = "-350px";
+    this.credits.style.top = "-150px";
     this.credits.style.userSelect="none";
-    this.credits.style.pointerEvents="none";
+    //this.credits.style.pointerEvents="none";
 
     div.appendChild(this.canvas);
     div.appendChild(this.startButton);
