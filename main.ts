@@ -15,12 +15,18 @@ function run(){
     const gameSettings = new GameSettings(ui);
 
     const renderer = new Renderer(canvas, gameSettings);
+    
+    window.addEventListener("resize",() => {
+      renderer.adjustCanvasSize();
+      page.resize();
+    });
     renderer.adjustCanvasSize();
+    page.resize();
 
-    (page.startButton as HTMLButtonElement).addEventListener("click", () => {
+    page.startButton.addEventListener("click", () => {
          page.showControls();
          page.hideStartButton();
-         const game = new GameRunner(renderer, gameSettings, page);
+         new GameRunner(renderer, gameSettings, page);
         }, {once: true});
 }
 

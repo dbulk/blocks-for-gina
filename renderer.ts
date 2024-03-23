@@ -32,7 +32,6 @@ class Renderer {
     }
 
     this.adjustCanvasSize();
-    window.addEventListener("resize", this.adjustCanvasSize.bind(this));
   }
 
   setGameBoard(gameBoard: GameBoard) {
