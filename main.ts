@@ -33,39 +33,16 @@ function run(){
 run();
 
 // todo:
-/// cleanups:
-///   concerns...
-///     gameRunner -
-///         the main game loop, to distinguish from the menu and loader actions
-///         
-///     gameState - 
-///       this has everything about the current state of the game and interfaces to manipulate the state
-///       serializing/deserializing gameState should be sufficient to reload the game
-///
-///     renderer
-///       this draws to onscreen and offscreen canvases
-///       it holds no state
-///       it might provide compute utilities for e.g. converting pixels to blockid?
-///
-///     io
-///       user input, resize events etc. Just send them to state
-///
-///     settings
-///       this holds settings for the game
-///       it may also have utilities to create a ui for manipulating settings (i.e. there's a settings model and a setting control)
-///
-///     score? I think this should live in gameState
-///
-///     gamestyle - css
-///
 /// scoreboard update out of render
 /// game settings like grid and cluster strength
-/// ability to save and load state
-/// game history in cookies, settings in cookies, last game in cookies?
+/// sound settings in serialized game state
+/// undo/redo stack via serialized game state?
+/// 
 /// minify
-/// undo/redo?
 /// FR tracking
+///
 /// adjust score algo
-/// add clock
+/// add game played clock... (and serialize/deserialize it)
+///
 /// make it a custom element
 /// game analysis
