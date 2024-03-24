@@ -24,16 +24,12 @@ class GameSettings {
   cmdNewGame: HTMLButtonElement;
   togMusic: HTMLButtonElement;
   togSound: HTMLButtonElement;
-  cmdSerialize: HTMLButtonElement;
-  cmdDeserialize: HTMLButtonElement;
 
   constructor(div: HTMLDivElement) {
     div.style.paddingTop = "10px";
     this.cmdNewGame = makeButton("New Game", false, div);
     this.togMusic = makeButton("🎵", true, div);
     this.togSound = makeButton("🔊", true, div);
-    this.cmdSerialize = makeButton("💾", false, div);
-    this.cmdDeserialize = makeButton("📂", false, div);
     this.loadSettings();
   }
 

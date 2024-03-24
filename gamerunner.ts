@@ -35,6 +35,10 @@ class GameRunner {
     this.music.play();
     this.audio.play();
     this.gameLoop();
+
+    this.deserialize();
+    
+    window.addEventListener("beforeunload", this.serialize.bind(this));
   }
 
   private gameLoop() {
@@ -103,13 +107,6 @@ class GameRunner {
     this.settings.togSound.addEventListener("click", () => {
       this.soundEnabled = this.settings.togSound.classList.contains("active");
     });
-
-    this.settings.cmdSerialize.addEventListener("click", ()=>{
-      this.serialize();
-    })
-    this.settings.cmdDeserialize.addEventListener("click", ()=>{
-      this.deserialize();
-    })
   }
 
   playSoundEffect() {

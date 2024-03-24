@@ -242,9 +242,12 @@ class GameState {
   deserialize(payload){
     const data = payload.griddata;
     this.setGridSize(data.length, data[0].length);
+    this.numBlocksInColumn = new Array(this.numColumns).fill(0);
+
     for(let row = 0; row < data.length; row++){
       for(let col = 0; col < data[row].length; col++){
         this.grid[row][col].id = data[row][col];
+        this.numBlocksInColumn[col] += data[row][col] !== null ? 1 : 0;
       }
     }
 
