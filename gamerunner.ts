@@ -33,10 +33,13 @@ class GameRunner {
     this.music = new Audio("./scott-buckley-permafrost(chosic.com).mp3");
     this.music.loop = true;
     this.music.play();
-    this.audio.play();
     this.gameLoop();
-
     this.deserialize();
+
+    
+    if(this.soundEnabled){
+      this.audio.play();
+    }
     
     window.addEventListener("beforeunload", this.serialize.bind(this));
   }
@@ -97,18 +100,18 @@ class GameRunner {
     );
 
     this.settings.togMusic.addEventListener("click", () => {
-      if (this.settings.togMusic.classList.contains("active")) {
-        this.music.play();
-      } else {
-        this.music.pause();
-      }
+      this.setAudioState();
     });
 
     this.settings.togSound.addEventListener("click", () => {
-      this.soundEnabled = this.settings.togSound.classList.contains("active");
+      this.setAudioState()
     });
   }
 
+  private setAudioState() {
+    this.settings.togMusic.classList.contains("active") ? this.music.play() : this.music.pause();
+    this.soundEnabled = this.settings.togSound.classList.contains("active");
+  }
   playSoundEffect() {
     if (this.soundEnabled) {
       this.audio.play();
@@ -127,8 +130,9 @@ class GameRunner {
     const data = localStorage.getItem("b4g");
     if(data){
       const {state, settings} = JSON.parse(data);
-      this.settings.blockColors = settings.blockColors;
+      this.settings.deserialize(settings);
       this.gameState.deserialize(state);
+      this.setAudioState();
     }
     debugger;
   }

@@ -7,6 +7,11 @@ interface coordinate {
   row: number;
   col: number;
 }
+interface serializationPayload {
+  griddata: (number | null)[][],
+  score: number
+}
+
 const isEqual = (a: coordinate, b: coordinate): boolean =>
   a.row == b.row && a.col == b.col;
 
@@ -233,14 +238,13 @@ class GameState {
     return hasOffset;
   }
 
-
-  serialize() {
+  serialize() : serializationPayload {
     return {
       griddata: this.grid.map((x) => x.map((y) => y.id)),
       score: this.score
     };
   }
-  deserialize(payload) {
+  deserialize(payload : serializationPayload) {
     const data = payload.griddata;
     this.setGridSize(data.length, data[0].length);
     this.numBlocksInColumn = new Array(this.numColumns).fill(0);
@@ -256,5 +260,6 @@ class GameState {
     this.blocksDirty = true;
   }
 }
+
 
 export default GameState;

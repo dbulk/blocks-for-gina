@@ -42,9 +42,29 @@ class GameSettings {
     this.blockLabels = false;
   }
 
-  serialize() {
-    return {blockColors: this.blockColors};
+  deserialize(settings: serializationPayload) {
+    this.blockColors = settings.blockColors;
+    this.numColumns = settings.numColumns;
+    this.numRows = settings.numRows;
+    settings.isMusicEnabled ? this.togMusic.classList.add('active') : this.togMusic.classList.remove('active');
+    settings.isSoundEnabled ? this.togSound.classList.add('active') : this.togSound.classList.remove('active');
+  }
+  serialize() : serializationPayload {
+    return {
+      blockColors: this.blockColors,
+      numColumns : this.numColumns,
+      numRows : this.numRows,
+      isMusicEnabled : this.togMusic.classList.contains("active"),
+      isSoundEnabled : this.togSound.classList.contains("active")
+    };
   }
 }
 
+interface serializationPayload{
+  blockColors: string[],
+  numColumns: number,
+  numRows: number,
+  isMusicEnabled: boolean,
+  isSoundEnabled: boolean
+}
 export default GameSettings;
