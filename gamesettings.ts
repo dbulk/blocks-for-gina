@@ -1,3 +1,5 @@
+import { json } from "stream/consumers";
+
 function makeButton(text: string, isToggle: boolean, div: HTMLDivElement) {
   const button = document.createElement("button");
   button.textContent = text;
@@ -22,13 +24,16 @@ class GameSettings {
   cmdNewGame: HTMLButtonElement;
   togMusic: HTMLButtonElement;
   togSound: HTMLButtonElement;
+  cmdSerialize: HTMLButtonElement;
+  cmdDeserialize: HTMLButtonElement;
 
   constructor(div: HTMLDivElement) {
     div.style.paddingTop = "10px";
     this.cmdNewGame = makeButton("New Game", false, div);
     this.togMusic = makeButton("🎵", true, div);
     this.togSound = makeButton("🔊", true, div);
-
+    this.cmdSerialize = makeButton("💾", false, div);
+    this.cmdDeserialize = makeButton("📂", false, div);
     this.loadSettings();
   }
 
@@ -39,6 +44,10 @@ class GameSettings {
     this.numBlockTypes = this.blockColors.length;
     this.clusterStrength = 0.6;
     this.blockLabels = false;
+  }
+
+  serialize() {
+    return {blockColors: this.blockColors};
   }
 }
 

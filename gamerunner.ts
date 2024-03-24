@@ -3,10 +3,9 @@ import GameState from "./gamestate.js"
 import GameSettings from "./gamesettings.js";
 import htmlInterface from "./htmlinterface.js";
 import Renderer from "./renderer.js";
-import { escape } from "querystring";
+
 
 const MOVERATE = 0.15;
-
 class GameRunner {
   renderer: Renderer;
   settings: GameSettings;
@@ -104,12 +103,37 @@ class GameRunner {
     this.settings.togSound.addEventListener("click", () => {
       this.soundEnabled = this.settings.togSound.classList.contains("active");
     });
+
+    this.settings.cmdSerialize.addEventListener("click", ()=>{
+      this.serialize();
+    })
+    this.settings.cmdDeserialize.addEventListener("click", ()=>{
+      this.deserialize();
+    })
   }
 
   playSoundEffect() {
     if (this.soundEnabled) {
       this.audio.play();
     }
+  }
+
+  serialize() {
+    // needs to serialize GameState and GameSettings
+    const state = this.gameState.serialize();
+    const settings = this.settings.serialize();
+
+    localStorage.setItem("b4g", JSON.stringify({state, settings}));
+  }
+
+  deserialize() {
+    const data = localStorage.getItem("b4g");
+    if(data){
+      const {state, settings} = JSON.parse(data);
+      this.settings.blockColors = settings.blockColors;
+      this.gameState.deserialize(state);
+    }
+    debugger;
   }
 }
 
