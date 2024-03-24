@@ -1,18 +1,4 @@
-import { json } from "stream/consumers";
 
-function makeButton(text: string, isToggle: boolean, div: HTMLDivElement) {
-  const button = document.createElement("button");
-  button.textContent = text;
-  if (isToggle) {
-    button.className = "toggle";
-    button.classList.add("active");
-    button.addEventListener("click", () => button.classList.toggle("active"));
-  }
-
-  button.style.userSelect="none";
-  div.appendChild(button);
-  return button;
-}
 
 class GameSettings {
   numColumns!: number;
@@ -27,9 +13,9 @@ class GameSettings {
 
   constructor(div: HTMLDivElement) {
     div.style.paddingTop = "10px";
-    this.cmdNewGame = makeButton("New Game", false, div);
-    this.togMusic = makeButton("🎵", true, div);
-    this.togSound = makeButton("🔊", true, div);
+    this.cmdNewGame = div.querySelector("#cmdNewGame") as HTMLButtonElement;
+    this.togMusic = div.querySelector("#togMusic") as HTMLButtonElement;
+    this.togSound = div.querySelector("#togSound") as HTMLButtonElement;
     this.loadSettings();
   }
 

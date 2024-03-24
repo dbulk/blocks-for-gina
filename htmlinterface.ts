@@ -1,5 +1,21 @@
 import styleElement from "./gamestyle.js";
 
+function makeButton(text: string, isToggle: boolean, div: HTMLDivElement, id: string) {
+  const button = document.createElement("button");
+  button.textContent = text;
+  if (isToggle) {
+    button.className = "toggle";
+    button.classList.add("active");
+    button.addEventListener("click", () => button.classList.toggle("active"));
+  }
+
+  button.style.userSelect="none";
+  button.id = id;
+  div.appendChild(button);
+  return button;
+}
+
+
 class htmlInterface {
   canvas!: HTMLCanvasElement;
   ui!: HTMLDivElement;
@@ -9,7 +25,6 @@ class htmlInterface {
 
   constructor() {
     document.head.appendChild(styleElement);
-
     const divTarget = document.getElementById("Blocks4Gina");
     if (!divTarget) {
       console.error("no div for game found");
@@ -20,18 +35,54 @@ class htmlInterface {
     divTarget.style.justifyContent = "center";
     divTarget.style.alignItems = "start";
     divTarget.style.height = "100%";
+
     const div = document.createElement("div");
     div.className = "blocks4Gina";
     (divTarget as HTMLElement).appendChild(div);
 
     this.canvas = document.createElement("canvas");
     this.canvas.style.border = "2px solid";
-    
-
-    this.ui = document.createElement("div");
     this.canvas.style.display = "block";
+
+    this.createUI();
+    this.createStartButton();
+    this.createCredits();
+
+    div.appendChild(this.canvas);
+    div.appendChild(this.startButton);
+    div.appendChild(this.credits);
+    div.appendChild(this.ui);
+    this.hideControls();
+  }
+  showControls() {
+    if (this.ui) {
+      this.ui.style.display = "block";
+    }
+  }
+  hideControls() {
+    //this.ui.style.display = "none";
+  }
+
+  hideStartButton() {
+    this.startButton.style.display = "none";
+    this.credits.style.display="none";
+  }
+
+  resize() {
+    if(!this.startButton.hidden){
+      this.startButton.style.top = `-${this.canvas.height/2}px`;
+    }
+  }
+  
+  private createUI(){
+    this.ui = document.createElement("div");
     this.ui.style.display = "block";
 
+    makeButton("New Game", false, this.ui, 'cmdNewGame');
+    makeButton("🎵", true, this.ui, 'togMusic');
+    makeButton("🔊", true, this.ui, 'togSound');
+  }
+  private createStartButton() {
     this.startButton = document.createElement("button");
     this.startButton.textContent = "PLAY";
     this.startButton.style.padding = "15px 18px";
@@ -39,7 +90,8 @@ class htmlInterface {
     this.startButton.style.left = "50%";
     this.startButton.style.transform = "translate(-50%, -50%)";
     this.startButton.style.display="block";
-
+  }
+  private createCredits() {
     this.credits = document.createElement("div");
     this.credits.innerHTML = `
     <table>
@@ -70,31 +122,6 @@ class htmlInterface {
     this.credits.style.position = "relative";
     this.credits.style.top = "-150px";
     this.credits.style.userSelect="none";
-
-    div.appendChild(this.canvas);
-    div.appendChild(this.startButton);
-    div.appendChild(this.credits);
-    div.appendChild(this.ui);
-    this.hideControls();
-  }
-  showControls() {
-    if (this.ui) {
-      this.ui.style.display = "block";
-    }
-  }
-  hideControls() {
-    this.ui.style.display = "none";
-  }
-
-  hideStartButton() {
-    this.startButton.style.display = "none";
-    this.credits.style.display="none";
-  }
-
-  resize() {
-    if(!this.startButton.hidden){
-      this.startButton.style.top = `-${this.canvas.height/2}px`;
-    }
   }
 }
 
