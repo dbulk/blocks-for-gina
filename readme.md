@@ -19,6 +19,7 @@ Gina was playing blocks at 1001games, I thought the game was ugly and it would b
 ### Enhancements
  - Better canvas sizing to support tall layouts without scrolling
  - Consider putting music buttons in settings
+ - mobile: better layout esp. ui, disable preview with touch somehow
 
 ### Optimization
  - optimize render with blockdirty or column dirty...or even tiling
