@@ -68,6 +68,7 @@ class GameState {
       }
     }
     this.numBlocksInColumn = new Array(this.numColumns).fill(this.numRows);
+    this.blocksDirty = true;
   }
 
   getBlockID(c: coordinate): number | null {
@@ -232,20 +233,20 @@ class GameState {
     return hasOffset;
   }
 
-  
+
   serialize() {
     return {
-      griddata: this.grid.map((x)=>x.map((y)=>y.id)),
+      griddata: this.grid.map((x) => x.map((y) => y.id)),
       score: this.score
     };
   }
-  deserialize(payload){
+  deserialize(payload) {
     const data = payload.griddata;
     this.setGridSize(data.length, data[0].length);
     this.numBlocksInColumn = new Array(this.numColumns).fill(0);
 
-    for(let row = 0; row < data.length; row++){
-      for(let col = 0; col < data[row].length; col++){
+    for (let row = 0; row < data.length; row++) {
+      for (let col = 0; col < data[row].length; col++) {
         this.grid[row][col].id = data[row][col];
         this.numBlocksInColumn[col] += data[row][col] !== null ? 1 : 0;
       }
