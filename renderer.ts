@@ -1,5 +1,5 @@
 import GameSettings from "./gamesettings.js";
-import GameBoard from "./gameboard.js";
+import GameState from "./gamestate.js"
 
 interface coordinate {
   row: number;
@@ -12,7 +12,7 @@ const MAXBLOCKSIZE = 100;
 class Renderer {
   private canvas: HTMLCanvasElement;
   private ctx: CanvasRenderingContext2D | null;
-  private board!: GameBoard;
+  private gameState!: GameState;
   private gameSettings: GameSettings;
   private scorePanelSize = 50;
   private blockSize: number = 0;
@@ -34,9 +34,9 @@ class Renderer {
     this.adjustCanvasSize();
   }
 
-  setGameBoard(gameBoard: GameBoard) {
+  setGameState(gameState: GameState) {
     // temporary  until we move to gamestate
-    this.board = gameBoard;
+    this.gameState = gameState;
   }
 
   renderBlocks() {
@@ -52,15 +52,13 @@ class Renderer {
       0,
       0,
       this.canvas.width,
-      this.canvas.height + this.scorePanelSize
+      this.canvas.height
     );
 
-    for (let row = 0; row < this.board.grid.length; row++) {
-      for (let col = 0; col < this.board.grid[row].length; col++) {
-        const id = this.board.grid[row][col];
-        if (id != null) {
-          this.renderBlock(row, col);
-        }
+    for (let row = 0; row < this.gameSettings.numRows; row++) {
+      for (let col = 0; col < this.gameSettings.numColumns; col++) {
+        const coord = { row, col };
+        this.renderBlock(coord);
       }
     }
   }
@@ -73,10 +71,7 @@ class Renderer {
     this.createOffscrenCanvases(-10);
 
     for (const c of coords) {
-      const id = this.board.grid[c.row][c.col];
-      if (id !== null) {
-        this.renderBlock(c.row, c.col);
-      }
+      this.renderBlock(c);
     }
   }
 
@@ -96,17 +91,20 @@ class Renderer {
     this.canvas.height = boardheight + this.scorePanelSize;
 
     this.blockSize = this.canvas.width / this.gameSettings.numColumns;
-    if(this.board){
-        this.board.blocksDirty = true;
+    if (this.gameState) {
+      this.gameState.blocksDirty = true;
     }
   }
 
-  getGridIndicesFromMouse(mouseX: number, mouseY: number): [number, number] {
-    const clickedCol = Math.floor(mouseX / this.blockSize);
-    const clickedRow = Math.floor(
+  getGridIndicesFromMouse(event: MouseEvent): coordinate {
+    const rect = this.canvas.getBoundingClientRect();
+    const mouseX = event.clientX - rect.left;
+    const mouseY = event.clientY - rect.top;
+    const col = Math.floor(mouseX / this.blockSize);
+    const row = Math.floor(
       (mouseY - this.scorePanelSize) / this.blockSize
     );
-    return [clickedRow, clickedCol];
+    return { row, col };
   }
 
   private createOffscrenCanvases(lightStrength: number): void {
@@ -139,20 +137,18 @@ class Renderer {
       }
     }
   }
-  private renderBlock(row: number, col: number): void {
+  private renderBlock(coord: coordinate): void {
     if (!this.ctx) {
       return;
     }
-    const id = this.board.grid[row][col];
+    const id = this.gameState.getBlockID(coord);
     if (id === null) {
       return;
     }
     const sz = this.blockSize;
-    const offsetx = this.board.offsetx[row][col] * sz;
-    const offsety = this.board.offsety[row][col] * sz;
-    const x = col * sz + offsetx;
-    const y = row * sz + this.scorePanelSize - offsety;
-
+    const offset = this.gameState.getBlockOffset(coord);
+    const x = (coord.col + offset.x) * sz;
+    const y = (coord.row - offset.y) * sz + this.scorePanelSize;
     this.ctx.drawImage(this.blockCanvases[id], x, y, sz, sz);
   }
 
@@ -197,18 +193,20 @@ class Renderer {
 
     this.ctx.textAlign = "left";
     this.ctx.textBaseline = "ideographic";
-    const blocksSelected = this.board.blocksToPop.length;
+
+    const blocksSelected = this.gameState.getNumBlocksToPop();
+    
     this.ctx.fillText(
       blocksSelected
-        ? `Blocks: ${this.board.getNumberOfBlocks()} (${blocksSelected})`
-        : `Blocks: ${this.board.getNumberOfBlocks()}`,
+        ? `Blocks: ${this.gameState.getNumBlocksRemaining()} (${blocksSelected})`
+        : `Blocks: ${this.gameState.getNumBlocksRemaining()}`,
       10,
       this.scorePanelSize - 5
     );
 
     this.ctx.textAlign = "right";
-    const score = this.board.score;
-    const selScore = this.board.computeScore(blocksSelected);
+    const score = this.gameState.getScore();
+    const selScore = this.gameState.getPopListScore();
     this.ctx.fillText(
       blocksSelected ? `Score: ${score} (${selScore})` : `Score: ${score}`,
       this.canvas.width - 10,

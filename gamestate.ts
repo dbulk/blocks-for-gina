@@ -12,17 +12,19 @@ const isEqual = (a: coordinate, b: coordinate): boolean =>
 
 class GameState {
   private grid: item[][] = [];
-  private popList: coordinate[] = [];
-  private blocksDirty = true;
-  private animating = true;
+  popList: coordinate[] = [];
+  blocksDirty = true;
+  animating = false;
   private score: number = 0;
   private numBlocksInColumn: number[] = [];
+  private needsPop: boolean = false;
 
   private numRows: number = 0;
   private numColumns: number = 0;
-  private selectionCache: coordinate;
+  private selectionCache: coordinate = { row: -1, col: -1 };
+  private soundEffectCallback: Function;
 
-  constructor() {}
+  constructor(soundEffectCallback: Function) { this.soundEffectCallback = soundEffectCallback; }
 
   setGridSize(numRows: number, numColumns: number) {
     this.numRows = numRows;
@@ -32,6 +34,19 @@ class GameState {
   getScore(): number {
     return this.score;
   }
+
+  getPopListScore(): number {
+    return this.computeScore(this.popList.length);
+  }
+
+  getNumBlocksRemaining(): number {
+    return this.numBlocksInColumn.reduce((a, v) => a + v, 0);
+  }
+
+  getNumBlocksToPop(): number {
+    return this.popList.length;
+  }
+
   resetScore() {
     this.score = 0;
   }
@@ -40,8 +55,7 @@ class GameState {
     for (let row = 0; row < this.numRows; row++) {
       this.grid[row] = Array(this.numColumns);
       for (let col = 0; col < this.numColumns; col++) {
-        const currentItem = this.grid[row][col];
-        currentItem.id = Math.floor(Math.random() * numBlockTypes);
+        this.grid[row][col] = { xoffset: 0, yoffset: 0, id: Math.floor(Math.random() * numBlockTypes) }
         if ((row > 0 || col > 0) && Math.random() < clusterStrength) {
           const neighbors = [];
           if (row > 0) neighbors.push({ row: row - 1, col: col });
@@ -49,10 +63,8 @@ class GameState {
           if (row > 0 && col > 0)
             neighbors.push({ row: row - 1, col: col - 1 });
           const src = neighbors[Math.floor(Math.random() * neighbors.length)];
-          currentItem.id = this.grid[src.row][src.col].id;
+          this.grid[row][col].id = this.grid[src.row][src.col].id;
         }
-        currentItem.xoffset = 0;
-        currentItem.yoffset = 0;
       }
     }
     this.numBlocksInColumn = new Array(this.numColumns).fill(this.numRows);
@@ -108,7 +120,7 @@ class GameState {
     fill(coord);
     return ret;
   }
-  
+
   private isLocationInGrid(c: coordinate): boolean {
     return (
       c.row >= 0 &&
@@ -117,4 +129,108 @@ class GameState {
       c.col < this.numColumns
     );
   }
+
+  doPop() {
+    if (this.popList.length) {
+      this.needsPop = true;
+      this.score += this.computeScore(this.popList.length);
+      this.blocksDirty = true;
+      this.soundEffectCallback();
+    }
+  }
+
+  private markBlockNull(coord: coordinate) {
+    this.grid[coord.row][coord.col].id = null;
+  }
+
+  private removeBlock(coord: coordinate, dropMap: Map<String, number>) {
+    this.markBlockNull(coord);
+    for (let row = 0; row < coord.row; row++) {
+      const key = `${row},${coord.col}`;
+      const prevValue = dropMap.get(key);
+      dropMap.set(key, prevValue ? prevValue + 1 : 1);
+    }
+    this.numBlocksInColumn[coord.col]--;
+  }
+
+  private zeroOffsets() {
+    for (const row of this.grid) {
+      for (const block of row) {
+        block.xoffset = 0;
+        block.yoffset = 0;
+      }
+    }
+  }
+
+  private applyDrop(dropMap: Map<String, number>) {
+    // note: it's important to apply the drop from bottom to top...
+    for (let row = this.grid.length - 2; row >= 0; row--) {
+      for (let col = 0; col < this.grid[0].length; col++) {
+        const key = `${row},${col}`;
+        const val = dropMap.get(key);
+        if (val !== undefined) {
+          const thisBlock = this.grid[row][col];
+          const aboveBlock = this.grid[row + val][col];
+          aboveBlock.id = thisBlock.id;
+          thisBlock.id = null;
+          aboveBlock.yoffset = val;
+          this.animating = true;
+        }
+      }
+    }
+  }
+
+  private applyLeftShift() {
+    const leftShift = this.numBlocksInColumn.map((val) => val === 0).map((sum => value => sum += value ? 1 : 0)(0));
+    for (let col = 1; col < this.numColumns; col++) {
+      const mv = leftShift[col - 1];
+      if (mv) {
+        for (let row = 0; row < this.numRows; row++) {
+          const thisBlock = this.grid[row][col];
+          const leftBlock = this.grid[row][col - mv];
+          leftBlock.id = thisBlock.id;
+          thisBlock.id = null;
+          leftBlock.xoffset = mv;
+        }
+        this.numBlocksInColumn[col - mv] = this.numBlocksInColumn[col];
+        this.numBlocksInColumn[col] = 0;
+      }
+    }
+  }
+
+  updateBlocks() {
+    if (!this.needsPop) return;
+    const dropMap: Map<String, number> = new Map();
+    for (const coord of this.popList) {
+      this.removeBlock(coord, dropMap);
+    }
+    this.popList = [];
+    this.zeroOffsets();
+    this.applyDrop(dropMap);
+    this.applyLeftShift();
+    this.needsPop = false;
+    const cursorLocation = { row: this.selectionCache.row, col: this.selectionCache.col };
+    this.selectionCache = { row: -1, col: -1 };
+    this.updateSelection(cursorLocation);
+  }
+
+  computeScore(n: number): number {
+    return 5 * (n ** 2 + 2 * n + (n > 12 ? n ** 3 : 0));
+  }
+
+  decrementOffsets(amount: number): boolean {
+    let hasOffset = false;
+    for (const row of this.grid) {
+      for (const block of row) {
+        block.xoffset = Math.max(block.xoffset - amount, 0);
+        block.yoffset = Math.max(block.yoffset - amount, 0);
+        if (block.xoffset || block.yoffset) {
+          hasOffset = true;
+        }
+      }
+    }
+    return hasOffset;
+  }
 }
+
+export default GameState;
