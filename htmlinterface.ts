@@ -1,5 +1,13 @@
 import styleElement from "./gamestyle.js";
 
+
+// todo: put this somewhere
+interface uinodes {
+  div: HTMLDivElement,
+  cmdNewGame: HTMLButtonElement,
+  togMusic: HTMLButtonElement,
+  togSound: HTMLButtonElement,
+}
 function makeButton(text: string, isToggle: boolean, div: HTMLDivElement, id: string) {
   const button = document.createElement("button");
   button.textContent = text;
@@ -18,7 +26,7 @@ function makeButton(text: string, isToggle: boolean, div: HTMLDivElement, id: st
 
 class htmlInterface {
   canvas!: HTMLCanvasElement;
-  ui!: HTMLDivElement;
+  ui;
   isvalid = false;
   startButton!: HTMLButtonElement;
   credits!: HTMLDivElement;
@@ -44,23 +52,23 @@ class htmlInterface {
     this.canvas.style.border = "2px solid";
     this.canvas.style.display = "block";
 
-    this.createUI();
+    this.ui = this.createUI();
     this.createStartButton();
     this.createCredits();
 
     div.appendChild(this.canvas);
     div.appendChild(this.startButton);
     div.appendChild(this.credits);
-    div.appendChild(this.ui);
+    div.appendChild(this.ui.div);
     this.hideControls();
   }
   showControls() {
     if (this.ui) {
-      this.ui.style.display = "block";
+      this.ui.div.style.display = "block";
     }
   }
   hideControls() {
-    //this.ui.style.display = "none";
+    //this.ui.div.style.display = "none";
   }
 
   hideStartButton() {
@@ -74,13 +82,15 @@ class htmlInterface {
     }
   }
   
-  private createUI(){
-    this.ui = document.createElement("div");
-    this.ui.style.display = "block";
+  private createUI() : uinodes {
+    const div = document.createElement("div");
+    div.style.display = "block";
+    div.style.paddingTop = "10px";
 
-    makeButton("New Game", false, this.ui, 'cmdNewGame');
-    makeButton("🎵", true, this.ui, 'togMusic');
-    makeButton("🔊", true, this.ui, 'togSound');
+    const cmdNewGame = makeButton("New Game", false, div, 'cmdNewGame');
+    const togMusic = makeButton("🎵", true, div, 'togMusic');
+    const togSound = makeButton("🔊", true, div, 'togSound');
+    return {div, cmdNewGame, togMusic, togSound};
   }
   private createStartButton() {
     this.startButton = document.createElement("button");

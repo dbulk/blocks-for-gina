@@ -1,4 +1,10 @@
 
+interface uinodes {
+  div: HTMLDivElement,
+  cmdNewGame: HTMLButtonElement,
+  togMusic: HTMLButtonElement,
+  togSound: HTMLButtonElement,
+}
 
 class GameSettings {
   numColumns!: number;
@@ -11,11 +17,10 @@ class GameSettings {
   togMusic: HTMLButtonElement;
   togSound: HTMLButtonElement;
 
-  constructor(div: HTMLDivElement) {
-    div.style.paddingTop = "10px";
-    this.cmdNewGame = div.querySelector("#cmdNewGame") as HTMLButtonElement;
-    this.togMusic = div.querySelector("#togMusic") as HTMLButtonElement;
-    this.togSound = div.querySelector("#togSound") as HTMLButtonElement;
+  constructor(ui : uinodes) {
+    this.cmdNewGame = ui.cmdNewGame;
+    this.togMusic = ui.togMusic;
+    this.togSound = ui.togSound;
     this.loadSettings();
   }
 
