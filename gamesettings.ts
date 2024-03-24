@@ -33,7 +33,7 @@ class GameSettings {
     this.numRows = 10;
     this.blockColors = ["#007B7F", "#FF6F61", "#4F86F7", "#B6D94C", "#8368F2"];
     this.numBlockTypes = this.blockColors.length;
-    this.clusterStrength = 0.6;
+    this.clusterStrength = 0.2;
     this.blockLabels = false;
   }
 
