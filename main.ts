@@ -3,19 +3,6 @@ import GameRunner from "./gamerunner.js";
 import GameSettings from "./gamesettings.js";
 import Renderer from "./renderer.js";
 
-interface uinodes {
-  div: HTMLDivElement;
-  cmdNewGame: HTMLButtonElement;
-  togMusic: HTMLButtonElement;
-  togSound: HTMLButtonElement;
-  expandButton: HTMLButtonElement;
-  divSettings: HTMLDivElement;
-  inputRows: HTMLInputElement;
-  inputColumns: HTMLInputElement;
-  inputClusterStrength: HTMLInputElement;
-  inputColors: HTMLInputElement[];
-}
-
 // Set up the page:
 function run(){
     const page = new htmlInterface();
@@ -24,7 +11,7 @@ function run(){
     }
 
     const canvas = page.canvas as HTMLCanvasElement;
-    const ui = page.ui as uinodes;
+    const ui = page.ui;
     const gameSettings = new GameSettings(ui);
 
     const renderer = new Renderer(canvas, gameSettings);
@@ -45,7 +32,7 @@ function run(){
 
 run();
 // todo:
-/// make uinodes a class or at least put it somewhere so it's not c/p thrice
+/// make uinodes a class or at least put it somewhere so it's not c/p
 ///
 /// cleanup of listeners
 /// scoreboard update out of render

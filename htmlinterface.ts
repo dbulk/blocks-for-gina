@@ -85,7 +85,7 @@ function makeColorInputs(
 
 class htmlInterface {
   canvas!: HTMLCanvasElement;
-  ui;
+  ui!: uinodes;
   isvalid = false;
   startButton!: HTMLButtonElement;
   credits!: HTMLDivElement;
