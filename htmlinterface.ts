@@ -238,7 +238,7 @@ class htmlInterface {
     <p><b>Music</b></p>
     <p>Permafrost by Scott Buckley<br>
     <p>Released under CC-BY 4.0</p>
-    <p><a href = "www.scottbuckley.com.au" target="_blank">www.scottbuckley.com.au</a></p>
+    <p><a href = "https://www.scottbuckley.com.au" target="_blank">www.scottbuckley.com.au</a></p>
     </td>
     <td>
     <p><b>Inspiration</b></p>

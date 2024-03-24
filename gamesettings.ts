@@ -41,7 +41,7 @@ class GameSettings {
     this.blockColors = settings.blockColors ? settings.blockColors : ["#007B7F", "#FF6F61", "#4F86F7", "#B6D94C", "#8368F2"];
     this.numColumns = settings.numColumns ? settings.numColumns : 20;
     this.numRows = settings.numRows ? settings.numRows : 10;
-    this.clusterStrength = settings.clusterStrength ? settings.clusterStrength : 0.6;
+    this.clusterStrength = settings.clusterStrength ? settings.clusterStrength : 0.2;
     settings.isMusicEnabled ? this.ui.togMusic.classList.add('active') : this.ui.togMusic.classList.remove('active');
     settings.isSoundEnabled ? this.ui.togSound.classList.add('active') : this.ui.togSound.classList.remove('active');
     this.settingsToUI();
