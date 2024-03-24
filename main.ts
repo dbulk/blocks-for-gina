@@ -32,6 +32,7 @@ function run(){
 
 run();
 // todo:
+/// could probably optimize render with blockdirty or column dirty...or even tiling
 /// make uinodes a class or at least put it somewhere so it's not c/p
 ///
 /// cleanup of listeners
@@ -44,7 +45,6 @@ run();
 /// minify
 /// FR tracking
 ///
-/// adjust score algo
 /// add game played clock... (and serialize/deserialize it)... and consider introducing it into scoring algo
 ///
 /// make it a custom element

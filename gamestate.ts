@@ -220,7 +220,7 @@ class GameState {
   }
 
   computeScore(n: number): number {
-    return 5 * (n ** 2 + 2 * n + (n > 12 ? n ** 3 : 0));
+    return 5 * (n ** 2 + (n > 15 ? 2 * n ** 2 : 0) + (n > 30 ? 2 * n ** 2 : 0));
   }
 
   decrementOffsets(amount: number): boolean {
