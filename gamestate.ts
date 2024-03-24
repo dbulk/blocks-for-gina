@@ -31,11 +31,6 @@ class GameState {
 
   constructor(soundEffectCallback: Function) { this.soundEffectCallback = soundEffectCallback; }
 
-  setGridSize(numRows: number, numColumns: number) {
-    this.numRows = numRows;
-    this.numColumns = numColumns;
-  }
-
   getScore(): number {
     return this.score;
   }
@@ -56,7 +51,11 @@ class GameState {
     this.score = 0;
   }
 
-  initializeGrid(numBlockTypes: number, clusterStrength: number) {
+  initializeGrid(numRows: number, numColumns: number, numBlockTypes: number, clusterStrength: number) {
+    this.numRows = numRows;
+    this.numColumns = numColumns;
+
+    this.grid=[];
     for (let row = 0; row < this.numRows; row++) {
       this.grid[row] = Array(this.numColumns);
       for (let col = 0; col < this.numColumns; col++) {
@@ -246,9 +245,9 @@ class GameState {
   }
   deserialize(payload : serializationPayload) {
     const data = payload.griddata;
-    this.setGridSize(data.length, data[0].length);
-    this.numBlocksInColumn = new Array(this.numColumns).fill(0);
+    this.initializeGrid(data.length, data[0].length, 1, 0);
 
+    this.numBlocksInColumn = new Array(this.numColumns).fill(0);
     for (let row = 0; row < data.length; row++) {
       for (let col = 0; col < data[row].length; col++) {
         this.grid[row][col].id = data[row][col];

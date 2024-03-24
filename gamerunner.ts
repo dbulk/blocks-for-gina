@@ -21,8 +21,7 @@ class GameRunner {
     this.settings = settings;
     this.audio = new Audio("./sound.wav");
     this.gameState = new GameState(this.playSoundEffect.bind(this));
-    this.gameState.setGridSize(settings.numRows, settings.numColumns);
-    this.gameState.initializeGrid(this.settings.numBlockTypes, this.settings.clusterStrength)
+    this.gameState.initializeGrid(settings.numRows, settings.numColumns, settings.numBlockTypes, settings.clusterStrength)
 
     renderer.setGameState(this.gameState);
 
@@ -94,23 +93,43 @@ class GameRunner {
       () => this.gameState.updateSelection({ row: -1, col: -1 })
     );
 
-    this.settings.cmdNewGame.addEventListener(
+    this.settings.ui.cmdNewGame.addEventListener(
       "click",
-      () => this.gameState.initializeGrid(this.settings.numBlockTypes, this.settings.clusterStrength)
+      () => {
+        this.settings.uiToSettings();
+        this.gameState.initializeGrid(this.settings.numRows,this.settings.numColumns,this.settings.numBlockTypes, this.settings.clusterStrength);
+        this.renderer.adjustCanvasSize();
+      }
     );
 
-    this.settings.togMusic.addEventListener("click", () => {
+    this.settings.ui.togMusic.addEventListener("click", () => {
       this.setAudioState();
     });
 
-    this.settings.togSound.addEventListener("click", () => {
+    this.settings.ui.togSound.addEventListener("click", () => {
       this.setAudioState()
+    });
+
+    for(const el of this.settings.ui.inputColors){
+      el.addEventListener("input", ()=>{
+        this.settings.uiColorsToSettings();
+        this.gameState.blocksDirty=true;
+      }
+      );
+    };
+
+    this.settings.ui.expandButton.addEventListener("click", ()=>{
+      if(this.settings.ui.expandButton.classList.contains("active")) {
+        this.page.showSettingsDiv();
+      } else {
+        this.page.hideSettingsDiv();
+      }
     });
   }
 
   private setAudioState() {
-    this.settings.togMusic.classList.contains("active") ? this.music.play() : this.music.pause();
-    this.soundEnabled = this.settings.togSound.classList.contains("active");
+    this.settings.ui.togMusic.classList.contains("active") ? this.music.play() : this.music.pause();
+    this.soundEnabled = this.settings.ui.togSound.classList.contains("active");
   }
   playSoundEffect() {
     if (this.soundEnabled) {
@@ -122,7 +141,6 @@ class GameRunner {
     // needs to serialize GameState and GameSettings
     const state = this.gameState.serialize();
     const settings = this.settings.serialize();
-
     localStorage.setItem("b4g", JSON.stringify({state, settings}));
   }
 
@@ -133,8 +151,8 @@ class GameRunner {
       this.settings.deserialize(settings);
       this.gameState.deserialize(state);
       this.setAudioState();
+      this.renderer.adjustCanvasSize();
     }
-    debugger;
   }
 }
 
