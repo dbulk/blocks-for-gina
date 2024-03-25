@@ -1,9 +1,8 @@
-import GameState from "./gamestate.js"
+import GameState from './gamestate.js';
 
-import GameSettings from "./gamesettings.js";
-import htmlInterface from "./htmlinterface.js";
-import Renderer from "./renderer.js";
-
+import type GameSettings from './gamesettings.js';
+import type htmlInterface from './htmlinterface.js';
+import type Renderer from './renderer.js';
 
 const MOVERATE = 0.15;
 class GameRunner {
@@ -16,38 +15,32 @@ class GameRunner {
   music: HTMLAudioElement;
   soundEnabled: boolean = true;
 
-  constructor(renderer: Renderer, settings: GameSettings, page: htmlInterface) {
+  constructor (renderer: Renderer, settings: GameSettings, page: htmlInterface) {
     this.renderer = renderer;
     this.settings = settings;
-    this.audio = new Audio("./sound.wav");
+    this.audio = new Audio('./sound.wav');
     this.gameState = new GameState(this.playSoundEffect.bind(this));
-    this.gameState.initializeGrid(settings.numRows, settings.numColumns, settings.numBlockTypes, settings.clusterStrength)
-
+    this.gameState.initializeGrid(settings.numRows, settings.numColumns, settings.numBlockTypes, settings.clusterStrength);
     renderer.setGameState(this.gameState);
-
     this.page = page;
-    this.canvas = this.page.canvas as HTMLCanvasElement;
+    this.canvas = page.canvas;
     this.attachListeners();
 
-    this.music = new Audio("./scott-buckley-permafrost(chosic.com).mp3");
+    this.music = new Audio('./scott-buckley-permafrost(chosic.com).mp3');
     this.music.loop = true;
-    this.music.play();
+    this.music.play().catch(() => {});
     this.gameLoop();
     this.deserialize();
 
-    
-    if(this.soundEnabled){
-      this.audio.play();
-    }
-    
-    window.addEventListener("beforeunload", this.serialize.bind(this));
+    this.playSoundEffect();
+    window.addEventListener('beforeunload', this.serialize.bind(this));
   }
 
-  private gameLoop() {
+  private gameLoop (): void {
     this.gameState.updateBlocks();
 
     if (this.gameState.animating) {
-      requestAnimationFrame(() => this.animationLoop(performance.now()));
+      requestAnimationFrame(() => { this.animationLoop(performance.now()); });
     }
 
     if (this.gameState.blocksDirty) {
@@ -59,10 +52,9 @@ class GameRunner {
 
     // Schedule the next iteration of the game loop
     requestAnimationFrame(this.gameLoop.bind(this));
-
   }
 
-  private animationLoop(startTime: number) {
+  private animationLoop (startTime: number): void {
     const elapsedTime = performance.now() - startTime;
     const numSteps = Math.floor(elapsedTime * MOVERATE);
     // increment startTime based on how much has been "used"
@@ -78,48 +70,48 @@ class GameRunner {
       this.gameState.animating = false;
       this.gameState.blocksDirty = true;
     } else {
-      requestAnimationFrame(() => this.animationLoop(startTime));
+      requestAnimationFrame(() => { this.animationLoop(startTime); });
     }
   }
 
-  private attachListeners() {
-    this.canvas.addEventListener("click", this.gameState.doPop.bind(this.gameState));
-    this.canvas.addEventListener("mousemove", (event: MouseEvent) => {
+  private attachListeners (): void {
+    this.canvas.addEventListener('click', this.gameState.doPop.bind(this.gameState));
+    this.canvas.addEventListener('mousemove', (event: MouseEvent) => {
       const coord = this.renderer.getGridIndicesFromMouse(event);
       this.gameState.updateSelection(coord);
     });
     this.canvas.addEventListener(
-      "mouseleave",
-      () => this.gameState.updateSelection({ row: -1, col: -1 })
+      'mouseleave',
+      () => { this.gameState.updateSelection({ row: -1, col: -1 }); }
     );
 
     this.settings.ui.cmdNewGame.addEventListener(
-      "click",
+      'click',
       () => {
         this.settings.uiToSettings();
-        this.gameState.initializeGrid(this.settings.numRows,this.settings.numColumns,this.settings.numBlockTypes, this.settings.clusterStrength);
+        this.gameState.initializeGrid(this.settings.numRows, this.settings.numColumns, this.settings.numBlockTypes, this.settings.clusterStrength);
         this.renderer.adjustCanvasSize();
       }
     );
 
-    this.settings.ui.togMusic.addEventListener("click", () => {
+    this.settings.ui.togMusic.addEventListener('click', () => {
       this.setAudioState();
     });
 
-    this.settings.ui.togSound.addEventListener("click", () => {
-      this.setAudioState()
+    this.settings.ui.togSound.addEventListener('click', () => {
+      this.setAudioState();
     });
 
-    for(const el of this.settings.ui.inputColors){
-      el.addEventListener("input", ()=>{
+    for (const el of this.settings.ui.inputColors) {
+      el.addEventListener('input', () => {
         this.settings.uiColorsToSettings();
-        this.gameState.blocksDirty=true;
+        this.gameState.blocksDirty = true;
       }
       );
     };
 
-    this.settings.ui.expandButton.addEventListener("click", ()=>{
-      if(this.settings.ui.expandButton.classList.contains("active")) {
+    this.settings.ui.expandButton.addEventListener('click', () => {
+      if (this.settings.ui.expandButton.classList.contains('active')) {
         this.page.showSettingsDiv();
       } else {
         this.page.hideSettingsDiv();
@@ -127,29 +119,32 @@ class GameRunner {
     });
   }
 
-  private setAudioState() {
-    this.settings.ui.togMusic.classList.contains("active") ? this.music.play() : this.music.pause();
-    this.soundEnabled = this.settings.ui.togSound.classList.contains("active");
+  private setAudioState (): void {
+    this.settings.ui.togMusic.classList.contains('active')
+      ? this.music.play().catch(() => {})
+      : this.music.pause();
+    this.soundEnabled = this.settings.ui.togSound.classList.contains('active');
   }
-  playSoundEffect() {
+
+  playSoundEffect (): void {
     if (this.soundEnabled) {
-      this.audio.play();
+      this.audio.play().catch(() => {});
     }
   }
 
-  serialize() {
+  serialize (): void {
     // needs to serialize GameState and GameSettings
     const state = this.gameState.serialize();
     const settings = this.settings.serialize();
-    localStorage.setItem("b4g", JSON.stringify({state, settings}));
+    localStorage.setItem('b4g', JSON.stringify({ state, settings }));
   }
 
-  deserialize() {
-    const data = localStorage.getItem("b4g");
-    if(data){
-      const {state, settings} = JSON.parse(data);
-      this.settings.deserialize(settings);
-      this.gameState.deserialize(state);
+  deserialize (): void {
+    const data = localStorage.getItem('b4g');
+    if (data !== null) {
+      const { state, settings } = JSON.parse(data);
+      this.settings.deserialize(settings); // todo: fix type
+      this.gameState.deserialize(state); // todo: fix type
       this.setAudioState();
       this.renderer.adjustCanvasSize();
     }

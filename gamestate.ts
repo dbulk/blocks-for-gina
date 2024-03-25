@@ -1,19 +1,23 @@
 interface item {
-  id: number | null;
-  xoffset: number;
-  yoffset: number;
+  id: number | null
+  xoffset: number
+  yoffset: number
 }
 interface coordinate {
-  row: number;
-  col: number;
+  row: number
+  col: number
 }
 interface serializationPayload {
-  griddata: (number | null)[][],
+  griddata: Array<Array<(number | null)>>
   score: number
+}
+interface xy {
+  x: number
+  y: number
 }
 
 const isEqual = (a: coordinate, b: coordinate): boolean =>
-  a.row == b.row && a.col == b.col;
+  a.row === b.row && a.col === b.col;
 
 class GameState {
   private grid: item[][] = [];
@@ -27,45 +31,44 @@ class GameState {
   private numRows: number = 0;
   private numColumns: number = 0;
   private selectionCache: coordinate = { row: -1, col: -1 };
-  private soundEffectCallback: Function;
+  private readonly soundEffectCallback: () => void;
 
-  constructor(soundEffectCallback: Function) { this.soundEffectCallback = soundEffectCallback; }
+  constructor (soundEffectCallback: () => void) { this.soundEffectCallback = soundEffectCallback; }
 
-  getScore(): number {
+  getScore (): number {
     return this.score;
   }
 
-  getPopListScore(): number {
+  getPopListScore (): number {
     return this.computeScore(this.popList.length);
   }
 
-  getNumBlocksRemaining(): number {
+  getNumBlocksRemaining (): number {
     return this.numBlocksInColumn.reduce((a, v) => a + v, 0);
   }
 
-  getNumBlocksToPop(): number {
+  getNumBlocksToPop (): number {
     return this.popList.length;
   }
 
-  resetScore() {
+  resetScore (): void {
     this.score = 0;
   }
 
-  initializeGrid(numRows: number, numColumns: number, numBlockTypes: number, clusterStrength: number) {
+  initializeGrid (numRows: number, numColumns: number, numBlockTypes: number, clusterStrength: number): void {
     this.numRows = numRows;
     this.numColumns = numColumns;
 
-    this.grid=[];
+    this.grid = [];
     for (let row = 0; row < this.numRows; row++) {
       this.grid[row] = Array(this.numColumns);
       for (let col = 0; col < this.numColumns; col++) {
-        this.grid[row][col] = { xoffset: 0, yoffset: 0, id: Math.floor(Math.random() * numBlockTypes) }
+        this.grid[row][col] = { xoffset: 0, yoffset: 0, id: Math.floor(Math.random() * numBlockTypes) };
         if ((row > 0 || col > 0) && Math.random() < clusterStrength) {
           const neighbors = [];
-          if (row > 0) neighbors.push({ row: row - 1, col: col });
-          if (col > 0) neighbors.push({ row: row, col: col - 1 });
-          if (row > 0 && col > 0)
-            neighbors.push({ row: row - 1, col: col - 1 });
+          if (row > 0) neighbors.push({ row: row - 1, col });
+          if (col > 0) neighbors.push({ row, col: col - 1 });
+          if (row > 0 && col > 0) { neighbors.push({ row: row - 1, col: col - 1 }); }
           const src = neighbors[Math.floor(Math.random() * neighbors.length)];
           this.grid[row][col].id = this.grid[src.row][src.col].id;
         }
@@ -75,16 +78,16 @@ class GameState {
     this.blocksDirty = true;
   }
 
-  getBlockID(c: coordinate): number | null {
+  getBlockID (c: coordinate): number | null {
     return this.grid[c.row][c.col].id;
   }
 
-  getBlockOffset(c: coordinate) {
+  getBlockOffset (c: coordinate): xy {
     const item = this.grid[c.row][c.col];
     return { x: item.xoffset, y: item.yoffset };
   }
 
-  updateSelection(target: coordinate) {
+  updateSelection (target: coordinate): void {
     if (!this.isLocationInGrid(target)) {
       target = { row: -1, col: -1 };
       this.popList = [];
@@ -98,9 +101,9 @@ class GameState {
     this.selectionCache = target;
   }
 
-  private getFloodedCoordinates(coord: coordinate): coordinate[] {
+  private getFloodedCoordinates (coord: coordinate): coordinate[] {
     const ret: coordinate[] = [];
-    const visited: Set<string> = new Set();
+    const visited = new Set<string>();
 
     const target = this.grid[coord.row][coord.col].id;
     const fill = (c: coordinate): void => {
@@ -126,7 +129,7 @@ class GameState {
     return ret;
   }
 
-  private isLocationInGrid(c: coordinate): boolean {
+  private isLocationInGrid (c: coordinate): boolean {
     return (
       c.row >= 0 &&
       c.row < this.numRows &&
@@ -135,8 +138,8 @@ class GameState {
     );
   }
 
-  doPop() {
-    if (this.popList.length) {
+  doPop (): void {
+    if (this.popList.length > 0) {
       this.needsPop = true;
       this.score += this.computeScore(this.popList.length);
       this.blocksDirty = true;
@@ -144,21 +147,21 @@ class GameState {
     }
   }
 
-  private markBlockNull(coord: coordinate) {
+  private markBlockNull (coord: coordinate): void {
     this.grid[coord.row][coord.col].id = null;
   }
 
-  private removeBlock(coord: coordinate, dropMap: Map<String, number>) {
+  private removeBlock (coord: coordinate, dropMap: Map<string, number>): void {
     this.markBlockNull(coord);
     for (let row = 0; row < coord.row; row++) {
       const key = `${row},${coord.col}`;
       const prevValue = dropMap.get(key);
-      dropMap.set(key, prevValue ? prevValue + 1 : 1);
+      dropMap.set(key, prevValue === undefined ? 1 : prevValue + 1);
     }
     this.numBlocksInColumn[coord.col]--;
   }
 
-  private zeroOffsets() {
+  private zeroOffsets (): void {
     for (const row of this.grid) {
       for (const block of row) {
         block.xoffset = 0;
@@ -167,7 +170,7 @@ class GameState {
     }
   }
 
-  private applyDrop(dropMap: Map<String, number>) {
+  private applyDrop (dropMap: Map<string, number>): void {
     // note: it's important to apply the drop from bottom to top...
     for (let row = this.grid.length - 2; row >= 0; row--) {
       for (let col = 0; col < this.grid[0].length; col++) {
@@ -185,11 +188,12 @@ class GameState {
     }
   }
 
-  private applyLeftShift() {
+  private applyLeftShift (): void {
+    // eslint-disable-next-line no-return-assign
     const leftShift = this.numBlocksInColumn.map((val) => val === 0).map((sum => value => sum += value ? 1 : 0)(0));
     for (let col = 1; col < this.numColumns; col++) {
       const mv = leftShift[col - 1];
-      if (mv) {
+      if (mv > 0) {
         for (let row = 0; row < this.numRows; row++) {
           const thisBlock = this.grid[row][col];
           const leftBlock = this.grid[row][col - mv];
@@ -203,9 +207,9 @@ class GameState {
     }
   }
 
-  updateBlocks() {
+  updateBlocks (): void {
     if (!this.needsPop) return;
-    const dropMap: Map<String, number> = new Map();
+    const dropMap = new Map<string, number>();
     for (const coord of this.popList) {
       this.removeBlock(coord, dropMap);
     }
@@ -219,17 +223,17 @@ class GameState {
     this.updateSelection(cursorLocation);
   }
 
-  computeScore(n: number): number {
+  computeScore (n: number): number {
     return 5 * (n ** 2 + (n > 15 ? 2 * n ** 2 : 0) + (n > 30 ? 2 * n ** 2 : 0));
   }
 
-  decrementOffsets(amount: number): boolean {
+  decrementOffsets (amount: number): boolean {
     let hasOffset = false;
     for (const row of this.grid) {
       for (const block of row) {
         block.xoffset = Math.max(block.xoffset - amount, 0);
         block.yoffset = Math.max(block.yoffset - amount, 0);
-        if (block.xoffset || block.yoffset) {
+        if (block.xoffset > 0 || block.yoffset > 0) {
           hasOffset = true;
         }
       }
@@ -237,13 +241,14 @@ class GameState {
     return hasOffset;
   }
 
-  serialize() : serializationPayload {
+  serialize (): serializationPayload {
     return {
       griddata: this.grid.map((x) => x.map((y) => y.id)),
       score: this.score
     };
   }
-  deserialize(payload : serializationPayload) {
+
+  deserialize (payload: serializationPayload): void {
     const data = payload.griddata;
     this.initializeGrid(data.length, data[0].length, 1, 0);
 
@@ -259,6 +264,5 @@ class GameState {
     this.blocksDirty = true;
   }
 }
-
 
 export default GameState;

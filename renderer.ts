@@ -1,31 +1,31 @@
-import GameSettings from "./gamesettings.js";
-import GameState from "./gamestate.js"
+import type GameSettings from './gamesettings.js';
+import type GameState from './gamestate.js';
 
 interface coordinate {
-  row: number;
-  col: number;
+  row: number
+  col: number
 }
 
 // todo: compute this? compute max num blocks?
 const MAXBLOCKSIZE = 100;
 
 class Renderer {
-  private canvas: HTMLCanvasElement;
-  private ctx: CanvasRenderingContext2D | null;
+  private readonly canvas: HTMLCanvasElement;
+  private readonly ctx: CanvasRenderingContext2D | null;
+  private readonly blockCanvases: HTMLCanvasElement[] = [];
+  private readonly gameSettings: GameSettings;
   private gameState!: GameState;
-  private gameSettings: GameSettings;
   private scorePanelSize = 50;
   private blockSize: number = 0;
-  private blockCanvases: HTMLCanvasElement[] = [];
 
-  constructor(canvas: HTMLCanvasElement, gameSettings: GameSettings) {
+  constructor (canvas: HTMLCanvasElement, gameSettings: GameSettings) {
     this.canvas = canvas;
-    this.ctx = canvas.getContext("2d");
+    this.ctx = canvas.getContext('2d');
     this.gameSettings = gameSettings;
 
     // create an offscreen canvas for each block type:
     for (let i = 0; i < gameSettings.blockColors.length; i++) {
-      const canvas = document.createElement("canvas");
+      const canvas = document.createElement('canvas');
       canvas.width = MAXBLOCKSIZE;
       canvas.height = MAXBLOCKSIZE;
       this.blockCanvases.push(canvas);
@@ -34,13 +34,13 @@ class Renderer {
     this.adjustCanvasSize();
   }
 
-  setGameState(gameState: GameState) {
+  setGameState (gameState: GameState): void {
     // temporary  until we move to gamestate
     this.gameState = gameState;
   }
 
-  renderBlocks() {
-    if (!this.ctx) {
+  renderBlocks (): void {
+    if (this.ctx === null) {
       return;
     }
 
@@ -63,9 +63,9 @@ class Renderer {
     }
   }
 
-  renderPreview(coords: coordinate[]) {
+  renderPreview (coords: coordinate[]): void {
     // Implement rendering logic
-    if (!this.ctx) {
+    if (this.ctx === null) {
       return;
     }
     this.createOffscrenCanvases(-10);
@@ -75,7 +75,7 @@ class Renderer {
     }
   }
 
-  adjustCanvasSize() {
+  adjustCanvasSize (): void {
     // Calculate new canvas width based on 50% of window width
     const windowWidth = window.innerWidth;
     const newCanvasWidth =
@@ -91,12 +91,12 @@ class Renderer {
     this.canvas.height = boardheight + this.scorePanelSize;
 
     this.blockSize = this.canvas.width / this.gameSettings.numColumns;
-    if (this.gameState) {
+    if (this.gameState !== undefined) {
       this.gameState.blocksDirty = true;
     }
   }
 
-  getGridIndicesFromMouse(event: MouseEvent): coordinate {
+  getGridIndicesFromMouse (event: MouseEvent): coordinate {
     const rect = this.canvas.getBoundingClientRect();
     const mouseX = event.clientX - rect.left;
     const mouseY = event.clientY - rect.top;
@@ -107,12 +107,12 @@ class Renderer {
     return { row, col };
   }
 
-  private createOffscrenCanvases(lightStrength: number): void {
+  private createOffscrenCanvases (lightStrength: number): void {
     for (let i = 0; i < this.blockCanvases.length; i++) {
       const canvas = this.blockCanvases[i];
       const color = this.gameSettings.blockColors[i];
-      const ctx = canvas.getContext("2d");
-      if (ctx) {
+      const ctx = canvas.getContext('2d');
+      if (ctx !== null) {
         const gradient = ctx.createLinearGradient(
           0,
           0,
@@ -126,19 +126,20 @@ class Renderer {
         ctx.fillRect(0, 0, MAXBLOCKSIZE, MAXBLOCKSIZE);
 
         if (this.gameSettings.blockLabels) {
-          const fontFamily = "Arial"; // Font family
+          const fontFamily = 'Arial'; // Font family
           ctx.font = `${MAXBLOCKSIZE / 2}px ${fontFamily}`;
-          ctx.fillStyle = "black";
-          ctx.textAlign = "center";
-          ctx.textBaseline = "middle";
-          const lbl = String.fromCharCode("A".charCodeAt(0) + i);
+          ctx.fillStyle = 'black';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          const lbl = String.fromCharCode('A'.charCodeAt(0) + i);
           ctx.fillText(`${lbl}`, MAXBLOCKSIZE / 2, MAXBLOCKSIZE / 2);
         }
       }
     }
   }
-  private renderBlock(coord: coordinate): void {
-    if (!this.ctx) {
+
+  private renderBlock (coord: coordinate): void {
+    if (this.ctx === null) {
       return;
     }
     const id = this.gameState.getBlockID(coord);
@@ -152,15 +153,15 @@ class Renderer {
     this.ctx.drawImage(this.blockCanvases[id], x, y, sz, sz);
   }
 
-  private lightenColor(color: string, percent: number): string {
-    const num = parseInt(color.replace("#", ""), 16);
+  private lightenColor (color: string, percent: number): string {
+    const num = parseInt(color.replace('#', ''), 16);
     const amt = Math.round(2.55 * percent);
     const R = (num >> 16) + amt;
     const G = ((num >> 8) & 0x00ff) + amt;
     const B = (num & 0x0000ff) + amt;
 
     return (
-      "#" +
+      '#' +
       (
         0x1000000 +
         (R < 255 ? (R < 1 ? 0 : R) : 255) * 0x10000 +
@@ -172,14 +173,14 @@ class Renderer {
     );
   }
 
-  renderScoreBoard() {
-    if (!this.ctx) {
+  renderScoreBoard (): void {
+    if (this.ctx === null) {
       return;
     }
-    this.ctx.fillStyle = "grey";
+    this.ctx.fillStyle = 'grey';
     this.ctx.fillRect(0, 0, this.canvas.width, this.scorePanelSize);
 
-    this.ctx.strokeStyle = "black";
+    this.ctx.strokeStyle = 'black';
     this.ctx.lineWidth = 2; // Adjust the line width as needed
     this.ctx.beginPath();
     this.ctx.moveTo(0, this.scorePanelSize); // Start from the top-left corner of the rectangle
@@ -187,28 +188,28 @@ class Renderer {
     this.ctx.stroke(); // Draw the line
 
     const fontSize = this.scorePanelSize - 10; // Font size in pixels
-    const fontFamily = "Arial"; // Font family
+    const fontFamily = 'Arial'; // Font family
     this.ctx.font = `${fontSize}px ${fontFamily}`;
-    this.ctx.fillStyle = "black";
+    this.ctx.fillStyle = 'black';
 
-    this.ctx.textAlign = "left";
-    this.ctx.textBaseline = "ideographic";
+    this.ctx.textAlign = 'left';
+    this.ctx.textBaseline = 'ideographic';
 
     const blocksSelected = this.gameState.getNumBlocksToPop();
-    
+
     this.ctx.fillText(
-      blocksSelected
+      blocksSelected === 0
         ? `Blocks: ${this.gameState.getNumBlocksRemaining()} (${blocksSelected})`
         : `Blocks: ${this.gameState.getNumBlocksRemaining()}`,
       10,
       this.scorePanelSize - 5
     );
 
-    this.ctx.textAlign = "right";
+    this.ctx.textAlign = 'right';
     const score = this.gameState.getScore();
     const selScore = this.gameState.getPopListScore();
     this.ctx.fillText(
-      blocksSelected ? `Score: ${score} (${selScore})` : `Score: ${score}`,
+      blocksSelected === 0 ? `Score: ${score} (${selScore})` : `Score: ${score}`,
       this.canvas.width - 10,
       this.scorePanelSize - 5
     );

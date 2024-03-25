@@ -1,4 +1,4 @@
-const styleElement = document.createElement("style");
+const styleElement = document.createElement('style');
 styleElement.textContent = `  
 .blocks4Gina { 
   
@@ -100,5 +100,3 @@ styleElement.textContent = `
 `;
 
 export default styleElement;
-
-
