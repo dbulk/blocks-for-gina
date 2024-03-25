@@ -198,7 +198,7 @@ class Renderer {
     const blocksSelected = this.gameState.getNumBlocksToPop();
 
     this.ctx.fillText(
-      blocksSelected === 0
+      blocksSelected !== 0
         ? `Blocks: ${this.gameState.getNumBlocksRemaining()} (${blocksSelected})`
         : `Blocks: ${this.gameState.getNumBlocksRemaining()}`,
       10,
@@ -209,7 +209,7 @@ class Renderer {
     const score = this.gameState.getScore();
     const selScore = this.gameState.getPopListScore();
     this.ctx.fillText(
-      blocksSelected === 0 ? `Score: ${score} (${selScore})` : `Score: ${score}`,
+      blocksSelected !== 0 ? `Score: ${score} (${selScore})` : `Score: ${score}`,
       this.canvas.width - 10,
       this.scorePanelSize - 5
     );
