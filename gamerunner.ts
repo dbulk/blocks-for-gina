@@ -89,6 +89,7 @@ class GameRunner {
       'click',
       () => {
         this.settings.uiToSettings();
+        this.gameState.resetScore();
         this.gameState.initializeGrid(this.settings.numRows, this.settings.numColumns, this.settings.numBlockTypes, this.settings.clusterStrength);
         this.renderer.adjustCanvasSize();
       }
