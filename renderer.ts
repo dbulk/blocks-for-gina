@@ -76,20 +76,22 @@ class Renderer {
   }
 
   adjustCanvasSize (): void {
-    // Calculate new canvas width based on 50% of window width
-    const windowWidth = window.innerWidth;
-    const newCanvasWidth =
-      Math.round((windowWidth * 0.8) / this.gameSettings.numColumns) *
-      this.gameSettings.numColumns;
+    // choose whether width or height is the constraint:
+    const heightNormRows = window.innerHeight / this.gameSettings.numRows;
+    const widthNormCols = window.innerWidth / this.gameSettings.numColumns;
 
-    // Set canvas size
-    this.canvas.width = newCanvasWidth;
     const AR = this.gameSettings.numRows / this.gameSettings.numColumns;
-
-    const boardheight = this.canvas.width * AR;
-    this.scorePanelSize = Math.min(boardheight * 0.1, 50);
-    this.canvas.height = boardheight + this.scorePanelSize;
-
+    if (widthNormCols > heightNormRows) {
+      // plenty of width, use height as constraint
+      this.canvas.height = window.innerHeight * 0.8;
+      this.canvas.width = this.canvas.height / AR;
+    } else {
+      // plenty of height, use width as a constraint
+      this.canvas.width = window.innerWidth * 0.8;
+      this.canvas.height = this.canvas.width * AR;
+    }
+    this.scorePanelSize = Math.min(this.canvas.height * 0.1, 50);
+    this.canvas.height += this.scorePanelSize;
     this.blockSize = this.canvas.width / this.gameSettings.numColumns;
     if (this.gameState !== undefined) {
       this.gameState.blocksDirty = true;
