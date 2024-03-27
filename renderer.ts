@@ -35,7 +35,6 @@ class Renderer {
   }
 
   setGameState (gameState: GameState): void {
-    // temporary  until we move to gamestate
     this.gameState = gameState;
   }
 
@@ -215,6 +214,13 @@ class Renderer {
       this.canvas.width - 10,
       this.scorePanelSize - 5
     );
+
+    this.ctx.textAlign = 'center';
+    const t = this.gameState.getPlayedDuration();
+    const h = t.hours > 0 ? `${t.hours}:` : '';
+    const m = t.minutes.toString().padStart(2, '0');
+    const s = t.seconds.toString().padStart(2, '0');
+    this.ctx.fillText(`${h}${m}:${s}`, this.canvas.width / 2, this.scorePanelSize - 5);
   }
 }
 

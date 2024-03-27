@@ -20,10 +20,13 @@ class GameRunner {
     this.settings = settings;
     this.audio = new Audio('./sound.wav');
     this.gameState = new GameState(this.playSoundEffect.bind(this));
-    this.gameState.initializeGrid(settings.numRows, settings.numColumns, settings.numBlockTypes, settings.clusterStrength);
-    renderer.setGameState(this.gameState);
+
+    // todo: make a newgame method (also called by cmdNewGame
+    // it does: initialize grid, reset clock and score, set gameState on renderer (?), adjust canvas size
     this.page = page;
     this.canvas = page.canvas;
+
+    this.newGame();
     this.attachListeners();
 
     this.music = new Audio('./scott-buckley-permafrost(chosic.com).mp3');
@@ -36,6 +39,14 @@ class GameRunner {
     window.addEventListener('beforeunload', this.serialize.bind(this));
   }
 
+  private newGame (): void {
+    this.renderer.setGameState(this.gameState);
+    this.gameState.initializeGrid(this.settings.numRows, this.settings.numColumns, this.settings.numBlockTypes, this.settings.clusterStrength);
+    this.gameState.resetClock();
+    this.gameState.resetScore();
+    this.renderer.adjustCanvasSize();
+  }
+
   private gameLoop (): void {
     this.gameState.updateBlocks();
 
@@ -46,10 +57,10 @@ class GameRunner {
     if (this.gameState.blocksDirty) {
       this.renderer.renderBlocks();
       this.renderer.renderPreview(this.gameState.popList);
-      this.renderer.renderScoreBoard();
       this.gameState.blocksDirty = false;
     }
 
+    this.renderer.renderScoreBoard();
     // Schedule the next iteration of the game loop
     requestAnimationFrame(this.gameLoop.bind(this));
   }
@@ -89,9 +100,7 @@ class GameRunner {
       'click',
       () => {
         this.settings.uiToSettings();
-        this.gameState.resetScore();
-        this.gameState.initializeGrid(this.settings.numRows, this.settings.numColumns, this.settings.numBlockTypes, this.settings.clusterStrength);
-        this.renderer.adjustCanvasSize();
+        this.newGame();
       }
     );
 

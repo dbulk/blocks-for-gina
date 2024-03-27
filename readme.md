@@ -12,7 +12,6 @@ Gina was playing blocks at 1001games, I thought the game was ugly and it would b
 
 ### New Features
  - undo/redo stack (via serialized game state?)
- - add game played clock (and serialize/deserialize it)...
  - high scores somewhere
  - game analysis (e.g. compute max remaining score?)
 
@@ -20,7 +19,7 @@ Gina was playing blocks at 1001games, I thought the game was ugly and it would b
  - Consider putting music buttons in settings
  - mobile: better layout esp. ui, disable preview with touch
  - reset button for settings
- - could do better with responsive layout (esp. for settings)...
+ - could do better with responsive layout (settings, scoreboard)...
 
 ### Optimization
  - optimize render with blockdirty or column dirty...or even tiling

@@ -10,10 +10,17 @@ interface coordinate {
 interface serializationPayload {
   griddata: Array<Array<(number | null)>>
   score: number
+  serializedGameDuration: number
 }
 interface xy {
   x: number
   y: number
+}
+
+interface time {
+  hours: number
+  minutes: number
+  seconds: number
 }
 
 const isEqual = (a: coordinate, b: coordinate): boolean =>
@@ -25,6 +32,8 @@ class GameState {
   blocksDirty = true;
   animating = false;
   private score: number = 0;
+  private gameStartTime: number = 0;
+  private serializedGameDuration: number = 0;
   private numBlocksInColumn: number[] = [];
   private needsPop: boolean = false;
 
@@ -53,6 +62,20 @@ class GameState {
 
   resetScore (): void {
     this.score = 0;
+  }
+
+  resetClock (): void {
+    this.gameStartTime = performance.now();
+    this.serializedGameDuration = 0;
+  }
+
+  getPlayedDuration (): time {
+    const duration = performance.now() - this.gameStartTime + this.serializedGameDuration;
+    const seconds = Math.floor((duration / 1000) % 60);
+    const minutes = Math.floor((duration / (1000 * 60)) % 60);
+    const hours = Math.floor((duration / (1000 * 60 * 60)));
+
+    return { hours, minutes, seconds };
   }
 
   initializeGrid (numRows: number, numColumns: number, numBlockTypes: number, clusterStrength: number): void {
@@ -244,7 +267,8 @@ class GameState {
   serialize (): serializationPayload {
     return {
       griddata: this.grid.map((x) => x.map((y) => y.id)),
-      score: this.score
+      score: this.score,
+      serializedGameDuration: this.serializedGameDuration + performance.now() - this.gameStartTime
     };
   }
 
@@ -262,6 +286,7 @@ class GameState {
 
     this.score = payload.score;
     this.blocksDirty = true;
+    this.serializedGameDuration = 'serializedGameDuration' in payload ? payload.serializedGameDuration : 0;
   }
 }
 
