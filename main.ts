@@ -24,7 +24,7 @@ function run (): void {
   page.resize();
 
   page.startButton.addEventListener('click', () => {
-    page.showControls();
+    page.ui.setVisibility(true);
     page.hideStartButton();
     // eslint-disable-next-line no-new
     new GameRunner(renderer, gameSettings, page);

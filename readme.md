@@ -4,7 +4,6 @@ Gina was playing blocks at 1001games, I thought the game was ugly and it would b
 
 ## Todos
 ### Cleanup
- - make `uinode` a class or at least put it somewhere so it's not c/p
  - cleanup of listener creation, own class or sep/concerns
  - make it a custom element
  - move scoreboard update out of `renderer`, cleanup

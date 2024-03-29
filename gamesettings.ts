@@ -1,27 +1,15 @@
-// todo: put this somewhere (maybe it's even a class to make it easier to manip?)
-interface uinodes {
-  div: HTMLDivElement
-  cmdNewGame: HTMLButtonElement
-  togMusic: HTMLButtonElement
-  togSound: HTMLButtonElement
-  expandButton: HTMLButtonElement
-  divSettings: HTMLDivElement
-  inputRows: HTMLInputElement
-  inputColumns: HTMLInputElement
-  inputClusterStrength: HTMLInputElement
-  inputColors: HTMLInputElement[]
-}
+import type UINodes from './uinodes.js';
 
 class GameSettings {
   numColumns!: number;
   numRows!: number;
-  blockColors!: string[];
+  blockColors: string[] = [];
   numBlockTypes!: number;
   clusterStrength!: number;
   blockLabels!: boolean;
-  ui: uinodes;
+  ui: UINodes;
 
-  constructor (ui: uinodes) {
+  constructor (ui: UINodes) {
     this.ui = ui;
     this.loadSettings();
     this.settingsToUI();
@@ -42,8 +30,8 @@ class GameSettings {
     this.numColumns = 'numColumns' in settings ? settings.numColumns : 20;
     this.numRows = 'numRows' in settings ? settings.numRows : 10;
     this.clusterStrength = 'clusterStrength' in settings ? settings.clusterStrength : 0.2;
-    settings.isMusicEnabled ? this.ui.togMusic.classList.add('active') : this.ui.togMusic.classList.remove('active');
-    settings.isSoundEnabled ? this.ui.togSound.classList.add('active') : this.ui.togSound.classList.remove('active');
+    this.ui.setTogMusic(settings.isMusicEnabled);
+    this.ui.setTogSound(settings.isSoundEnabled);
     this.settingsToUI();
   }
 
@@ -53,32 +41,29 @@ class GameSettings {
       numColumns: this.numColumns,
       numRows: this.numRows,
       clusterStrength: this.clusterStrength,
-      isMusicEnabled: this.ui.togMusic.classList.contains('active'),
-      isSoundEnabled: this.ui.togSound.classList.contains('active')
+      isMusicEnabled: this.ui.getTogMusic(),
+      isSoundEnabled: this.ui.getTogSound()
     };
   }
 
   settingsToUI (): void {
-    this.ui.inputRows.value = this.numRows.toString();
-    this.ui.inputColumns.value = this.numColumns.toString();
-    this.ui.inputClusterStrength.value = this.clusterStrength.toString();
-    for (let i = 0; i < this.numBlockTypes; ++i) {
-      this.ui.inputColors[i].value = this.blockColors[i];
-    }
+    this.ui.setInputRows(this.numRows);
+    this.ui.setInputColumns(this.numColumns);
+    this.ui.setInputClusterStrength(this.clusterStrength);
+    this.ui.setInputColors(this.blockColors);
   }
 
   uiToSettings (): void {
     // note: this shouldn't be called 'mid-game'
-    this.numRows = this.ui.inputRows.valueAsNumber;
-    this.numColumns = this.ui.inputColumns.valueAsNumber;
-    this.clusterStrength = this.ui.inputClusterStrength.valueAsNumber;
+    this.numRows = this.ui.getInputRows();
+    this.numColumns = this.ui.getInputColumns();
+    this.clusterStrength = this.ui.getInputClusterStrength();
   }
 
   uiColorsToSettings (): void {
     // this is safe to call mid game
-    for (let i = 0; i < this.numBlockTypes; ++i) {
-      this.blockColors[i] = this.ui.inputColors[i].value;
-    }
+    this.blockColors = [];
+    this.ui.getInputColors(this.blockColors);
   }
 }
 

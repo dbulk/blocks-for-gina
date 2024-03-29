@@ -10,7 +10,7 @@ class GameRunner {
   settings: GameSettings;
   gameState: GameState;
   canvas: HTMLCanvasElement;
-  page: htmlInterface;
+  private readonly page: htmlInterface;
   audio: HTMLAudioElement;
   music: HTMLAudioElement;
   soundEnabled: boolean = true;
@@ -21,8 +21,6 @@ class GameRunner {
     this.audio = new Audio('./sound.wav');
     this.gameState = new GameState(this.playSoundEffect.bind(this));
 
-    // todo: make a newgame method (also called by cmdNewGame
-    // it does: initialize grid, reset clock and score, set gameState on renderer (?), adjust canvas size
     this.page = page;
     this.canvas = page.canvas;
 
@@ -96,44 +94,32 @@ class GameRunner {
       () => { this.gameState.updateSelection({ row: -1, col: -1 }); }
     );
 
-    this.settings.ui.cmdNewGame.addEventListener(
-      'click',
+    this.page.ui.addNewGameClickListener(
       () => {
         this.settings.uiToSettings();
         this.newGame();
       }
     );
 
-    this.settings.ui.togMusic.addEventListener('click', () => {
+    this.page.ui.addTogMusicClickListener(() => {
       this.setAudioState();
     });
 
-    this.settings.ui.togSound.addEventListener('click', () => {
+    this.page.ui.addTogSoundClickListener(() => {
       this.setAudioState();
     });
 
-    for (const el of this.settings.ui.inputColors) {
-      el.addEventListener('input', () => {
-        this.settings.uiColorsToSettings();
-        this.gameState.blocksDirty = true;
-      }
-      );
-    };
-
-    this.settings.ui.expandButton.addEventListener('click', () => {
-      if (this.settings.ui.expandButton.classList.contains('active')) {
-        this.page.showSettingsDiv();
-      } else {
-        this.page.hideSettingsDiv();
-      }
+    this.page.ui.addInputColorsInputListener(() => {
+      this.settings.uiColorsToSettings();
+      this.gameState.blocksDirty = true;
     });
   }
 
   private setAudioState (): void {
-    this.settings.ui.togMusic.classList.contains('active')
+    this.settings.ui.getTogMusic()
       ? this.music.play().catch(() => {})
       : this.music.pause();
-    this.soundEnabled = this.settings.ui.togSound.classList.contains('active');
+    this.soundEnabled = this.settings.ui.getTogSound();
   }
 
   playSoundEffect (): void {
