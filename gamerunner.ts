@@ -77,7 +77,7 @@ class GameRunner {
     }
 
     this.renderer.renderBlocks();
-    this.renderer.renderScoreBoard();
+    this.renderer.renderScoreBoard(this.scoreBoard);
     if (turnItOff) {
       this.gameState.animating = false;
       this.gameState.blocksDirty = true;
