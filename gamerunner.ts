@@ -1,5 +1,5 @@
 import GameState from './gamestate.js';
-
+import ScoreBoard from './scoreboard.js';
 import type GameSettings from './gamesettings.js';
 import type htmlInterface from './htmlinterface.js';
 import type Renderer from './renderer.js';
@@ -14,12 +14,14 @@ class GameRunner {
   audio: HTMLAudioElement;
   music: HTMLAudioElement;
   soundEnabled: boolean = true;
+  scoreBoard: ScoreBoard;
 
   constructor (renderer: Renderer, settings: GameSettings, page: htmlInterface) {
     this.renderer = renderer;
     this.settings = settings;
     this.audio = new Audio('./sound.wav');
     this.gameState = new GameState(this.playSoundEffect.bind(this));
+    this.scoreBoard = new ScoreBoard(this.gameState);
 
     this.page = page;
     this.canvas = page.canvas;
@@ -57,8 +59,9 @@ class GameRunner {
       this.renderer.renderPreview(this.gameState.popList);
       this.gameState.blocksDirty = false;
     }
+    this.scoreBoard.update();
+    this.renderer.renderScoreBoard(this.scoreBoard);
 
-    this.renderer.renderScoreBoard();
     // Schedule the next iteration of the game loop
     requestAnimationFrame(this.gameLoop.bind(this));
   }

@@ -1,5 +1,6 @@
 import type GameSettings from './gamesettings.js';
 import type GameState from './gamestate.js';
+import type ScoreBoard from './scoreboard.js';
 
 interface coordinate {
   row: number
@@ -174,53 +175,32 @@ class Renderer {
     );
   }
 
-  renderScoreBoard (): void {
+  renderScoreBoard (scoreBoard: ScoreBoard): void {
     if (this.ctx === null) {
       return;
     }
     this.ctx.fillStyle = 'grey';
     this.ctx.fillRect(0, 0, this.canvas.width, this.scorePanelSize);
-
     this.ctx.strokeStyle = 'black';
-    this.ctx.lineWidth = 2; // Adjust the line width as needed
+    this.ctx.lineWidth = 2;
     this.ctx.beginPath();
-    this.ctx.moveTo(0, this.scorePanelSize); // Start from the top-left corner of the rectangle
-    this.ctx.lineTo(this.canvas.width, this.scorePanelSize); // Draw a line to the top-right corner
-    this.ctx.stroke(); // Draw the line
-
+    this.ctx.moveTo(0, this.scorePanelSize);
+    this.ctx.lineTo(this.canvas.width, this.scorePanelSize);
+    this.ctx.stroke();
     const fontSize = this.scorePanelSize - 10; // Font size in pixels
     const fontFamily = 'Arial'; // Font family
     this.ctx.font = `${fontSize}px ${fontFamily}`;
     this.ctx.fillStyle = 'black';
-
-    this.ctx.textAlign = 'left';
     this.ctx.textBaseline = 'ideographic';
 
-    const blocksSelected = this.gameState.getNumBlocksToPop();
-
-    this.ctx.fillText(
-      blocksSelected !== 0
-        ? `Blocks: ${this.gameState.getNumBlocksRemaining()} (${blocksSelected})`
-        : `Blocks: ${this.gameState.getNumBlocksRemaining()}`,
-      10,
-      this.scorePanelSize - 5
-    );
+    this.ctx.textAlign = 'left';
+    this.ctx.fillText(scoreBoard.blockStr, 10, this.scorePanelSize - 5);
 
     this.ctx.textAlign = 'right';
-    const score = this.gameState.getScore();
-    const selScore = this.gameState.getPopListScore();
-    this.ctx.fillText(
-      blocksSelected !== 0 ? `Score: ${score} (${selScore})` : `Score: ${score}`,
-      this.canvas.width - 10,
-      this.scorePanelSize - 5
-    );
+    this.ctx.fillText(scoreBoard.scoreStr, this.canvas.width - 10, this.scorePanelSize - 5);
 
     this.ctx.textAlign = 'center';
-    const t = this.gameState.getPlayedDuration();
-    const h = t.hours > 0 ? `${t.hours}:` : '';
-    const m = t.minutes.toString().padStart(2, '0');
-    const s = t.seconds.toString().padStart(2, '0');
-    this.ctx.fillText(`${h}${m}:${s}`, this.canvas.width / 2, this.scorePanelSize - 5);
+    this.ctx.fillText(scoreBoard.clockStr, this.canvas.width / 2, this.scorePanelSize - 5);
   }
 }
 

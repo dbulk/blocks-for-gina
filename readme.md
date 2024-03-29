@@ -6,7 +6,6 @@ Gina was playing blocks at 1001games, I thought the game was ugly and it would b
 ### Cleanup
  - cleanup of listener creation, own class or sep/concerns
  - make it a custom element
- - move scoreboard update out of `renderer`, cleanup
  - clean some naming patterns (game prefix etc.)
 
 ### New Features
@@ -30,3 +29,4 @@ Gina was playing blocks at 1001games, I thought the game was ugly and it would b
 ### Bugs
  - still a bug in deserialization of bigger grids, can't reliably repro
  - floodfill with giant grids recursion
+ - need to apply down-move before left-move
