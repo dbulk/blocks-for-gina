@@ -23,5 +23,4 @@ Gina was playing blocks at 1001games, I thought the game was ugly and it would b
 
 ### Bugs
  - still a bug in deserialization of bigger grids, can't reliably repro
- - floodfill with giant grids recursion
  - need to apply down-move before left-move

@@ -125,30 +125,34 @@ class GameState {
   }
 
   private getFloodedCoordinates (coord: coordinate): coordinate[] {
-    const ret: coordinate[] = [];
+    const ret = [];
+    const queue = [coord];
     const visited = new Set<string>();
-
     const target = this.grid[coord.row][coord.col].id;
-    const fill = (c: coordinate): void => {
-      // Check if current block is within grid bounds and has the target identity
+
+    while(queue.length > 0){
+      // check if this item is valid to look at
+      const c = queue.shift() as coordinate; // shift pops from front
+      if(!this.isLocationInGrid(c)){
+        continue;
+      }
       const key = `${c.row},${c.col}`;
-
-      if (!this.isLocationInGrid(c)) {
-        return;
+      if(visited.has(key)){
+        continue;
       }
+      visited.add(key)
       const block = this.grid[c.row][c.col].id;
-      if (block == null || block !== target || visited.has(key)) {
-        return;
+      if(block===null || block !== target){
+        continue;
       }
+      // this is a hit, add it to ret:
       ret.push(c);
-      visited.add(key);
-      fill({ row: c.row + 1, col: c.col });
-      fill({ row: c.row - 1, col: c.col });
-      fill({ row: c.row, col: c.col + 1 });
-      fill({ row: c.row, col: c.col - 1 });
-    };
+      queue.push({ row: c.row + 1, col: c.col })
+      queue.push({ row: c.row - 1, col: c.col })
+      queue.push({ row: c.row, col: c.col + 1})
+      queue.push({ row: c.row, col: c.col - 1})
+    }
 
-    fill(coord);
     return ret;
   }
 
