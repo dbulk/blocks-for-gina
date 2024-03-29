@@ -8,14 +8,12 @@ class HTMLInterface {
   startButton!: HTMLButtonElement;
   credits!: HTMLDivElement;
 
-  constructor () {
-    document.head.appendChild(styleElement);
-    const divTarget = document.getElementById('Blocks4Gina');
-    if (divTarget === null) {
-      console.error('no div for game found');
-      return;
-    }
+  constructor (root: ShadowRoot) {
+    root.appendChild(styleElement);
     this.isvalid = true;
+    const divTarget = document.createElement("div");
+    root.appendChild(divTarget);
+    
     divTarget.style.display = 'flex';
     divTarget.style.justifyContent = 'center';
     divTarget.style.alignItems = 'start';

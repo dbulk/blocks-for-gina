@@ -3,11 +3,6 @@
 Gina was playing blocks at 1001games, I thought the game was ugly and it would be fun to make my own. Mostly I'm just playing around with making a game using canvas api.
 
 ## Todos
-### Cleanup
- - cleanup of listener creation, own class or sep/concerns
- - make it a custom element
- - clean some naming patterns (game prefix etc.)
-
 ### New Features
  - undo/redo stack (via serialized game state?)
  - high scores somewhere
