@@ -1,6 +1,5 @@
 import type GameSettings from './gamesettings.js';
 import type GameState from './gamestate.js';
-import type ScoreBoard from './scoreboard.js';
 
 interface coordinate {
   row: number
@@ -16,7 +15,6 @@ class Renderer {
   private readonly blockCanvases: HTMLCanvasElement[] = [];
   private readonly gameSettings: GameSettings;
   private gameState!: GameState;
-  private scorePanelSize = 50;
   private blockSize: number = 0;
 
   constructor (canvas: HTMLCanvasElement, gameSettings: GameSettings) {
@@ -90,8 +88,6 @@ class Renderer {
       this.canvas.width = window.innerWidth * 0.8;
       this.canvas.height = this.canvas.width * AR;
     }
-    this.scorePanelSize = Math.min(this.canvas.height * 0.1, 50);
-    this.canvas.height += this.scorePanelSize;
     this.blockSize = this.canvas.width / this.gameSettings.numColumns;
     if (this.gameState !== undefined) {
       this.gameState.blocksDirty = true;
@@ -103,9 +99,7 @@ class Renderer {
     const mouseX = event.clientX - rect.left;
     const mouseY = event.clientY - rect.top;
     const col = Math.floor(mouseX / this.blockSize);
-    const row = Math.floor(
-      (mouseY - this.scorePanelSize) / this.blockSize
-    );
+    const row = Math.floor(mouseY / this.blockSize);
     return { row, col };
   }
 
@@ -151,7 +145,7 @@ class Renderer {
     const sz = this.blockSize;
     const offset = this.gameState.getBlockOffset(coord);
     const x = (coord.col + offset.x) * sz;
-    const y = (coord.row - offset.y) * sz + this.scorePanelSize;
+    const y = (coord.row - offset.y) * sz;
     this.ctx.drawImage(this.blockCanvases[id], x, y, sz, sz);
   }
 
@@ -175,33 +169,33 @@ class Renderer {
     );
   }
 
-  renderScoreBoard (scoreBoard: ScoreBoard): void {
-    if (this.ctx === null) {
-      return;
-    }
-    this.ctx.fillStyle = 'grey';
-    this.ctx.fillRect(0, 0, this.canvas.width, this.scorePanelSize);
-    this.ctx.strokeStyle = 'black';
-    this.ctx.lineWidth = 2;
-    this.ctx.beginPath();
-    this.ctx.moveTo(0, this.scorePanelSize);
-    this.ctx.lineTo(this.canvas.width, this.scorePanelSize);
-    this.ctx.stroke();
-    const fontSize = this.scorePanelSize - 10; // Font size in pixels
-    const fontFamily = 'Arial'; // Font family
-    this.ctx.font = `${fontSize}px ${fontFamily}`;
-    this.ctx.fillStyle = 'black';
-    this.ctx.textBaseline = 'ideographic';
+  // renderScoreBoard (scoreBoard: ScoreBoard): void {
+    // if (this.ctx === null) {
+    //   return;
+    // }
+    // this.ctx.fillStyle = 'grey';
+    // this.ctx.fillRect(0, 0, this.canvas.width, this.scorePanelSize);
+    // this.ctx.strokeStyle = 'black';
+    // this.ctx.lineWidth = 2;
+    // this.ctx.beginPath();
+    // this.ctx.moveTo(0, this.scorePanelSize);
+    // this.ctx.lineTo(this.canvas.width, this.scorePanelSize);
+    // this.ctx.stroke();
+    // const fontSize = this.scorePanelSize - 10; // Font size in pixels
+    // const fontFamily = 'Arial'; // Font family
+    // this.ctx.font = `${fontSize}px ${fontFamily}`;
+    // this.ctx.fillStyle = 'black';
+    // this.ctx.textBaseline = 'ideographic';
 
-    this.ctx.textAlign = 'left';
-    this.ctx.fillText(scoreBoard.blockStr, 10, this.scorePanelSize - 5);
+    // this.ctx.textAlign = 'left';
+    // this.ctx.fillText(scoreBoard.blockStr, 10, this.scorePanelSize - 5);
 
-    this.ctx.textAlign = 'right';
-    this.ctx.fillText(scoreBoard.scoreStr, this.canvas.width - 10, this.scorePanelSize - 5);
+    // this.ctx.textAlign = 'right';
+    // this.ctx.fillText(scoreBoard.scoreStr, this.canvas.width - 10, this.scorePanelSize - 5);
 
-    this.ctx.textAlign = 'center';
-    this.ctx.fillText(scoreBoard.clockStr, this.canvas.width / 2, this.scorePanelSize - 5);
-  }
+    // this.ctx.textAlign = 'center';
+    // this.ctx.fillText(scoreBoard.clockStr, this.canvas.width / 2, this.scorePanelSize - 5);
+  // }
 }
 
 export default Renderer;

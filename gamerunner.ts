@@ -21,7 +21,7 @@ class GameRunner {
     this.settings = settings;
     this.audio = new Audio('./sound.wav');
     this.gameState = new GameState(this.playSoundEffect.bind(this));
-    this.scoreBoard = new ScoreBoard(this.gameState);
+    this.scoreBoard = new ScoreBoard(this.gameState, page.scoreDisplay);
 
     this.page = page;
     this.canvas = page.canvas;
@@ -60,7 +60,6 @@ class GameRunner {
       this.gameState.blocksDirty = false;
     }
     this.scoreBoard.update();
-    this.renderer.renderScoreBoard(this.scoreBoard);
 
     // Schedule the next iteration of the game loop
     requestAnimationFrame(this.gameLoop.bind(this));
@@ -77,7 +76,7 @@ class GameRunner {
     }
 
     this.renderer.renderBlocks();
-    this.renderer.renderScoreBoard(this.scoreBoard);
+    this.scoreBoard.update();
     if (turnItOff) {
       this.gameState.animating = false;
       this.gameState.blocksDirty = true;

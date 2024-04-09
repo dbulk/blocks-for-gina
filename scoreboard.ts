@@ -1,30 +1,32 @@
 import type GameState from './gamestate';
+import type ScoreDisplay from './scoredisplay';
 
 class ScoreBoard {
   gameState: GameState;
-  blockStr: string = '';
-  scoreStr: string = '';
-  clockStr: string = '';
+  scoreDisplay: ScoreDisplay;
 
-  constructor (gameState: GameState) {
+  constructor (gameState: GameState, scoreDisplay: ScoreDisplay) {
     this.gameState = gameState;
+    this.scoreDisplay = scoreDisplay;
   }
 
   update (): void {
+    // todo: move the nonsense about selected into scoreDisplay 
     const blocksSelected = this.gameState.getNumBlocksToPop();
-    this.blockStr = blocksSelected !== 0
-      ? `Blocks: ${this.gameState.getNumBlocksRemaining()} (${blocksSelected})`
+    const blockStr = blocksSelected !== 0
+      ? `Blocks: ${this.gameState.getNumBlocksRemaining()} <span class='selected'>(${blocksSelected})</span>`
       : `Blocks: ${this.gameState.getNumBlocksRemaining()}`;
 
     const score = this.gameState.getScore();
     const selScore = this.gameState.getPopListScore();
-    this.scoreStr = blocksSelected !== 0 ? `Score: ${score} (${selScore})` : `Score: ${score}`;
+    const scoreStr = blocksSelected !== 0 ? `Score: ${score} <span class='selected'>(${selScore})</span>` : `Score: ${score}`;
 
     const t = this.gameState.getPlayedDuration();
     const h = t.hours > 0 ? `${t.hours}:` : '';
     const m = t.minutes.toString().padStart(2, '0');
     const s = t.seconds.toString().padStart(2, '0');
-    this.clockStr = `${h}${m}:${s}`;
+    const clockStr = `${h}${m}:${s}`;
+    this.scoreDisplay.setValues(blockStr, clockStr, scoreStr);
   }
 }
 

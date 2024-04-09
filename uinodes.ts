@@ -86,17 +86,15 @@ class UINodes {
 
     this.divSettings.className = 'settings-expandy';
     this.divSettings.style.display = 'flex';
-    this.divSettings.style.alignContent = 'center';
-    this.divSettings.style.flexWrap = 'wrap';
-    this.divSettings.style.flexShrink = '1';
-    
+    this.divSettings.style.alignContent = 'left';
+    this.divSettings.style.flexFlow = 'column wrap';
 
     this.div.appendChild(this.divSettings);
 
     {
       const d = document.createElement('div');
       d.style.display = 'flex';
-      d.style.justifyContent = 'center';
+      d.style.justifyContent = 'left';
       d.style.alignContent = 'center';
       d.style.flexWrap = 'none';
       this.divSettings.appendChild(d);
@@ -107,7 +105,7 @@ class UINodes {
     {
       const d = document.createElement('div');
       d.style.display = 'flex';
-      d.style.justifyContent = 'center';
+      d.style.justifyContent = 'left';
       d.style.alignContent = 'center';
       d.style.flexWrap = 'none';
       this.divSettings.appendChild(d);
@@ -119,7 +117,7 @@ class UINodes {
       const d = document.createElement('div');
       this.divSettings.appendChild(d);
       d.style.display = 'flex';
-      d.style.justifyContent = 'center';
+      d.style.justifyContent = 'left';
       d.style.alignContent = 'center';
       d.style.flexWrap = 'none';
       d.appendChild(setInputProperties(this.inputClusterStrength, 'range', 'Clustering:', 'clusterstrength', 0, 1, 0.2));
@@ -130,7 +128,7 @@ class UINodes {
     {
       const d = document.createElement('div');
       d.style.display = 'flex';
-      d.style.justifyContent = 'center';
+      d.style.justifyContent = 'left';
       d.style.alignContent = 'center';
       d.style.flexWrap = 'none';
       this.divSettings.appendChild(d);

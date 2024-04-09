@@ -45,6 +45,18 @@ styleElement.textContent = `
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
   }
 
+  span {
+    color: #fff;
+    font-size: 22px;
+    user-select: none;
+  }
+
+  span.selected {
+    color: #0089b3;
+    font-size: 22px;
+    user-select: none;
+  }
+
   p {
     color: #fff;
     margin: 2px 10px;

@@ -1,9 +1,11 @@
 import styleElement from './gamestyle.js';
 import UINodes from './uinodes.js';
+import ScoreDisplay from './scoredisplay.js';
 
 class HTMLInterface {
   canvas!: HTMLCanvasElement;
-  ui!: UINodes;
+  ui: UINodes;
+  scoreDisplay: ScoreDisplay;
   isvalid = false;
   startButton!: HTMLButtonElement;
   credits!: HTMLDivElement;
@@ -24,6 +26,8 @@ class HTMLInterface {
     div.style.justifyContent = 'center';
     topDiv.appendChild(div);
 
+    this.scoreDisplay = new ScoreDisplay();
+
     this.canvas = document.createElement('canvas');
     this.canvas.style.border = '2px solid';
     this.canvas.style.display = 'block';
@@ -33,6 +37,7 @@ class HTMLInterface {
     this.createStartButton();
     this.createCredits();
 
+    div.appendChild(this.scoreDisplay.div);
     div.appendChild(this.canvas);
     div.appendChild(this.startButton);
     div.appendChild(this.credits);
