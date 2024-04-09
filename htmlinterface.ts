@@ -37,7 +37,7 @@ class HTMLInterface {
     div.appendChild(this.startButton);
     div.appendChild(this.credits);
     this.ui.setParent(div);
-    this.ui.setVisibility(true);
+    this.ui.setVisibility(false);
   }
 
   hideStartButton (): void {
