@@ -156,7 +156,7 @@ class UINodes {
       this.setSettingsVisibility(getToggleState(this.expandButton));
     });
 
-    this.setSettingsVisibility(true);
+    this.setSettingsVisibility(false);
   }
 
   private setSettingsVisibility (onoff: boolean): void {
