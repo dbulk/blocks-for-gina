@@ -11,17 +11,18 @@ class HTMLInterface {
   constructor (root: ShadowRoot) {
     root.appendChild(styleElement);
     this.isvalid = true;
-    const divTarget = document.createElement("div");
-    root.appendChild(divTarget);
-    
-    divTarget.style.display = 'flex';
-    divTarget.style.justifyContent = 'center';
-    divTarget.style.alignItems = 'start';
-    divTarget.style.height = '100%';
+    const topDiv = document.createElement('div');
+    root.appendChild(topDiv);
+
+    topDiv.style.display = 'flex';
+    topDiv.style.justifyContent = 'center';
+    topDiv.style.alignItems = 'start';
+    topDiv.style.height = '100%';
 
     const div = document.createElement('div');
     div.className = 'blocks4Gina';
-    (divTarget).appendChild(div);
+    div.style.justifyContent = 'center';
+    topDiv.appendChild(div);
 
     this.canvas = document.createElement('canvas');
     this.canvas.style.border = '2px solid';
@@ -36,7 +37,7 @@ class HTMLInterface {
     div.appendChild(this.startButton);
     div.appendChild(this.credits);
     this.ui.setParent(div);
-    this.ui.setVisibility(false);
+    this.ui.setVisibility(true);
   }
 
   hideStartButton (): void {

@@ -74,9 +74,10 @@ class UINodes {
   }
 
   createUI (): void {
-    this.div.style.display = 'block';
+    this.div.style.display = 'flex';
     this.div.style.paddingTop = '10px';
-
+    this.div.style.flexWrap = 'wrap';
+    this.div.style.flexShrink = '1';
     setButtonProperties(this.cmdNewGame, 'New Game', false, this.div);
     setButtonProperties(this.togMusic, '🎵', true, this.div);
     setButtonProperties(this.togSound, '🔊', true, this.div);
@@ -84,40 +85,82 @@ class UINodes {
     setToggleState(this.expandButton, false);
 
     this.divSettings.className = 'settings-expandy';
-    this.setSettingsVisibility(false);
+    this.divSettings.style.display = 'flex';
+    this.divSettings.style.alignContent = 'center';
+    this.divSettings.style.flexWrap = 'wrap';
+    this.divSettings.style.flexShrink = '1';
+    
+
     this.div.appendChild(this.divSettings);
 
-    this.divSettings.appendChild(setInputProperties(this.inputRows, 'number', 'Rows:', 'rows', 5, 100, 10));
-    this.divSettings.appendChild(this.inputRows);
-
-    this.divSettings.appendChild(setInputProperties(this.inputColumns, 'number', 'Columns:', 'columns', 5, 100, 20));
-    this.divSettings.appendChild(this.inputColumns);
-
-    this.divSettings.appendChild(setInputProperties(this.inputClusterStrength, 'range', 'Clustering:', 'clusterstrength', 0, 1, 0.2));
-    this.inputClusterStrength.step = '0.05';
-    this.divSettings.appendChild(this.inputClusterStrength);
-
-    makeColorInputs(this.inputColors, 5);
-
-    const div = document.createElement('div');
-    div.id = 'colors';
-    const label = document.createElement('Label');
-    label.setAttribute('for', div.id);
-    label.textContent = 'Colors:';
-    div.style.display = 'inline-block';
-    for (const i of this.inputColors) {
-      div.appendChild(i);
+    {
+      const d = document.createElement('div');
+      d.style.display = 'flex';
+      d.style.justifyContent = 'center';
+      d.style.alignContent = 'center';
+      d.style.flexWrap = 'none';
+      this.divSettings.appendChild(d);
+      d.appendChild(setInputProperties(this.inputRows, 'number', 'Rows:', 'rows', 5, 100, 10));
+      d.appendChild(this.inputRows);
     }
-    this.divSettings.appendChild(label);
-    this.divSettings.appendChild(div);
+
+    {
+      const d = document.createElement('div');
+      d.style.display = 'flex';
+      d.style.justifyContent = 'center';
+      d.style.alignContent = 'center';
+      d.style.flexWrap = 'none';
+      this.divSettings.appendChild(d);
+      d.appendChild(setInputProperties(this.inputColumns, 'number', 'Columns:', 'columns', 5, 100, 20));
+      d.appendChild(this.inputColumns);
+    }
+
+    {
+      const d = document.createElement('div');
+      this.divSettings.appendChild(d);
+      d.style.display = 'flex';
+      d.style.justifyContent = 'center';
+      d.style.alignContent = 'center';
+      d.style.flexWrap = 'none';
+      d.appendChild(setInputProperties(this.inputClusterStrength, 'range', 'Clustering:', 'clusterstrength', 0, 1, 0.2));
+      this.inputClusterStrength.step = '0.05';
+      d.appendChild(this.inputClusterStrength);
+    }
+
+    {
+      const d = document.createElement('div');
+      d.style.display = 'flex';
+      d.style.justifyContent = 'center';
+      d.style.alignContent = 'center';
+      d.style.flexWrap = 'none';
+      this.divSettings.appendChild(d);
+      makeColorInputs(this.inputColors, 5);
+
+      const div = document.createElement('div');
+      div.style.display = 'flex';
+      div.style.alignContent = 'center';
+      div.style.flexWrap = 'wrap';
+
+      div.id = 'colors';
+      const label = document.createElement('Label');
+      label.setAttribute('for', div.id);
+      label.textContent = 'Colors:';
+      for (const i of this.inputColors) {
+        div.appendChild(i);
+      }
+      d.appendChild(label);
+      d.appendChild(div);
+    }
 
     this.expandButton.addEventListener('click', () => {
       this.setSettingsVisibility(getToggleState(this.expandButton));
     });
+
+    this.setSettingsVisibility(true);
   }
 
   private setSettingsVisibility (onoff: boolean): void {
-    this.divSettings.style.display = onoff ? 'inline-block' : 'none';
+    this.divSettings.style.display = onoff ? 'flex' : 'none';
   }
 
   setVisibility (onoff: boolean): void {
