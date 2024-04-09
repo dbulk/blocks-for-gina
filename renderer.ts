@@ -168,34 +168,6 @@ class Renderer {
         .slice(1)
     );
   }
-
-  // renderScoreBoard (scoreBoard: ScoreBoard): void {
-    // if (this.ctx === null) {
-    //   return;
-    // }
-    // this.ctx.fillStyle = 'grey';
-    // this.ctx.fillRect(0, 0, this.canvas.width, this.scorePanelSize);
-    // this.ctx.strokeStyle = 'black';
-    // this.ctx.lineWidth = 2;
-    // this.ctx.beginPath();
-    // this.ctx.moveTo(0, this.scorePanelSize);
-    // this.ctx.lineTo(this.canvas.width, this.scorePanelSize);
-    // this.ctx.stroke();
-    // const fontSize = this.scorePanelSize - 10; // Font size in pixels
-    // const fontFamily = 'Arial'; // Font family
-    // this.ctx.font = `${fontSize}px ${fontFamily}`;
-    // this.ctx.fillStyle = 'black';
-    // this.ctx.textBaseline = 'ideographic';
-
-    // this.ctx.textAlign = 'left';
-    // this.ctx.fillText(scoreBoard.blockStr, 10, this.scorePanelSize - 5);
-
-    // this.ctx.textAlign = 'right';
-    // this.ctx.fillText(scoreBoard.scoreStr, this.canvas.width - 10, this.scorePanelSize - 5);
-
-    // this.ctx.textAlign = 'center';
-    // this.ctx.fillText(scoreBoard.clockStr, this.canvas.width / 2, this.scorePanelSize - 5);
-  // }
 }
 
 export default Renderer;

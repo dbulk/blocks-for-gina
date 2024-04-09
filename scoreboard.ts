@@ -11,7 +11,7 @@ class ScoreBoard {
   }
 
   update (): void {
-    // todo: move the nonsense about selected into scoreDisplay 
+    // todo: move the nonsense about selected into scoreDisplay
     const blocksSelected = this.gameState.getNumBlocksToPop();
     const blockStr = blocksSelected !== 0
       ? `Blocks: ${this.gameState.getNumBlocksRemaining()} <span class='selected'>(${blocksSelected})</span>`
