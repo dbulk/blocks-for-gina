@@ -35,6 +35,10 @@ class GameRunner {
     this.gameLoop();
     this.deserialize();
 
+    if (!this.gameState.hasMoreMoves()) {
+      this.newGame();
+    }
+
     this.playSoundEffect();
     window.addEventListener('beforeunload', this.serialize.bind(this));
   }
@@ -59,7 +63,13 @@ class GameRunner {
       this.renderer.renderPreview(this.gameState.popList);
       this.gameState.blocksDirty = false;
     }
-    this.scoreBoard.update();
+
+    if (this.gameState.hasMoreMoves()) {
+      this.scoreBoard.update();
+    } else {
+      // show game over screen (todo: break out of the loop, but need a way to know whether it's running and start it again)
+      this.renderer.showGameOver();
+    }
 
     // Schedule the next iteration of the game loop
     requestAnimationFrame(this.gameLoop.bind(this));

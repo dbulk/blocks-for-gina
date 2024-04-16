@@ -168,6 +168,30 @@ class Renderer {
         .slice(1)
     );
   }
+
+  showGameOver (): void {
+    if (this.ctx === null) {
+      return;
+    }
+    // Clear canvas
+    this.renderBlocks();
+    this.ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
+    this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
+    this.ctx.font = '50px sans-serif';
+    this.ctx.textAlign = 'center';
+    this.ctx.fillStyle = '#0089b3';
+
+    this.ctx.shadowColor = '#005678';
+    this.ctx.shadowBlur = 8;
+    this.ctx.shadowOffsetX = 5;
+    this.ctx.shadowOffsetY = 5;
+
+    this.ctx.fillText('Game Over', this.canvas.width / 2, this.canvas.height / 2);
+    this.ctx.shadowBlur = 0;
+    this.ctx.shadowOffsetX = 0;
+    this.ctx.shadowOffsetY = 0;
+  }
 }
 
 export default Renderer;

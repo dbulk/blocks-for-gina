@@ -124,33 +124,47 @@ class GameState {
     this.selectionCache = target;
   }
 
+  hasMoreMoves (): boolean {
+    for (let row = 0; row < this.numRows; row++) {
+      for (let col = 0; col < this.numColumns; col++) {
+        if (this.getFloodedCoordinates({ row, col }).length > 1) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
   private getFloodedCoordinates (coord: coordinate): coordinate[] {
     const ret = [];
     const queue = [coord];
     const visited = new Set<string>();
     const target = this.grid[coord.row][coord.col].id;
 
-    while(queue.length > 0){
+    while (queue.length > 0) {
       // check if this item is valid to look at
-      const c = queue.shift() as coordinate; // shift pops from front
-      if(!this.isLocationInGrid(c)){
+      const c = queue.shift(); // shift pops from front
+      if (c === undefined) {
+        continue;
+      }
+      if (!this.isLocationInGrid(c)) {
         continue;
       }
       const key = `${c.row},${c.col}`;
-      if(visited.has(key)){
+      if (visited.has(key)) {
         continue;
       }
-      visited.add(key)
+      visited.add(key);
       const block = this.grid[c.row][c.col].id;
-      if(block===null || block !== target){
+      if (block === null || block !== target) {
         continue;
       }
       // this is a hit, add it to ret:
       ret.push(c);
-      queue.push({ row: c.row + 1, col: c.col })
-      queue.push({ row: c.row - 1, col: c.col })
-      queue.push({ row: c.row, col: c.col + 1})
-      queue.push({ row: c.row, col: c.col - 1})
+      queue.push({ row: c.row + 1, col: c.col });
+      queue.push({ row: c.row - 1, col: c.col });
+      queue.push({ row: c.row, col: c.col + 1 });
+      queue.push({ row: c.row, col: c.col - 1 });
     }
 
     return ret;
