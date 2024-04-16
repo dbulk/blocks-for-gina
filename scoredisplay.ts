@@ -6,27 +6,15 @@ class ScoreDisplay {
 
   constructor () {
     this.div = document.createElement('div');
-    // this.div.style.justifyContent = 'space-between';
-    // this.div.style.display = 'flex';
-
-    const tbl = document.createElement('table');
-    tbl.style.width = '100%';
-    this.div.appendChild(tbl);
-
-    const row = tbl.insertRow();
+    this.div.style.justifyContent = 'space-between';
+    this.div.style.display = 'flex';
 
     this.blocks = document.createElement('span');
+    this.div.appendChild(this.blocks);
     this.score = document.createElement('span');
+    this.div.appendChild(this.score);
     this.time = document.createElement('span');
-
-    const cell = [row.insertCell(), row.insertCell(), row.insertCell()]; 
-    cell[0].appendChild(this.blocks);
-    cell[1].appendChild(this.score);
-    cell[2].appendChild(this.time);
-
-    cell.forEach(c => { c.style.width = '33.33%'; });
-    cell[1].style.textAlign = 'center';
-    cell[2].style.textAlign = 'right';
+    this.div.appendChild(this.time);
   }
 
   setVisibility (onoff: boolean): void {
