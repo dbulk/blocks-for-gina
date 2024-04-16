@@ -15,6 +15,7 @@ class GameRunner {
   music: HTMLAudioElement;
   soundEnabled: boolean = true;
   scoreBoard: ScoreBoard;
+  gameOverAnimationState = 0;
 
   constructor (renderer: Renderer, settings: GameSettings, page: htmlInterface) {
     this.renderer = renderer;
@@ -49,6 +50,7 @@ class GameRunner {
     this.gameState.resetClock();
     this.gameState.resetScore();
     this.renderer.adjustCanvasSize();
+    this.gameOverAnimationState = 0;
   }
 
   private gameLoop (): void {
@@ -68,7 +70,8 @@ class GameRunner {
       this.scoreBoard.update();
     } else {
       // show game over screen (todo: break out of the loop, but need a way to know whether it's running and start it again)
-      this.renderer.showGameOver();
+      this.gameOverAnimationState = Math.min(this.gameOverAnimationState + 0.25, 90);
+      this.renderer.showGameOver(this.gameOverAnimationState / 100);
     }
 
     // Schedule the next iteration of the game loop

@@ -169,13 +169,13 @@ class Renderer {
     );
   }
 
-  showGameOver (): void {
+  showGameOver (alpha: number): void {
     if (this.ctx === null) {
       return;
     }
     // Clear canvas
     this.renderBlocks();
-    this.ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
+    this.ctx.fillStyle = `rgba(0, 0, 0, ${alpha})`;
     this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
     this.ctx.font = '50px sans-serif';
