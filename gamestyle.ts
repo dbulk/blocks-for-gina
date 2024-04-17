@@ -29,6 +29,13 @@ styleElement.textContent = `
     background-color: #444;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
   }
+  
+  button:disabled,
+  button[disabled]{
+    background-color: #888;
+    color: #aaa;
+    box-shadow: 0 0 0;
+  }
 
   button.toggle:hover {
     background-color: #777;

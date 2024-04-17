@@ -41,6 +41,7 @@ class GameState {
   private numColumns: number = 0;
   private selectionCache: coordinate = { row: -1, col: -1 };
   private readonly soundEffectCallback: () => void;
+  private undostack: serializationPayload[] = [];
 
   constructor (soundEffectCallback: () => void) { this.soundEffectCallback = soundEffectCallback; }
 
@@ -67,6 +68,14 @@ class GameState {
   resetClock (): void {
     this.gameStartTime = performance.now();
     this.serializedGameDuration = 0;
+  }
+
+  resetUndo (): void {
+    this.undostack = [];
+  }
+
+  hasUndo (): boolean {
+    return this.undostack.length > 0;
   }
 
   getPlayedDuration (): time {
@@ -181,6 +190,7 @@ class GameState {
 
   doPop (): void {
     if (this.popList.length > 0) {
+      this.undostack.push(this.serialize());
       this.needsPop = true;
       this.score += this.computeScore(this.popList.length);
       this.blocksDirty = true;
@@ -262,6 +272,14 @@ class GameState {
     const cursorLocation = { row: this.selectionCache.row, col: this.selectionCache.col };
     this.selectionCache = { row: -1, col: -1 };
     this.updateSelection(cursorLocation);
+  }
+
+  undo (): void {
+    const state = this.undostack.pop();
+    if (state !== undefined) {
+      this.resetClock();
+      this.deserialize(state);
+    }
   }
 
   computeScore (n: number): number {

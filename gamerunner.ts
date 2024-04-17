@@ -49,12 +49,14 @@ class GameRunner {
     this.gameState.initializeGrid(this.settings.numRows, this.settings.numColumns, this.settings.numBlockTypes, this.settings.clusterStrength);
     this.gameState.resetClock();
     this.gameState.resetScore();
+    this.gameState.resetUndo();
     this.renderer.adjustCanvasSize();
     this.gameOverAnimationState = 0;
   }
 
   private gameLoop (): void {
     this.gameState.updateBlocks();
+    this.page.ui.setUndoEnabled(this.gameState.hasUndo());
 
     if (this.gameState.animating) {
       requestAnimationFrame(() => { this.animationLoop(performance.now()); });
@@ -113,6 +115,12 @@ class GameRunner {
       () => {
         this.settings.uiToSettings();
         this.newGame();
+      }
+    );
+
+    this.page.ui.addUndoListener(
+      () => {
+        this.gameState.undo();
       }
     );
 

@@ -4,7 +4,7 @@ Gina was playing blocks at 1001games, I thought the game was ugly and it would b
 
 ## Todos
 ### New Features
- - undo/redo stack (via serialized game state?)
+ - redo support (?), break undo from serialization interface and serialize undo stack (?)
  - high scores somewhere
 
 ### Enhancements
