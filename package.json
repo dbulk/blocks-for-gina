@@ -9,6 +9,8 @@
     "preview": "vite preview",
     "lint": "eslint . --ext .ts --ignore-pattern vite.config.ts",
     "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "start": "vite"
   },
   "keywords": [],
@@ -22,7 +24,8 @@
     "eslint-plugin-import": "^2.29.1",
     "eslint-plugin-n": "^16.6.2",
     "eslint-plugin-promise": "^6.1.1",
-    "typescript": "^5.4.3"
+    "typescript": "^5.4.3",
+    "vitest": "^4.1.2"
   },
   "dependencies": {
     "vite": "^5.2.8"
