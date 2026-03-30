@@ -45,8 +45,8 @@ class HudView {
 
       nodes.label.textContent = metric.label;
       nodes.value.textContent = metric.value;
-      nodes.delta.textContent = metric.delta ?? '';
-      nodes.delta.style.display = metric.delta === undefined ? 'none' : 'inline';
+      nodes.delta.textContent = metric.delta ?? '\u00A0';
+      nodes.delta.style.visibility = metric.delta === undefined ? 'hidden' : 'visible';
 
       const tone = metric.tone ?? 'default';
       nodes.value.style.color = tone === 'accent' ? '#0089b3' : '#fff';
@@ -79,6 +79,8 @@ class HudView {
     const delta = document.createElement('span');
     delta.style.color = '#ccc';
     delta.style.fontSize = '12px';
+    delta.style.lineHeight = '1.2';
+    delta.style.minHeight = '14px';
     delta.style.userSelect = 'none';
 
     card.appendChild(label);
