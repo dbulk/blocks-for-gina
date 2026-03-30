@@ -3,7 +3,7 @@ import UINodes from './uinodes.js';
 import HudView from './scoredisplay.js';
 import StartOverlayView from './startoverlayview.js';
 
-type SessionUIState = 'preGame' | 'inGame';
+type SessionUIState = 'preGame' | 'inGame' | 'paused' | 'gameOverSummary';
 
 class HTMLInterface {
   canvas!: HTMLCanvasElement;
@@ -57,7 +57,18 @@ class HTMLInterface {
   setSessionUIState (state: SessionUIState): void {
     this.sessionUIState = state;
 
-    const showSplash = state === 'preGame';
+    let showSplash = false;
+    switch (state) {
+      case 'preGame':
+        showSplash = true;
+        break;
+      case 'inGame':
+      case 'paused':
+      case 'gameOverSummary':
+        showSplash = false;
+        break;
+    }
+
     this.startOverlay.setVisible(showSplash);
 
     this.ui.setVisibility(!showSplash);
