@@ -32,7 +32,7 @@ class GameRunner {
 
     this.music = new Audio('./scott-buckley-permafrost(chosic.com).mp3');
     this.music.loop = true;
-    this.music.play().catch(() => {});
+    this.music.play().catch(() => { });
     this.gameLoop();
     this.deserialize();
 
@@ -140,14 +140,14 @@ class GameRunner {
 
   private setAudioState (): void {
     this.settings.ui.getTogMusic()
-      ? this.music.play().catch(() => {})
+      ? this.music.play().catch(() => { })
       : this.music.pause();
     this.soundEnabled = this.settings.ui.getTogSound();
   }
 
   playSoundEffect (): void {
     if (this.soundEnabled) {
-      this.audio.play().catch(() => {});
+      this.audio.play().catch(() => { });
     }
   }
 
@@ -161,9 +161,9 @@ class GameRunner {
   deserialize (): void {
     const data = localStorage.getItem('b4g');
     if (data !== null) {
-      const { state, settings } = JSON.parse(data);
-      this.settings.deserialize(settings); // todo: fix type
-      this.gameState.deserialize(state); // todo: fix type
+      const { state, settings } = JSON.parse(data) as { state: unknown, settings: unknown };
+      this.settings.deserialize(settings as Parameters<typeof this.settings.deserialize>[0]);
+      this.gameState.deserialize(state as Parameters<typeof this.gameState.deserialize>[0]);
       this.setAudioState();
       this.renderer.adjustCanvasSize();
     }
