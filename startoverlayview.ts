@@ -1,26 +1,31 @@
 class StartOverlayView {
   readonly container: HTMLDivElement;
+  private readonly panel: HTMLDivElement;
   private readonly startButton: HTMLButtonElement;
-  private readonly credits: HTMLDivElement;
 
   constructor () {
     this.container = document.createElement('div');
-    this.container.style.position = 'relative';
+    this.container.className = 'start-overlay-backdrop';
+
+    this.panel = document.createElement('div');
+    this.panel.className = 'start-overlay';
+
+    const title = document.createElement('h1');
+    title.className = 'start-overlay-title';
+    title.textContent = 'Blocks4Gina';
 
     this.startButton = this.createStartButton();
-    this.credits = this.createCredits();
+    const credits = this.createCredits();
 
-    this.container.appendChild(this.startButton);
-    this.container.appendChild(this.credits);
+    this.panel.appendChild(title);
+    this.panel.appendChild(this.startButton);
+    this.panel.appendChild(credits);
+
+    this.container.appendChild(this.panel);
   }
 
   setVisible (onoff: boolean): void {
-    this.startButton.style.display = onoff ? 'block' : 'none';
-    this.credits.style.display = onoff ? 'inline' : 'none';
-  }
-
-  setCanvasHeight (height: number): void {
-    this.startButton.style.top = `-${height / 2}px`;
+    this.container.style.display = onoff ? 'flex' : 'none';
   }
 
   addStartClickListener (func: () => void): void {
@@ -29,46 +34,34 @@ class StartOverlayView {
 
   private createStartButton (): HTMLButtonElement {
     const startButton = document.createElement('button');
+    startButton.className = 'start-overlay-play';
     startButton.textContent = 'PLAY';
-    startButton.style.padding = '15px 18px';
-    startButton.style.position = 'relative';
-    startButton.style.left = '50%';
-    startButton.style.transform = 'translate(-50%, -50%)';
-    startButton.style.display = 'block';
     return startButton;
   }
 
   private createCredits (): HTMLDivElement {
     const credits = document.createElement('div');
+    credits.className = 'start-overlay-meta-grid';
     credits.innerHTML = `
-    <table>
-    <tr style="vertical-align: top">
-
-    <td>
-    <p><b>Source</b></p>
-    <p>Blocks4Gina by Dave Bulkin</p>
-    <p>Released under <a href = "./LICENSE" target="_blank"  rel="noopener noreferrer">MIT License</a></p>
-    <p><a href = "https://dave.bulkin.net" target="_blank">dave.bulkin.net</a></p>
-    <p><a href = "https://github.com/dbulk/blocks-for-gina" target="_blank">git</a></p>
-    </td>
-    <td>
-    <p><b>Music</b></p>
-    <p>Permafrost by Scott Buckley<br>
-    <p>Released under CC-BY 4.0</p>
-    <p><a href = "https://www.scottbuckley.com.au" target="_blank">www.scottbuckley.com.au</a></p>
-    </td>
-    <td>
-    <p><b>Inspiration</b></p>
-    <p>Gina Mason</p>
-    <p><a href = "https://ginamason.net" target="_blank">ginamason.net</a></p>
-    </td>
-    </tr>
-    </table>
+    <section class="start-overlay-meta-card">
+      <h2>Source</h2>
+      <p>Blocks4Gina by Dave Bulkin</p>
+      <p>Released under <a href = "./LICENSE" target="_blank"  rel="noopener noreferrer">MIT License</a></p>
+      <p><a href = "https://dave.bulkin.net" target="_blank" rel="noopener noreferrer">dave.bulkin.net</a></p>
+      <p><a href = "https://github.com/dbulk/blocks-for-gina" target="_blank" rel="noopener noreferrer">github.com/dbulk/blocks-for-gina</a></p>
+    </section>
+    <section class="start-overlay-meta-card">
+      <h2>Music</h2>
+      <p>Permafrost by Scott Buckley</p>
+      <p>Released under CC-BY 4.0</p>
+      <p><a href = "https://www.scottbuckley.com.au" target="_blank" rel="noopener noreferrer">www.scottbuckley.com.au</a></p>
+    </section>
+    <section class="start-overlay-meta-card">
+      <h2>Inspiration</h2>
+      <p>Gina Mason</p>
+      <p><a href = "https://ginamason.net" target="_blank" rel="noopener noreferrer">ginamason.net</a></p>
+    </section>
     `;
-    credits.style.display = 'inline';
-    credits.style.position = 'relative';
-    credits.style.top = '-150px';
-    credits.style.userSelect = 'none';
     return credits;
   }
 }

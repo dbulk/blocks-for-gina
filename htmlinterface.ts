@@ -11,6 +11,8 @@ class HTMLInterface {
   ui: UINodes;
   scoreDisplay: HudView;
   isvalid = false;
+  private readonly playfield: HTMLDivElement;
+  private readonly overlayLayer: HTMLDivElement;
   private readonly startOverlay: StartOverlayView;
   private readonly gameOverOverlay: GameOverOverlayView;
   private sessionUIState: SessionUIState = 'preGame';
@@ -33,9 +35,20 @@ class HTMLInterface {
 
     this.scoreDisplay = new HudView();
 
+    this.playfield = document.createElement('div');
+    this.playfield.style.position = 'relative';
+    this.playfield.style.display = 'inline-block';
+
     this.canvas = document.createElement('canvas');
     this.canvas.style.border = '2px solid';
     this.canvas.style.display = 'block';
+
+    this.overlayLayer = document.createElement('div');
+    this.overlayLayer.style.position = 'absolute';
+    this.overlayLayer.style.left = '0';
+    this.overlayLayer.style.top = '0';
+    this.overlayLayer.style.width = '100%';
+    this.overlayLayer.style.height = '100%';
 
     this.ui = new UINodes();
     this.ui.createUI();
@@ -43,9 +56,11 @@ class HTMLInterface {
     this.gameOverOverlay = new GameOverOverlayView();
 
     div.appendChild(this.scoreDisplay.div);
-    div.appendChild(this.canvas);
-    div.appendChild(this.startOverlay.container);
-    div.appendChild(this.gameOverOverlay.container);
+    this.playfield.appendChild(this.canvas);
+    this.overlayLayer.appendChild(this.startOverlay.container);
+    this.overlayLayer.appendChild(this.gameOverOverlay.container);
+    this.playfield.appendChild(this.overlayLayer);
+    div.appendChild(this.playfield);
     this.ui.setParent(div);
     this.setSessionUIState('preGame');
   }
@@ -90,9 +105,8 @@ class HTMLInterface {
   }
 
   resize (): void {
-    if (this.sessionUIState === 'preGame') {
-      this.startOverlay.setCanvasHeight(this.canvas.height);
-    }
+    this.playfield.style.width = `${this.canvas.width}px`;
+    this.playfield.style.height = `${this.canvas.height}px`;
   }
 }
 
