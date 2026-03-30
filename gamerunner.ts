@@ -217,9 +217,11 @@ class GameRunner {
   }
 
   private setAudioState (): void {
-    this.settings.ui.getTogMusic()
-      ? this.music.play().catch(() => { })
-      : this.music.pause();
+    if (this.settings.ui.getTogMusic()) {
+      this.music.play().catch(() => { });
+    } else {
+      this.music.pause();
+    }
     this.soundEnabled = this.settings.ui.getTogSound();
   }
 

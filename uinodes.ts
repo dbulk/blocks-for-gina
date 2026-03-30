@@ -45,7 +45,11 @@ function makeColorInputs (
 }
 
 function setToggleState (button: HTMLButtonElement, onoff: boolean): void {
-  onoff ? button.classList.add('active') : button.classList.remove('active');
+  if (onoff) {
+    button.classList.add('active');
+  } else {
+    button.classList.remove('active');
+  }
 }
 function getToggleState (button: HTMLButtonElement): boolean {
   return button.classList.contains('active');

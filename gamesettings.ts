@@ -1,6 +1,16 @@
 import type UINodes from './uinodes.js';
 import { DEFAULT_BLOCK_STYLE, isBlockStyle, type BlockStyle } from './blockstyle.js';
 
+interface serializationPayload {
+  blockColors: string[]
+  numColumns: number
+  numRows: number
+  clusterStrength: number
+  blockStyle: BlockStyle
+  isMusicEnabled: boolean
+  isSoundEnabled: boolean
+}
+
 class GameSettings {
   numColumns!: number;
   numRows!: number;
@@ -84,15 +94,5 @@ class GameSettings {
     this.blockColors = [];
     this.ui.getInputColors(this.blockColors);
   }
-}
-
-interface serializationPayload {
-  blockColors: string[]
-  numColumns: number
-  numRows: number
-  clusterStrength: number
-  blockStyle: BlockStyle
-  isMusicEnabled: boolean
-  isSoundEnabled: boolean
 }
 export default GameSettings;
