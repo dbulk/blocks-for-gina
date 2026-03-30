@@ -42,6 +42,7 @@ class GameState {
   private serializedGameDuration: number = 0;
   private numBlocksInColumn: number[] = [];
   private hasMoreMovesCache: boolean = false;
+  private availableMovesCache: number = 0;
   private hasMoreMovesDirty: boolean = true;
   private needsPop: boolean = false;
 
@@ -130,6 +131,11 @@ class GameState {
     return this.blocksPopped;
   }
 
+  getAvailableMoves (): number {
+    this.refreshMoveAvailabilityCache();
+    return this.availableMovesCache;
+  }
+
   resetScore (): void {
     this.score = 0;
   }
@@ -216,29 +222,85 @@ class GameState {
   }
 
   hasMoreMoves (): boolean {
-    if (this.hasMoreMovesDirty) {
-      this.hasMoreMovesCache = this.computeHasMoreMoves();
-      this.hasMoreMovesDirty = false;
-    }
+    this.refreshMoveAvailabilityCache();
     return this.hasMoreMovesCache;
   }
 
-  private computeHasMoreMoves (): boolean {
+  private refreshMoveAvailabilityCache (): void {
+    if (!this.hasMoreMovesDirty) {
+      return;
+    }
+
+    this.availableMovesCache = this.computeAvailableMoves();
+    this.hasMoreMovesCache = this.availableMovesCache > 0;
+    this.hasMoreMovesDirty = false;
+  }
+
+  private computeAvailableMoves (): number {
+    if (this.numRows === 0 || this.numColumns === 0) {
+      return 0;
+    }
+
+    const visited = new Uint8Array(this.numRows * this.numColumns);
+    const indexFor = (row: number, col: number): number => row * this.numColumns + col;
+    let availableMoves = 0;
+
     for (let row = 0; row < this.numRows; row++) {
       for (let col = 0; col < this.numColumns; col++) {
-        const id = this.grid[row][col].id;
-        if (id === null) {
+        const startIndex = indexFor(row, col);
+        if (visited[startIndex] === 1) {
           continue;
         }
-        if (row + 1 < this.numRows && this.grid[row + 1][col].id === id) {
-          return true;
+
+        const id = this.grid[row][col].id;
+        if (id === null) {
+          visited[startIndex] = 1;
+          continue;
         }
-        if (col + 1 < this.numColumns && this.grid[row][col + 1].id === id) {
-          return true;
+
+        const stack = [{ row, col }];
+        visited[startIndex] = 1;
+        let clusterSize = 0;
+
+        while (stack.length > 0) {
+          const current = stack.pop();
+          if (current === undefined) {
+            continue;
+          }
+
+          clusterSize++;
+
+          const neighbors = [
+            { row: current.row - 1, col: current.col },
+            { row: current.row + 1, col: current.col },
+            { row: current.row, col: current.col - 1 },
+            { row: current.row, col: current.col + 1 }
+          ];
+
+          for (const neighbor of neighbors) {
+            if (!this.isLocationInGrid(neighbor)) {
+              continue;
+            }
+            const neighborIndex = indexFor(neighbor.row, neighbor.col);
+            if (visited[neighborIndex] === 1) {
+              continue;
+            }
+            if (this.grid[neighbor.row][neighbor.col].id !== id) {
+              continue;
+            }
+
+            visited[neighborIndex] = 1;
+            stack.push(neighbor);
+          }
+        }
+
+        if (clusterSize > 1) {
+          availableMoves++;
         }
       }
     }
-    return false;
+
+    return availableMoves;
   }
 
   private getFloodedCoordinates (coord: coordinate): coordinate[] {

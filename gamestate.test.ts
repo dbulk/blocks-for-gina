@@ -44,6 +44,16 @@ describe('GameState', () => {
     expect(state.hasMoreMoves()).toBe(true);
   });
 
+  it('counts number of available moves as removable clusters', () => {
+    const state = makeStateFromGrid([
+      [1, 1, 2],
+      [3, 4, 2],
+      [5, 6, 7]
+    ]);
+
+    expect(state.getAvailableMoves()).toBe(2);
+  });
+
   it('builds pop preview score from selected cluster', () => {
     const state = makeStateFromGrid([
       [1, 2, 3],

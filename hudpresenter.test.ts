@@ -28,8 +28,8 @@ describe('HudPresenter', () => {
 
     const metrics = presenter.getMetrics(state);
 
-    expect(metrics.map((m) => m.key)).toEqual(['blocks', 'time', 'score']);
-    expect(metrics.map((m) => m.order)).toEqual([10, 20, 30]);
+    expect(metrics.map((m) => m.key)).toEqual(['blocks', 'time', 'moves', 'score']);
+    expect(metrics.map((m) => m.order)).toEqual([10, 20, 25, 30]);
     expect(metrics.every((m) => m.visible)).toBe(true);
   });
 
@@ -44,6 +44,7 @@ describe('HudPresenter', () => {
     const blocks = getByKey(metrics, 'blocks');
     const score = getByKey(metrics, 'score');
     const time = getByKey(metrics, 'time');
+    const moves = getByKey(metrics, 'moves');
 
     expect(blocks?.label).toBe('Blocks');
     expect(blocks?.value).toBe('4');
@@ -57,6 +58,10 @@ describe('HudPresenter', () => {
 
     expect(time?.label).toBe('Time');
     expect(time?.value).toMatch(/^(\d+:)?\d{2}:\d{2}$/);
+
+    expect(moves?.label).toBe('Moves');
+    expect(moves?.value).toBe('0');
+    expect(moves?.tone).toBe('accent');
   });
 
   it('shows preview deltas and accent tone when a valid cluster is selected', () => {

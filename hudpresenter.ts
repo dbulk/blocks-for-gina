@@ -7,6 +7,7 @@ class HudPresenter {
     const score = gameState.getScore();
     const selectedScore = gameState.getPopListScore();
     const remainingBlocks = gameState.getNumBlocksRemaining();
+    const availableMoves = gameState.getAvailableMoves();
 
     const t = gameState.getPlayedDuration();
     const h = t.hours > 0 ? `${t.hours}:` : '';
@@ -29,6 +30,14 @@ class HudPresenter {
         label: 'Time',
         value: clock,
         order: 20,
+        visible: true
+      },
+      {
+        key: 'moves',
+        label: 'Moves',
+        value: availableMoves.toString(),
+        tone: availableMoves === 0 ? 'accent' : 'default',
+        order: 25,
         visible: true
       },
       {
