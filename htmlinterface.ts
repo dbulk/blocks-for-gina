@@ -2,6 +2,7 @@ import styleElement from './gamestyle.js';
 import UINodes from './uinodes.js';
 import HudView from './scoredisplay.js';
 import StartOverlayView from './startoverlayview.js';
+import GameOverOverlayView from './gameoveroverlayview.js';
 
 type SessionUIState = 'preGame' | 'inGame' | 'paused' | 'gameOverSummary';
 
@@ -11,6 +12,7 @@ class HTMLInterface {
   scoreDisplay: HudView;
   isvalid = false;
   private readonly startOverlay: StartOverlayView;
+  private readonly gameOverOverlay: GameOverOverlayView;
   private sessionUIState: SessionUIState = 'preGame';
 
   constructor (root: ShadowRoot) {
@@ -38,16 +40,22 @@ class HTMLInterface {
     this.ui = new UINodes();
     this.ui.createUI();
     this.startOverlay = new StartOverlayView();
+    this.gameOverOverlay = new GameOverOverlayView();
 
     div.appendChild(this.scoreDisplay.div);
     div.appendChild(this.canvas);
     div.appendChild(this.startOverlay.container);
+    div.appendChild(this.gameOverOverlay.container);
     this.ui.setParent(div);
     this.setSessionUIState('preGame');
   }
 
   addStartClickListener (func: () => void): void {
     this.startOverlay.addStartClickListener(func);
+  }
+
+  setGameOverSummary (score: number, time: string, blocksRemaining: number): void {
+    this.gameOverOverlay.setSummary(score, time, blocksRemaining);
   }
 
   hideStartButton (): void {
@@ -71,8 +79,10 @@ class HTMLInterface {
 
     this.startOverlay.setVisible(showSplash);
 
-    this.ui.setVisibility(!showSplash);
-    this.scoreDisplay.setVisibility(!showSplash);
+    const showHudAndControls = !showSplash;
+    this.ui.setVisibility(showHudAndControls);
+    this.scoreDisplay.setVisibility(showHudAndControls);
+    this.gameOverOverlay.setVisible(state === 'gameOverSummary');
   }
 
   resize (): void {

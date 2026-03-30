@@ -16,6 +16,7 @@ class GameRunner {
   soundEnabled: boolean = true;
   scoreBoard: ScoreBoard;
   gameOverAnimationState = 0;
+  private hasShownGameOverSummary: boolean = false;
 
   constructor (renderer: Renderer, settings: GameSettings, page: htmlInterface) {
     this.renderer = renderer;
@@ -46,6 +47,7 @@ class GameRunner {
   }
 
   private newGame (): void {
+    this.page.setSessionUIState('inGame');
     this.renderer.setGameState(this.gameState);
     this.gameState.initializeGrid(this.settings.numRows, this.settings.numColumns, this.settings.numBlockTypes, this.settings.clusterStrength);
     this.gameState.resetClock();
@@ -53,6 +55,7 @@ class GameRunner {
     this.gameState.resetUndo();
     this.renderer.adjustCanvasSize();
     this.gameOverAnimationState = 0;
+    this.hasShownGameOverSummary = false;
   }
 
   private gameLoop (): void {
@@ -71,10 +74,23 @@ class GameRunner {
 
     if (this.gameState.hasMoreMoves()) {
       this.scoreBoard.update();
+      if (this.hasShownGameOverSummary) {
+        this.page.setSessionUIState('inGame');
+        this.hasShownGameOverSummary = false;
+      }
     } else {
       // show game over screen (todo: break out of the loop, but need a way to know whether it's running and start it again)
       this.gameOverAnimationState = Math.min(this.gameOverAnimationState + 0.25, 90);
       this.renderer.showGameOver(this.gameOverAnimationState / 100);
+      if (!this.hasShownGameOverSummary) {
+        this.page.setSessionUIState('gameOverSummary');
+        this.page.setGameOverSummary(
+          this.gameState.getScore(),
+          this.getClockText(),
+          this.gameState.getNumBlocksRemaining()
+        );
+        this.hasShownGameOverSummary = true;
+      }
     }
 
     // Schedule the next iteration of the game loop
@@ -144,6 +160,14 @@ class GameRunner {
       ? this.music.play().catch(() => { })
       : this.music.pause();
     this.soundEnabled = this.settings.ui.getTogSound();
+  }
+
+  private getClockText (): string {
+    const t = this.gameState.getPlayedDuration();
+    const h = t.hours > 0 ? `${t.hours}:` : '';
+    const m = t.minutes.toString().padStart(2, '0');
+    const s = t.seconds.toString().padStart(2, '0');
+    return `${h}${m}:${s}`;
   }
 
   playSoundEffect (): void {
