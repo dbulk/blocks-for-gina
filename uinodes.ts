@@ -52,6 +52,7 @@ class UINodes {
   private readonly div: HTMLDivElement;
   private readonly cmdNewGame: HTMLButtonElement;
   private readonly cmdUndo: HTMLButtonElement;
+  private readonly cmdRedo: HTMLButtonElement;
   private readonly togMusic: HTMLButtonElement;
   private readonly togSound: HTMLButtonElement;
   private readonly expandButton: HTMLButtonElement;
@@ -65,6 +66,7 @@ class UINodes {
     this.div = document.createElement('div');
     this.cmdNewGame = document.createElement('button');
     this.cmdUndo = document.createElement('button');
+    this.cmdRedo = document.createElement('button');
     this.togMusic = document.createElement('button');
     this.togSound = document.createElement('button');
     this.expandButton = document.createElement('button');
@@ -82,6 +84,7 @@ class UINodes {
     this.div.style.flexShrink = '1';
     setButtonProperties(this.cmdNewGame, 'New Game', false, this.div);
     setButtonProperties(this.cmdUndo, '↩', false, this.div);
+    setButtonProperties(this.cmdRedo, '↪', false, this.div);
     setButtonProperties(this.togMusic, '🎵', true, this.div);
     setButtonProperties(this.togSound, '🔊', true, this.div);
     setButtonProperties(this.expandButton, 'Settings', true, this.div);
@@ -180,6 +183,10 @@ class UINodes {
     this.cmdUndo.addEventListener('click', func);
   }
 
+  addRedoListener (func: () => void): void {
+    this.cmdRedo.addEventListener('click', func);
+  }
+
   addTogMusicClickListener (func: () => void): void {
     this.togMusic.addEventListener('click', func);
   }
@@ -248,6 +255,10 @@ class UINodes {
 
   setUndoEnabled (yesno: boolean): void {
     this.cmdUndo.disabled = !yesno;
+  }
+
+  setRedoEnabled (yesno: boolean): void {
+    this.cmdRedo.disabled = !yesno;
   }
 }
 

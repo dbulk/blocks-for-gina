@@ -62,6 +62,7 @@ class GameRunner {
   private gameLoop (): void {
     this.gameState.updateBlocks();
     this.page.ui.setUndoEnabled(this.gameState.hasUndo());
+    this.page.ui.setRedoEnabled(this.gameState.hasRedo());
 
     if (this.gameState.animating) {
       requestAnimationFrame(() => { this.animationLoop(performance.now()); });
@@ -142,6 +143,12 @@ class GameRunner {
     this.page.ui.addUndoListener(
       () => {
         this.gameState.undo();
+      }
+    );
+
+    this.page.ui.addRedoListener(
+      () => {
+        this.gameState.redo();
       }
     );
 

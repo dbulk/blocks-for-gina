@@ -84,6 +84,48 @@ describe('GameState', () => {
     expect(state.hasUndo()).toBe(false);
   });
 
+  it('supports redo after undo', () => {
+    const state = makeStateFromGrid([
+      [1, 2, 3],
+      [1, 4, 5],
+      [6, 7, 8]
+    ]);
+
+    state.updateSelection({ row: 0, col: 0 });
+    state.doPop();
+    state.updateBlocks();
+
+    const afterPop = state.serialize();
+    expect(state.hasUndo()).toBe(true);
+    expect(state.hasRedo()).toBe(false);
+
+    state.undo();
+    expect(state.hasRedo()).toBe(true);
+
+    state.redo();
+    expect(state.serialize().griddata).toEqual(afterPop.griddata);
+    expect(state.getScore()).toBe(afterPop.score);
+  });
+
+  it('clears redo stack after a new action', () => {
+    const state = makeStateFromGrid([
+      [1, 1, 3],
+      [2, 4, 5],
+      [2, 7, 8]
+    ]);
+
+    state.updateSelection({ row: 0, col: 0 });
+    state.doPop();
+    state.updateBlocks();
+    state.undo();
+
+    expect(state.hasRedo()).toBe(true);
+
+    state.updateSelection({ row: 1, col: 0 });
+    state.doPop();
+    expect(state.hasRedo()).toBe(false);
+  });
+
   it('does not pop or play sound when selection is invalid', () => {
     let soundCalls = 0;
     const stateWithSound = new GameState(() => { soundCalls++; });
