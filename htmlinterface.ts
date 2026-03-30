@@ -85,17 +85,24 @@ class HTMLInterface {
     this.sessionUIState = state;
 
     let showSplash = false;
+    let showOverlayLayer = false;
     switch (state) {
       case 'preGame':
         showSplash = true;
+        showOverlayLayer = true;
         break;
       case 'inGame':
       case 'paused':
+        showSplash = false;
+        showOverlayLayer = false;
+        break;
       case 'gameOverSummary':
         showSplash = false;
+        showOverlayLayer = true;
         break;
     }
 
+    this.overlayLayer.style.display = showOverlayLayer ? 'block' : 'none';
     this.startOverlay.setVisible(showSplash);
 
     const showHudAndControls = !showSplash;
