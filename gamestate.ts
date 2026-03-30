@@ -43,42 +43,42 @@ class GameState {
   private readonly soundEffectCallback: () => void;
   private undostack: serializationPayload[] = [];
 
-  constructor(soundEffectCallback: () => void) { this.soundEffectCallback = soundEffectCallback; }
+  constructor (soundEffectCallback: () => void) { this.soundEffectCallback = soundEffectCallback; }
 
-  getScore(): number {
+  getScore (): number {
     return this.score;
   }
 
-  getPopListScore(): number {
+  getPopListScore (): number {
     return this.computeScore(this.popList.length);
   }
 
-  getNumBlocksRemaining(): number {
+  getNumBlocksRemaining (): number {
     return this.numBlocksInColumn.reduce((a, v) => a + v, 0);
   }
 
-  getNumBlocksToPop(): number {
+  getNumBlocksToPop (): number {
     return this.popList.length;
   }
 
-  resetScore(): void {
+  resetScore (): void {
     this.score = 0;
   }
 
-  resetClock(): void {
+  resetClock (): void {
     this.gameStartTime = performance.now();
     this.serializedGameDuration = 0;
   }
 
-  resetUndo(): void {
+  resetUndo (): void {
     this.undostack = [];
   }
 
-  hasUndo(): boolean {
+  hasUndo (): boolean {
     return this.undostack.length > 0;
   }
 
-  getPlayedDuration(): time {
+  getPlayedDuration (): time {
     const duration = performance.now() - this.gameStartTime + this.serializedGameDuration;
     const seconds = Math.floor((duration / 1000) % 60);
     const minutes = Math.floor((duration / (1000 * 60)) % 60);
@@ -87,7 +87,7 @@ class GameState {
     return { hours, minutes, seconds };
   }
 
-  initializeGrid(numRows: number, numColumns: number, numBlockTypes: number, clusterStrength: number): void {
+  initializeGrid (numRows: number, numColumns: number, numBlockTypes: number, clusterStrength: number): void {
     this.numRows = numRows;
     this.numColumns = numColumns;
 
@@ -110,16 +110,16 @@ class GameState {
     this.blocksDirty = true;
   }
 
-  getBlockID(c: coordinate): number | null {
+  getBlockID (c: coordinate): number | null {
     return this.grid[c.row][c.col].id;
   }
 
-  getBlockOffset(c: coordinate): xy {
+  getBlockOffset (c: coordinate): xy {
     const item = this.grid[c.row][c.col];
     return { x: item.xoffset, y: item.yoffset };
   }
 
-  updateSelection(target: coordinate): void {
+  updateSelection (target: coordinate): void {
     if (!this.isLocationInGrid(target)) {
       target = { row: -1, col: -1 };
       this.popList = [];
@@ -133,7 +133,7 @@ class GameState {
     this.selectionCache = target;
   }
 
-  hasMoreMoves(): boolean {
+  hasMoreMoves (): boolean {
     for (let row = 0; row < this.numRows; row++) {
       for (let col = 0; col < this.numColumns; col++) {
         if (this.getFloodedCoordinates({ row, col }).length > 1) {
@@ -144,7 +144,7 @@ class GameState {
     return false;
   }
 
-  private getFloodedCoordinates(coord: coordinate): coordinate[] {
+  private getFloodedCoordinates (coord: coordinate): coordinate[] {
     const ret = [];
     const queue = [coord];
     const visited = new Set<string>();
@@ -179,7 +179,7 @@ class GameState {
     return ret;
   }
 
-  private isLocationInGrid(c: coordinate): boolean {
+  private isLocationInGrid (c: coordinate): boolean {
     return (
       c.row >= 0 &&
       c.row < this.numRows &&
@@ -188,7 +188,7 @@ class GameState {
     );
   }
 
-  doPop(): void {
+  doPop (): void {
     if (this.popList.length > 0) {
       this.undostack.push(this.serialize());
       this.needsPop = true;
@@ -198,11 +198,11 @@ class GameState {
     }
   }
 
-  private markBlockNull(coord: coordinate): void {
+  private markBlockNull (coord: coordinate): void {
     this.grid[coord.row][coord.col].id = null;
   }
 
-  private removeBlock(coord: coordinate, dropMap: Map<string, number>): void {
+  private removeBlock (coord: coordinate, dropMap: Map<string, number>): void {
     this.markBlockNull(coord);
     for (let row = 0; row < coord.row; row++) {
       const key = `${row},${coord.col}`;
@@ -212,7 +212,7 @@ class GameState {
     this.numBlocksInColumn[coord.col]--;
   }
 
-  private zeroOffsets(): void {
+  private zeroOffsets (): void {
     for (const row of this.grid) {
       for (const block of row) {
         block.xoffset = 0;
@@ -221,7 +221,7 @@ class GameState {
     }
   }
 
-  private applyDrop(dropMap: Map<string, number>): void {
+  private applyDrop (dropMap: Map<string, number>): void {
     // note: it's important to apply the drop from bottom to top...
     for (let row = this.grid.length - 2; row >= 0; row--) {
       for (let col = 0; col < this.grid[0].length; col++) {
@@ -245,7 +245,7 @@ class GameState {
     }
   }
 
-  private applyLeftShift(): void {
+  private applyLeftShift (): void {
     // eslint-disable-next-line no-return-assign
     const leftShift = this.numBlocksInColumn.map((val) => val === 0).map((sum => value => sum += value ? 1 : 0)(0));
     for (let col = 1; col < this.numColumns; col++) {
@@ -271,7 +271,7 @@ class GameState {
     }
   }
 
-  updateBlocks(): void {
+  updateBlocks (): void {
     if (!this.needsPop) return;
     const dropMap = new Map<string, number>();
     for (const coord of this.popList) {
@@ -287,7 +287,7 @@ class GameState {
     this.updateSelection(cursorLocation);
   }
 
-  undo(): void {
+  undo (): void {
     const state = this.undostack.pop();
     if (state !== undefined) {
       this.resetClock();
@@ -295,11 +295,11 @@ class GameState {
     }
   }
 
-  computeScore(n: number): number {
+  computeScore (n: number): number {
     return 5 * (n ** 2 + (n > 15 ? 2 * n ** 2 : 0) + (n > 30 ? 2 * n ** 2 : 0));
   }
 
-  decrementOffsets(amount: number): boolean {
+  decrementOffsets (amount: number): boolean {
     let hasOffset = false;
     for (const row of this.grid) {
       for (const block of row) {
@@ -313,7 +313,7 @@ class GameState {
     return hasOffset;
   }
 
-  serialize(): serializationPayload {
+  serialize (): serializationPayload {
     return {
       griddata: this.grid.map((x) => x.map((y) => y.id)),
       score: this.score,
@@ -321,7 +321,7 @@ class GameState {
     };
   }
 
-  deserialize(payload: serializationPayload): void {
+  deserialize (payload: serializationPayload): void {
     const data = payload.griddata;
     this.initializeGrid(data.length, data[0].length, 1, 0);
 
