@@ -5,6 +5,7 @@ import type htmlInterface from './htmlinterface.js';
 import type Renderer from './renderer.js';
 
 const MOVERATE = 0.15;
+const GAME_OVER_FADE_STEP = 0.375;
 class GameRunner {
   renderer: Renderer;
   settings: GameSettings;
@@ -80,7 +81,7 @@ class GameRunner {
       }
     } else {
       // show game over screen (todo: break out of the loop, but need a way to know whether it's running and start it again)
-      this.gameOverAnimationState = Math.min(this.gameOverAnimationState + 0.25, 90);
+      this.gameOverAnimationState = Math.min(this.gameOverAnimationState + GAME_OVER_FADE_STEP, 90);
       this.renderer.showGameOver(this.gameOverAnimationState / 100);
       if (!this.hasShownGameOverSummary) {
         this.page.setSessionUIState('gameOverSummary');
