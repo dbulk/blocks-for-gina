@@ -2,7 +2,13 @@ class GameOverOverlayView {
   private readonly fadeDurationMs = 4000;
   readonly container: HTMLDivElement;
   private readonly title: HTMLDivElement;
-  private readonly detail: HTMLDivElement;
+  private readonly metricsGrid: HTMLDivElement;
+  private readonly scoreValue: HTMLSpanElement;
+  private readonly timeValue: HTMLSpanElement;
+  private readonly blocksPoppedValue: HTMLSpanElement;
+  private readonly blocksRemainingValue: HTMLSpanElement;
+  private readonly largestClusterValue: HTMLSpanElement;
+  private readonly movesValue: HTMLSpanElement;
   private readonly playAgainButton: HTMLButtonElement;
 
   constructor () {
@@ -28,10 +34,18 @@ class GameOverOverlayView {
     this.title.style.fontSize = '24px';
     this.title.style.fontWeight = '700';
 
-    this.detail = document.createElement('div');
-    this.detail.style.marginTop = '4px';
-    this.detail.style.fontSize = '14px';
-    this.detail.style.color = '#d5f4ff';
+    this.metricsGrid = document.createElement('div');
+    this.metricsGrid.style.marginTop = '10px';
+    this.metricsGrid.style.display = 'grid';
+    this.metricsGrid.style.gridTemplateColumns = 'repeat(auto-fit, minmax(150px, 1fr))';
+    this.metricsGrid.style.gap = '8px';
+
+    this.scoreValue = this.createMetricCell('Score');
+    this.timeValue = this.createMetricCell('Time');
+    this.blocksPoppedValue = this.createMetricCell('Blocks Popped');
+    this.blocksRemainingValue = this.createMetricCell('Blocks Remaining');
+    this.largestClusterValue = this.createMetricCell('Largest Cluster');
+    this.movesValue = this.createMetricCell('Moves');
 
     this.playAgainButton = document.createElement('button');
     this.playAgainButton.textContent = 'Play Again';
@@ -39,7 +53,7 @@ class GameOverOverlayView {
     this.playAgainButton.style.display = 'block';
 
     this.container.appendChild(this.title);
-    this.container.appendChild(this.detail);
+    this.container.appendChild(this.metricsGrid);
     this.container.appendChild(this.playAgainButton);
   }
 
@@ -63,12 +77,46 @@ class GameOverOverlayView {
     }, this.fadeDurationMs);
   }
 
-  setSummary (score: number, time: string, blocksRemaining: number): void {
-    this.detail.textContent = `Score ${score} • Time ${time} • Blocks ${blocksRemaining}`;
+  setSummary (score: number, time: string, blocksPopped: number, blocksRemaining: number, largestCluster: number, totalMoves: number): void {
+    this.scoreValue.textContent = `${score}`;
+    this.timeValue.textContent = time;
+    this.blocksPoppedValue.textContent = `${blocksPopped}`;
+    this.blocksRemainingValue.textContent = `${blocksRemaining}`;
+    this.largestClusterValue.textContent = `${largestCluster}`;
+    this.movesValue.textContent = `${totalMoves}`;
   }
 
   addPlayAgainClickListener (func: () => void): void {
     this.playAgainButton.addEventListener('click', func);
+  }
+
+  private createMetricCell (labelText: string): HTMLSpanElement {
+    const card = document.createElement('div');
+    card.style.border = '1px solid #0089b3';
+    card.style.borderRadius = '8px';
+    card.style.backgroundColor = 'rgba(0, 0, 0, 0.2)';
+    card.style.padding = '8px';
+    card.style.textAlign = 'left';
+
+    const label = document.createElement('div');
+    label.textContent = labelText;
+    label.style.fontSize = '12px';
+    label.style.color = '#d5f4ff';
+    label.style.lineHeight = '1.1';
+
+    const value = document.createElement('span');
+    value.textContent = '--';
+    value.style.display = 'block';
+    value.style.marginTop = '4px';
+    value.style.fontSize = '18px';
+    value.style.fontWeight = '700';
+    value.style.lineHeight = '1.1';
+    value.style.whiteSpace = 'nowrap';
+
+    card.appendChild(label);
+    card.appendChild(value);
+    this.metricsGrid.appendChild(card);
+    return value;
   }
 }
 

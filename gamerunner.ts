@@ -53,6 +53,7 @@ class GameRunner {
     this.gameState.initializeGrid(this.settings.numRows, this.settings.numColumns, this.settings.numBlockTypes, this.settings.clusterStrength);
     this.gameState.resetClock();
     this.gameState.resetScore();
+    this.gameState.resetRoundStats();
     this.gameState.resetUndo();
     this.renderer.adjustCanvasSize();
     this.gameOverAnimationState = 0;
@@ -89,7 +90,10 @@ class GameRunner {
         this.page.setGameOverSummary(
           this.gameState.getScore(),
           this.getClockText(),
-          this.gameState.getNumBlocksRemaining()
+          this.gameState.getBlocksPopped(),
+          this.gameState.getNumBlocksRemaining(),
+          this.gameState.getLargestCluster(),
+          this.gameState.getTotalMoves()
         );
         this.hasShownGameOverSummary = true;
       }

@@ -76,10 +76,14 @@ describe('GameState', () => {
 
     state.updateBlocks();
     expect(state.getNumBlocksRemaining()).toBe(7);
+    expect(state.getTotalMoves()).toBe(1);
+    expect(state.getLargestCluster()).toBe(2);
     expect(state.hasUndo()).toBe(true);
 
     state.undo();
     expect(state.getScore()).toBe(0);
+    expect(state.getTotalMoves()).toBe(0);
+    expect(state.getLargestCluster()).toBe(0);
     expect(state.getNumBlocksRemaining()).toBe(9);
     expect(state.hasUndo()).toBe(false);
   });
@@ -105,6 +109,8 @@ describe('GameState', () => {
     state.redo();
     expect(state.serialize().griddata).toEqual(afterPop.griddata);
     expect(state.getScore()).toBe(afterPop.score);
+    expect(state.getTotalMoves()).toBe(afterPop.totalMoves ?? 0);
+    expect(state.getLargestCluster()).toBe(afterPop.largestCluster ?? 0);
   });
 
   it('clears redo stack after a new action', () => {
@@ -161,6 +167,8 @@ describe('GameState', () => {
 
     expect(restored.serialize().griddata).toEqual(payload.griddata);
     expect(restored.getScore()).toBe(123);
+    expect(restored.getTotalMoves()).toBe(payload.totalMoves ?? 0);
+    expect(restored.getLargestCluster()).toBe(payload.largestCluster ?? 0);
   });
 
   it('animates drop offsets and eventually settles', () => {

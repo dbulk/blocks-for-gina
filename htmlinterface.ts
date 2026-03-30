@@ -73,8 +73,8 @@ class HTMLInterface {
     this.gameOverOverlay.addPlayAgainClickListener(func);
   }
 
-  setGameOverSummary (score: number, time: string, blocksRemaining: number): void {
-    this.gameOverOverlay.setSummary(score, time, blocksRemaining);
+  setGameOverSummary (score: number, time: string, blocksPopped: number, blocksRemaining: number, largestCluster: number, totalMoves: number): void {
+    this.gameOverOverlay.setSummary(score, time, blocksPopped, blocksRemaining, largestCluster, totalMoves);
   }
 
   hideStartButton (): void {

@@ -11,6 +11,9 @@ interface serializationPayload {
   griddata: Array<Array<(number | null)>>
   score: number
   serializedGameDuration: number
+  totalMoves?: number
+  largestCluster?: number
+  blocksPopped?: number
 }
 interface xy {
   x: number
@@ -32,6 +35,9 @@ class GameState {
   blocksDirty = true;
   animating = false;
   private score: number = 0;
+  private totalMoves: number = 0;
+  private largestCluster: number = 0;
+  private blocksPopped: number = 0;
   private gameStartTime: number = 0;
   private serializedGameDuration: number = 0;
   private numBlocksInColumn: number[] = [];
@@ -110,8 +116,26 @@ class GameState {
     return this.popList.length;
   }
 
+  getTotalMoves (): number {
+    return this.totalMoves;
+  }
+
+  getLargestCluster (): number {
+    return this.largestCluster;
+  }
+
+  getBlocksPopped (): number {
+    return this.blocksPopped;
+  }
+
   resetScore (): void {
     this.score = 0;
+  }
+
+  resetRoundStats (): void {
+    this.totalMoves = 0;
+    this.largestCluster = 0;
+    this.blocksPopped = 0;
   }
 
   resetClock (): void {
@@ -248,6 +272,9 @@ class GameState {
       this.undostack.push(this.serialize());
       this.redostack = [];
       this.needsPop = true;
+      this.totalMoves++;
+      this.largestCluster = Math.max(this.largestCluster, this.popList.length);
+      this.blocksPopped += this.popList.length;
       this.score += this.computeScore(this.popList.length);
       this.blocksDirty = true;
       this.soundEffectCallback();
@@ -384,7 +411,10 @@ class GameState {
     return {
       griddata: this.grid.map((x) => x.map((y) => y.id)),
       score: this.score,
-      serializedGameDuration: this.serializedGameDuration + performance.now() - this.gameStartTime
+      serializedGameDuration: this.serializedGameDuration + performance.now() - this.gameStartTime,
+      totalMoves: this.totalMoves,
+      largestCluster: this.largestCluster,
+      blocksPopped: this.blocksPopped
     };
   }
 
@@ -401,6 +431,9 @@ class GameState {
     }
 
     this.score = payload.score;
+    this.totalMoves = 'totalMoves' in payload ? payload.totalMoves ?? 0 : 0;
+    this.largestCluster = 'largestCluster' in payload ? payload.largestCluster ?? 0 : 0;
+    this.blocksPopped = 'blocksPopped' in payload ? payload.blocksPopped ?? 0 : 0;
     this.blocksDirty = true;
     this.serializedGameDuration = 'serializedGameDuration' in payload ? payload.serializedGameDuration : 0;
     this.assertInvariants('deserialize');
