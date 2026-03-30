@@ -19,7 +19,7 @@ class Blocks4Gina extends HTMLElement {
     page.resize();
     page.addStartClickListener(() => {
       page.setSessionUIState('inGame');
-      // eslint-disable-next-line no-new
+      
       new GameRunner(renderer, gameSettings, page);
     });
   }

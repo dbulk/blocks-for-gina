@@ -409,7 +409,6 @@ class GameState {
   }
 
   private applyLeftShift (): void {
-    // eslint-disable-next-line no-return-assign
     const leftShift = this.numBlocksInColumn.map((val) => val === 0).map((sum => value => sum += value ? 1 : 0)(0));
     for (let col = 1; col < this.numColumns; col++) {
       const mv = leftShift[col - 1];
