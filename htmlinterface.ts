@@ -1,6 +1,7 @@
 import styleElement from './gamestyle.js';
 import UINodes from './uinodes.js';
 import HudView from './scoredisplay.js';
+import StartOverlayView from './startoverlayview.js';
 
 type SessionUIState = 'preGame' | 'inGame';
 
@@ -9,8 +10,7 @@ class HTMLInterface {
   ui: UINodes;
   scoreDisplay: HudView;
   isvalid = false;
-  startButton!: HTMLButtonElement;
-  credits!: HTMLDivElement;
+  private readonly startOverlay: StartOverlayView;
   private sessionUIState: SessionUIState = 'preGame';
 
   constructor (root: ShadowRoot) {
@@ -37,15 +37,17 @@ class HTMLInterface {
 
     this.ui = new UINodes();
     this.ui.createUI();
-    this.createStartButton();
-    this.createCredits();
+    this.startOverlay = new StartOverlayView();
 
     div.appendChild(this.scoreDisplay.div);
     div.appendChild(this.canvas);
-    div.appendChild(this.startButton);
-    div.appendChild(this.credits);
+    div.appendChild(this.startOverlay.container);
     this.ui.setParent(div);
     this.setSessionUIState('preGame');
+  }
+
+  addStartClickListener (func: () => void): void {
+    this.startOverlay.addStartClickListener(func);
   }
 
   hideStartButton (): void {
@@ -56,8 +58,7 @@ class HTMLInterface {
     this.sessionUIState = state;
 
     const showSplash = state === 'preGame';
-    this.startButton.style.display = showSplash ? 'block' : 'none';
-    this.credits.style.display = showSplash ? 'inline' : 'none';
+    this.startOverlay.setVisible(showSplash);
 
     this.ui.setVisibility(!showSplash);
     this.scoreDisplay.setVisibility(!showSplash);
@@ -65,51 +66,8 @@ class HTMLInterface {
 
   resize (): void {
     if (this.sessionUIState === 'preGame') {
-      this.startButton.style.top = `-${this.canvas.height / 2}px`;
+      this.startOverlay.setCanvasHeight(this.canvas.height);
     }
-  }
-
-  private createStartButton (): void {
-    this.startButton = document.createElement('button');
-    this.startButton.textContent = 'PLAY';
-    this.startButton.style.padding = '15px 18px';
-    this.startButton.style.position = 'relative';
-    this.startButton.style.left = '50%';
-    this.startButton.style.transform = 'translate(-50%, -50%)';
-    this.startButton.style.display = 'block';
-  }
-
-  private createCredits (): void {
-    this.credits = document.createElement('div');
-    this.credits.innerHTML = `
-    <table>
-    <tr style="vertical-align: top">
-
-    <td>
-    <p><b>Source</b></p>
-    <p>Blocks4Gina by Dave Bulkin</p>
-    <p>Released under <a href = "./LICENSE" target="_blank"  rel="noopener noreferrer">MIT License</a></p>
-    <p><a href = "https://dave.bulkin.net" target="_blank">dave.bulkin.net</a></p>
-    <p><a href = "https://github.com/dbulk/blocks-for-gina" target="_blank">git</a></p>
-    </td>
-    <td>
-    <p><b>Music</b></p>
-    <p>Permafrost by Scott Buckley<br>
-    <p>Released under CC-BY 4.0</p>
-    <p><a href = "https://www.scottbuckley.com.au" target="_blank">www.scottbuckley.com.au</a></p>
-    </td>
-    <td>
-    <p><b>Inspiration</b></p>
-    <p>Gina Mason</p>
-    <p><a href = "https://ginamason.net" target="_blank">ginamason.net</a></p>
-    </td>
-    </tr>
-    </table>
-    `;
-    this.credits.style.display = 'inline';
-    this.credits.style.position = 'relative';
-    this.credits.style.top = '-150px';
-    this.credits.style.userSelect = 'none';
   }
 }
 

@@ -17,11 +17,11 @@ class Blocks4Gina extends HTMLElement {
     });
     renderer.adjustCanvasSize();
     page.resize();
-    page.startButton.addEventListener('click', () => {
+    page.addStartClickListener(() => {
       page.setSessionUIState('inGame');
       // eslint-disable-next-line no-new
       new GameRunner(renderer, gameSettings, page);
-    }, { once: true });
+    });
   }
 }
 
