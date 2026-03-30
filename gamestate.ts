@@ -45,6 +45,54 @@ class GameState {
 
   constructor (soundEffectCallback: () => void) { this.soundEffectCallback = soundEffectCallback; }
 
+  private shouldRunInvariantChecks (): boolean {
+    const host = globalThis.location?.hostname;
+    return host === 'localhost' || host === '127.0.0.1' || host === '';
+  }
+
+  private assertInvariants (context: string): void {
+    if (!this.shouldRunInvariantChecks()) {
+      return;
+    }
+
+    if (this.numBlocksInColumn.length !== this.numColumns) {
+      throw new Error(`Invariant failed (${context}): column count mismatch`);
+    }
+
+    let seenEmptyColumn = false;
+
+    for (let col = 0; col < this.numColumns; col++) {
+      let blockCount = 0;
+      let seenGapBelow = false;
+
+      for (let row = this.numRows - 1; row >= 0; row--) {
+        const block = this.grid[row][col];
+        if (block.id === null) {
+          seenGapBelow = true;
+        } else {
+          blockCount++;
+          if (seenGapBelow) {
+            throw new Error(`Invariant failed (${context}): floating block at row ${row}, col ${col}`);
+          }
+        }
+
+        if (block.xoffset < 0 || block.yoffset < 0) {
+          throw new Error(`Invariant failed (${context}): negative offset at row ${row}, col ${col}`);
+        }
+      }
+
+      if (blockCount !== this.numBlocksInColumn[col]) {
+        throw new Error(`Invariant failed (${context}): column ${col} block count mismatch`);
+      }
+
+      if (blockCount === 0) {
+        seenEmptyColumn = true;
+      } else if (seenEmptyColumn) {
+        throw new Error(`Invariant failed (${context}): non-empty column appears right of empty column at col ${col}`);
+      }
+    }
+  }
+
   getScore (): number {
     return this.score;
   }
@@ -108,6 +156,7 @@ class GameState {
     }
     this.numBlocksInColumn = new Array(this.numColumns).fill(this.numRows);
     this.blocksDirty = true;
+    this.assertInvariants('initializeGrid');
   }
 
   getBlockID (c: coordinate): number | null {
@@ -285,6 +334,7 @@ class GameState {
     const cursorLocation = { row: this.selectionCache.row, col: this.selectionCache.col };
     this.selectionCache = { row: -1, col: -1 };
     this.updateSelection(cursorLocation);
+    this.assertInvariants('updateBlocks');
   }
 
   undo (): void {
@@ -336,6 +386,7 @@ class GameState {
     this.score = payload.score;
     this.blocksDirty = true;
     this.serializedGameDuration = 'serializedGameDuration' in payload ? payload.serializedGameDuration : 0;
+    this.assertInvariants('deserialize');
   }
 }
 
