@@ -41,6 +41,8 @@ class GameState {
   private gameStartTime: number = 0;
   private serializedGameDuration: number = 0;
   private numBlocksInColumn: number[] = [];
+  private hasMoreMovesCache: boolean = false;
+  private hasMoreMovesDirty: boolean = true;
   private needsPop: boolean = false;
 
   private numRows: number = 0;
@@ -186,6 +188,7 @@ class GameState {
     }
     this.numBlocksInColumn = new Array(this.numColumns).fill(this.numRows);
     this.blocksDirty = true;
+    this.hasMoreMovesDirty = true;
     this.assertInvariants('initializeGrid');
   }
 
@@ -213,9 +216,24 @@ class GameState {
   }
 
   hasMoreMoves (): boolean {
+    if (this.hasMoreMovesDirty) {
+      this.hasMoreMovesCache = this.computeHasMoreMoves();
+      this.hasMoreMovesDirty = false;
+    }
+    return this.hasMoreMovesCache;
+  }
+
+  private computeHasMoreMoves (): boolean {
     for (let row = 0; row < this.numRows; row++) {
       for (let col = 0; col < this.numColumns; col++) {
-        if (this.getFloodedCoordinates({ row, col }).length > 1) {
+        const id = this.grid[row][col].id;
+        if (id === null) {
+          continue;
+        }
+        if (row + 1 < this.numRows && this.grid[row + 1][col].id === id) {
+          return true;
+        }
+        if (col + 1 < this.numColumns && this.grid[row][col + 1].id === id) {
           return true;
         }
       }
@@ -364,6 +382,7 @@ class GameState {
     this.zeroOffsets();
     this.applyDrop(dropMap);
     this.applyLeftShift();
+    this.hasMoreMovesDirty = true;
     this.needsPop = false;
     const cursorLocation = { row: this.selectionCache.row, col: this.selectionCache.col };
     this.selectionCache = { row: -1, col: -1 };
@@ -435,6 +454,7 @@ class GameState {
     this.largestCluster = 'largestCluster' in payload ? payload.largestCluster ?? 0 : 0;
     this.blocksPopped = 'blocksPopped' in payload ? payload.blocksPopped ?? 0 : 0;
     this.blocksDirty = true;
+    this.hasMoreMovesDirty = true;
     this.serializedGameDuration = 'serializedGameDuration' in payload ? payload.serializedGameDuration : 0;
     this.assertInvariants('deserialize');
   }

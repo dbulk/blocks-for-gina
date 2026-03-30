@@ -17,6 +17,7 @@ class GameRunner {
   soundEnabled: boolean = true;
   scoreBoard: ScoreBoard;
   gameOverAnimationState = 0;
+  private animationLoopRunning: boolean = false;
   private hasShownGameOverSummary: boolean = false;
 
   constructor (renderer: Renderer, settings: GameSettings, page: htmlInterface) {
@@ -57,6 +58,7 @@ class GameRunner {
     this.gameState.resetUndo();
     this.renderer.adjustCanvasSize();
     this.gameOverAnimationState = 0;
+    this.animationLoopRunning = false;
     this.hasShownGameOverSummary = false;
   }
 
@@ -65,7 +67,8 @@ class GameRunner {
     this.page.ui.setUndoEnabled(this.gameState.hasUndo());
     this.page.ui.setRedoEnabled(this.gameState.hasRedo());
 
-    if (this.gameState.animating) {
+    if (this.gameState.animating && !this.animationLoopRunning) {
+      this.animationLoopRunning = true;
       requestAnimationFrame(() => { this.animationLoop(performance.now()); });
     }
 
@@ -104,6 +107,11 @@ class GameRunner {
   }
 
   private animationLoop (startTime: number): void {
+    if (!this.gameState.animating) {
+      this.animationLoopRunning = false;
+      return;
+    }
+
     const elapsedTime = performance.now() - startTime;
     const numSteps = Math.floor(elapsedTime * MOVERATE);
     // increment startTime based on how much has been "used"
@@ -118,6 +126,7 @@ class GameRunner {
     if (turnItOff) {
       this.gameState.animating = false;
       this.gameState.blocksDirty = true;
+      this.animationLoopRunning = false;
     } else {
       requestAnimationFrame(() => { this.animationLoop(startTime); });
     }
