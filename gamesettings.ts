@@ -53,11 +53,23 @@ class GameSettings {
     this.ui.setInputColors(this.blockColors);
   }
 
+  resetToDefaults (): void {
+    this.loadSettings();
+    this.settingsToUI();
+    this.ui.setTogMusic(true);
+    this.ui.setTogSound(true);
+  }
+
   uiToSettings (): void {
     // note: this shouldn't be called 'mid-game'
     this.numRows = this.ui.getInputRows();
     this.numColumns = this.ui.getInputColumns();
     this.clusterStrength = this.ui.getInputClusterStrength();
+  }
+
+  uiAllToSettings (): void {
+    this.uiToSettings();
+    this.uiColorsToSettings();
   }
 
   uiColorsToSettings (): void {

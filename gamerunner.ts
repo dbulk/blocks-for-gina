@@ -140,6 +140,17 @@ class GameRunner {
       }
     );
 
+    this.page.ui.addApplySettingsListener(() => {
+      this.startNewGameFromUI();
+    });
+
+    this.page.ui.addResetSettingsListener(() => {
+      this.settings.resetToDefaults();
+      this.settings.uiAllToSettings();
+      this.setAudioState();
+      this.gameState.blocksDirty = true;
+    });
+
     this.page.addPlayAgainClickListener(() => {
       this.startNewGameFromUI();
     });
@@ -171,7 +182,8 @@ class GameRunner {
   }
 
   private startNewGameFromUI (): void {
-    this.settings.uiToSettings();
+    this.settings.uiAllToSettings();
+    this.setAudioState();
     this.newGame();
   }
 

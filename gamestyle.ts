@@ -52,6 +52,15 @@ styleElement.textContent = `
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
   }
 
+  .ui-toolbar {
+    display: flex;
+    padding-top: 10px;
+    flex-wrap: wrap;
+    flex-shrink: 1;
+    gap: 4px;
+    align-items: flex-start;
+  }
+
   span {
     color: #fff;
     font-size: 22px;
@@ -75,11 +84,93 @@ styleElement.textContent = `
 
   div.settings-expandy {
     color: #0089b3;
-    display: inline-block;
+    display: inline-flex;
+    flex-direction: column;
+    gap: 6px;
     border: 2px solid;
     border-radius: 8px;
     height: 100%;
     position: relative;
+    padding: 8px;
+    margin-top: 4px;
+    min-width: 320px;
+  }
+
+  .settings-panel {
+    background-color: rgba(0, 0, 0, 0.2);
+  }
+
+  .settings-section {
+    border: 1px solid rgba(0, 137, 179, 0.65);
+    border-radius: 8px;
+    padding: 8px;
+    background-color: rgba(0, 0, 0, 0.12);
+  }
+
+  .settings-section-title {
+    color: #d5f4ff;
+    font-size: 12px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+    user-select: none;
+  }
+
+  .settings-section-body {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .settings-row {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    flex-wrap: nowrap;
+    gap: 8px;
+  }
+
+  .settings-row-wrap {
+    flex-wrap: wrap;
+  }
+
+  .settings-row-inline {
+    gap: 6px;
+  }
+
+  .settings-row-grid {
+    display: grid;
+    grid-template-columns: repeat(2, max-content);
+    gap: 10px;
+    justify-content: start;
+    align-items: end;
+  }
+
+  .settings-field {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  input.settings-number {
+    width: 80px;
+  }
+
+  input.settings-range {
+    width: 140px;
+  }
+
+  .settings-colors {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 2px;
+  }
+
+  .settings-section label {
+    padding: 0;
+    font-size: 14px;
+    min-width: 0;
   }
   input[type=number] {
     background-color: #555;
@@ -114,6 +205,34 @@ styleElement.textContent = `
     border: 1px solid #0089b3;
     box-sizing: content-box;
     margin: 0px 1px;
+  }
+
+  button.settings-mini {
+    padding: 8px 10px;
+    font-size: 13px;
+    line-height: 1.2;
+    margin: 0;
+  }
+
+  button.settings-primary {
+    background-color: #0089b3;
+  }
+
+  button.settings-primary:hover {
+    background-color: #1aaad8;
+  }
+
+  button.settings-primary:active {
+    background-color: #00779d;
+  }
+
+  span.cluster-value {
+    color: #d5f4ff;
+    font-size: 13px;
+    margin-left: 8px;
+    user-select: none;
+    min-width: 38px;
+    text-align: right;
   }
 
   .start-overlay-backdrop {
@@ -218,6 +337,32 @@ styleElement.textContent = `
   }
 
   @media (max-width: 640px) {
+    div.settings-expandy {
+      min-width: 0;
+      width: 100%;
+    }
+
+    .settings-row {
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .settings-row-grid {
+      grid-template-columns: 1fr;
+      gap: 8px;
+    }
+
+    .settings-section label {
+      min-width: 0;
+      width: 100%;
+    }
+
+    input.settings-number,
+    input.settings-range {
+      width: 100%;
+      max-width: 220px;
+    }
+
     .start-overlay-backdrop {
       padding: 8px;
     }
