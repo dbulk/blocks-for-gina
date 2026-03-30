@@ -11,7 +11,8 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
-    "start": "vite"
+    "start": "vite",
+    "deploy:site": "npm run build && node ./scripts/deploy-site.mjs"
   },
   "keywords": [],
   "author": "",
@@ -28,7 +29,7 @@
     "vitest": "^4.1.2"
   },
   "dependencies": {
-    "vite": "^5.2.8"
+    "vite": "^8.0.3"
   },
   "type": "module"
 }
