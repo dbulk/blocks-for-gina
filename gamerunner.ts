@@ -1,5 +1,6 @@
 import GameState from './gamestate.js';
 import ScoreBoard from './scoreboard.js';
+import LocalHighScores from './highscores.js';
 import type GameSettings from './gamesettings.js';
 import type htmlInterface from './htmlinterface.js';
 import type Renderer from './renderer.js';
@@ -19,6 +20,7 @@ class GameRunner {
   gameOverAnimationState = 0;
   private animationLoopRunning: boolean = false;
   private hasShownGameOverSummary: boolean = false;
+  private readonly highScores: LocalHighScores;
 
   constructor (renderer: Renderer, settings: GameSettings, page: htmlInterface) {
     this.renderer = renderer;
@@ -26,6 +28,7 @@ class GameRunner {
     this.audio = new Audio('./sound.wav');
     this.gameState = new GameState(this.playSoundEffect.bind(this));
     this.scoreBoard = new ScoreBoard(this.gameState, page.scoreDisplay);
+    this.highScores = new LocalHighScores();
 
     this.page = page;
     this.canvas = page.canvas;
@@ -89,6 +92,16 @@ class GameRunner {
       this.gameOverAnimationState = Math.min(this.gameOverAnimationState + GAME_OVER_FADE_STEP, 90);
       this.renderer.showGameOver(this.gameOverAnimationState / 100);
       if (!this.hasShownGameOverSummary) {
+        const playedTime = this.gameState.getPlayedDuration();
+        const elapsedSeconds = playedTime.hours * 3600 + playedTime.minutes * 60 + playedTime.seconds;
+        const recordResult = this.highScores.record({
+          score: this.gameState.getScore(),
+          elapsedSeconds,
+          rows: this.settings.numRows,
+          columns: this.settings.numColumns,
+          playedAt: Date.now()
+        });
+
         this.page.setSessionUIState('gameOverSummary');
         this.page.setGameOverSummary(
           this.gameState.getScore(),
@@ -96,7 +109,9 @@ class GameRunner {
           this.gameState.getBlocksPopped(),
           this.gameState.getNumBlocksRemaining(),
           this.gameState.getLargestCluster(),
-          this.gameState.getTotalMoves()
+          this.gameState.getTotalMoves(),
+          recordResult.topEntries,
+          recordResult.rank
         );
         this.hasShownGameOverSummary = true;
       }

@@ -3,6 +3,7 @@ import UINodes from './uinodes.js';
 import HudView from './scoredisplay.js';
 import StartOverlayView from './startoverlayview.js';
 import GameOverOverlayView from './gameoveroverlayview.js';
+import type { HighScoreEntry } from './highscores.js';
 
 type SessionUIState = 'preGame' | 'inGame' | 'paused' | 'gameOverSummary';
 
@@ -73,8 +74,17 @@ class HTMLInterface {
     this.gameOverOverlay.addPlayAgainClickListener(func);
   }
 
-  setGameOverSummary (score: number, time: string, blocksPopped: number, blocksRemaining: number, largestCluster: number, totalMoves: number): void {
-    this.gameOverOverlay.setSummary(score, time, blocksPopped, blocksRemaining, largestCluster, totalMoves);
+  setGameOverSummary (
+    score: number,
+    time: string,
+    blocksPopped: number,
+    blocksRemaining: number,
+    largestCluster: number,
+    totalMoves: number,
+    highScores: HighScoreEntry[],
+    rank: number | null
+  ): void {
+    this.gameOverOverlay.setSummary(score, time, blocksPopped, blocksRemaining, largestCluster, totalMoves, highScores, rank);
   }
 
   hideStartButton (): void {

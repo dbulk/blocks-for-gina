@@ -1,3 +1,5 @@
+import type { HighScoreEntry } from './highscores.js';
+
 class GameOverOverlayView {
   private readonly fadeDurationMs = 4000;
   readonly container: HTMLDivElement;
@@ -9,6 +11,8 @@ class GameOverOverlayView {
   private readonly blocksRemainingValue: HTMLSpanElement;
   private readonly largestClusterValue: HTMLSpanElement;
   private readonly movesValue: HTMLSpanElement;
+  private readonly leaderboardTitle: HTMLDivElement;
+  private readonly leaderboardList: HTMLDivElement;
   private readonly playAgainButton: HTMLButtonElement;
 
   constructor () {
@@ -47,6 +51,18 @@ class GameOverOverlayView {
     this.largestClusterValue = this.createMetricCell('Largest Cluster');
     this.movesValue = this.createMetricCell('Moves');
 
+    this.leaderboardTitle = document.createElement('div');
+    this.leaderboardTitle.style.marginTop = '10px';
+    this.leaderboardTitle.style.fontSize = '14px';
+    this.leaderboardTitle.style.fontWeight = '700';
+    this.leaderboardTitle.style.color = '#d5f4ff';
+    this.leaderboardTitle.textContent = 'High Scores';
+
+    this.leaderboardList = document.createElement('div');
+    this.leaderboardList.style.marginTop = '6px';
+    this.leaderboardList.style.display = 'grid';
+    this.leaderboardList.style.gap = '4px';
+
     this.playAgainButton = document.createElement('button');
     this.playAgainButton.textContent = 'Play Again';
     this.playAgainButton.style.margin = '10px auto 0 auto';
@@ -54,6 +70,8 @@ class GameOverOverlayView {
 
     this.container.appendChild(this.title);
     this.container.appendChild(this.metricsGrid);
+    this.container.appendChild(this.leaderboardTitle);
+    this.container.appendChild(this.leaderboardList);
     this.container.appendChild(this.playAgainButton);
   }
 
@@ -77,13 +95,23 @@ class GameOverOverlayView {
     }, this.fadeDurationMs);
   }
 
-  setSummary (score: number, time: string, blocksPopped: number, blocksRemaining: number, largestCluster: number, totalMoves: number): void {
+  setSummary (
+    score: number,
+    time: string,
+    blocksPopped: number,
+    blocksRemaining: number,
+    largestCluster: number,
+    totalMoves: number,
+    highScores: HighScoreEntry[],
+    rank: number | null
+  ): void {
     this.scoreValue.textContent = `${score}`;
     this.timeValue.textContent = time;
     this.blocksPoppedValue.textContent = `${blocksPopped}`;
     this.blocksRemainingValue.textContent = `${blocksRemaining}`;
     this.largestClusterValue.textContent = `${largestCluster}`;
     this.movesValue.textContent = `${totalMoves}`;
+    this.renderLeaderboard(highScores, rank);
   }
 
   addPlayAgainClickListener (func: () => void): void {
@@ -117,6 +145,68 @@ class GameOverOverlayView {
     card.appendChild(value);
     this.metricsGrid.appendChild(card);
     return value;
+  }
+
+  private renderLeaderboard (highScores: HighScoreEntry[], rank: number | null): void {
+    this.leaderboardList.textContent = '';
+
+    if (highScores.length === 0) {
+      const empty = document.createElement('div');
+      empty.textContent = 'No scores yet.';
+      empty.style.fontSize = '13px';
+      empty.style.color = '#ccc';
+      this.leaderboardList.appendChild(empty);
+      return;
+    }
+
+    const topToShow = highScores.slice(0, 5);
+    for (let i = 0; i < topToShow.length; i++) {
+      const entry = topToShow[i];
+      const row = document.createElement('div');
+      row.style.display = 'grid';
+      row.style.gridTemplateColumns = '28px 1fr auto';
+      row.style.gap = '8px';
+      row.style.alignItems = 'center';
+      row.style.fontSize = '13px';
+      row.style.padding = '3px 6px';
+      row.style.borderRadius = '6px';
+      row.style.backgroundColor = rank === i + 1 ? 'rgba(0, 137, 179, 0.18)' : 'rgba(0, 0, 0, 0.2)';
+
+      const place = document.createElement('span');
+      place.textContent = `#${i + 1}`;
+      place.style.color = '#d5f4ff';
+
+      const detail = document.createElement('span');
+      detail.textContent = `${entry.score} pts • ${entry.rows}x${entry.columns}`;
+      detail.style.color = '#fff';
+
+      const time = document.createElement('span');
+      time.textContent = this.formatSeconds(entry.elapsedSeconds);
+      time.style.color = '#ccc';
+
+      row.appendChild(place);
+      row.appendChild(detail);
+      row.appendChild(time);
+      this.leaderboardList.appendChild(row);
+    }
+
+    if (rank !== null && rank > 5) {
+      const note = document.createElement('div');
+      note.textContent = `Your rank: #${rank}`;
+      note.style.marginTop = '4px';
+      note.style.fontSize = '12px';
+      note.style.color = '#9dcfdf';
+      this.leaderboardList.appendChild(note);
+    }
+  }
+
+  private formatSeconds (totalSeconds: number): string {
+    const safeSeconds = Math.max(0, Math.floor(totalSeconds));
+    const h = Math.floor(safeSeconds / 3600);
+    const m = Math.floor((safeSeconds % 3600) / 60);
+    const s = safeSeconds % 60;
+    const hoursPrefix = h > 0 ? `${h}:` : '';
+    return `${hoursPrefix}${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
   }
 }
 
