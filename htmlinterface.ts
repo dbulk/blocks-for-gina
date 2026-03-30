@@ -54,6 +54,10 @@ class HTMLInterface {
     this.startOverlay.addStartClickListener(func);
   }
 
+  addPlayAgainClickListener (func: () => void): void {
+    this.gameOverOverlay.addPlayAgainClickListener(func);
+  }
+
   setGameOverSummary (score: number, time: string, blocksRemaining: number): void {
     this.gameOverOverlay.setSummary(score, time, blocksRemaining);
   }

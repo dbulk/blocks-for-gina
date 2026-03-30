@@ -130,10 +130,13 @@ class GameRunner {
 
     this.page.ui.addNewGameClickListener(
       () => {
-        this.settings.uiToSettings();
-        this.newGame();
+        this.startNewGameFromUI();
       }
     );
+
+    this.page.addPlayAgainClickListener(() => {
+      this.startNewGameFromUI();
+    });
 
     this.page.ui.addUndoListener(
       () => {
@@ -153,6 +156,11 @@ class GameRunner {
       this.settings.uiColorsToSettings();
       this.gameState.blocksDirty = true;
     });
+  }
+
+  private startNewGameFromUI (): void {
+    this.settings.uiToSettings();
+    this.newGame();
   }
 
   private setAudioState (): void {
