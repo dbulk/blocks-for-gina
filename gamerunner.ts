@@ -26,6 +26,7 @@ class GameRunner {
 
     this.page = page;
     this.canvas = page.canvas;
+    this.page.setSessionUIState('inGame');
 
     this.newGame();
     this.attachListeners();

@@ -2,6 +2,8 @@ import styleElement from './gamestyle.js';
 import UINodes from './uinodes.js';
 import HudView from './scoredisplay.js';
 
+type SessionUIState = 'preGame' | 'inGame';
+
 class HTMLInterface {
   canvas!: HTMLCanvasElement;
   ui: UINodes;
@@ -9,6 +11,7 @@ class HTMLInterface {
   isvalid = false;
   startButton!: HTMLButtonElement;
   credits!: HTMLDivElement;
+  private sessionUIState: SessionUIState = 'preGame';
 
   constructor (root: ShadowRoot) {
     root.appendChild(styleElement);
@@ -42,16 +45,26 @@ class HTMLInterface {
     div.appendChild(this.startButton);
     div.appendChild(this.credits);
     this.ui.setParent(div);
-    this.ui.setVisibility(false);
+    this.setSessionUIState('preGame');
   }
 
   hideStartButton (): void {
-    this.startButton.style.display = 'none';
-    this.credits.style.display = 'none';
+    this.setSessionUIState('inGame');
+  }
+
+  setSessionUIState (state: SessionUIState): void {
+    this.sessionUIState = state;
+
+    const showSplash = state === 'preGame';
+    this.startButton.style.display = showSplash ? 'block' : 'none';
+    this.credits.style.display = showSplash ? 'inline' : 'none';
+
+    this.ui.setVisibility(!showSplash);
+    this.scoreDisplay.setVisibility(!showSplash);
   }
 
   resize (): void {
-    if (!this.startButton.hidden) {
+    if (this.sessionUIState === 'preGame') {
       this.startButton.style.top = `-${this.canvas.height / 2}px`;
     }
   }
@@ -101,3 +114,4 @@ class HTMLInterface {
 }
 
 export default HTMLInterface;
+export type { SessionUIState };
