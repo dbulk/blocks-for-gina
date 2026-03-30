@@ -1,4 +1,5 @@
 import type UINodes from './uinodes.js';
+import { DEFAULT_BLOCK_STYLE, isBlockStyle, type BlockStyle } from './blockstyle.js';
 
 class GameSettings {
   numColumns!: number;
@@ -7,6 +8,7 @@ class GameSettings {
   numBlockTypes!: number;
   clusterStrength!: number;
   blockLabels!: boolean;
+  blockStyle!: BlockStyle;
   ui: UINodes;
 
   constructor (ui: UINodes) {
@@ -23,6 +25,7 @@ class GameSettings {
     this.numBlockTypes = this.blockColors.length;
     this.clusterStrength = 0.2;
     this.blockLabels = false;
+    this.blockStyle = DEFAULT_BLOCK_STYLE;
   }
 
   deserialize (settings: serializationPayload): void {
@@ -30,6 +33,7 @@ class GameSettings {
     this.numColumns = 'numColumns' in settings ? settings.numColumns : 20;
     this.numRows = 'numRows' in settings ? settings.numRows : 10;
     this.clusterStrength = 'clusterStrength' in settings ? settings.clusterStrength : 0.2;
+    this.blockStyle = 'blockStyle' in settings && isBlockStyle(settings.blockStyle) ? settings.blockStyle : DEFAULT_BLOCK_STYLE;
     this.ui.setTogMusic(settings.isMusicEnabled);
     this.ui.setTogSound(settings.isSoundEnabled);
     this.settingsToUI();
@@ -41,6 +45,7 @@ class GameSettings {
       numColumns: this.numColumns,
       numRows: this.numRows,
       clusterStrength: this.clusterStrength,
+      blockStyle: this.blockStyle,
       isMusicEnabled: this.ui.getTogMusic(),
       isSoundEnabled: this.ui.getTogSound()
     };
@@ -50,6 +55,7 @@ class GameSettings {
     this.ui.setInputRows(this.numRows);
     this.ui.setInputColumns(this.numColumns);
     this.ui.setInputClusterStrength(this.clusterStrength);
+    this.ui.setInputBlockStyle(this.blockStyle);
     this.ui.setInputColors(this.blockColors);
   }
 
@@ -65,6 +71,7 @@ class GameSettings {
     this.numRows = this.ui.getInputRows();
     this.numColumns = this.ui.getInputColumns();
     this.clusterStrength = this.ui.getInputClusterStrength();
+    this.blockStyle = this.ui.getInputBlockStyle();
   }
 
   uiAllToSettings (): void {
@@ -84,6 +91,7 @@ interface serializationPayload {
   numColumns: number
   numRows: number
   clusterStrength: number
+  blockStyle: BlockStyle
   isMusicEnabled: boolean
   isSoundEnabled: boolean
 }

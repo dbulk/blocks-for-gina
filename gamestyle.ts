@@ -191,6 +191,27 @@ styleElement.textContent = `
     outline: 2px solid #0089b3;
     background-color: #777;
   }
+
+  select.settings-select {
+    background-color: #555;
+    border: none;
+    color: #fff;
+    padding: 10px 12px;
+    font-size: 14px;
+    border-radius: 8px;
+    margin: 4px 2px;
+    min-width: 140px;
+  }
+
+  select.settings-select:hover {
+    background-color: #777;
+  }
+
+  select.settings-select:focus {
+    outline: 2px solid #0089b3;
+    background-color: #777;
+  }
+
   label {
     color: #fff;
     font-size: 16px;

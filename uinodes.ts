@@ -1,3 +1,5 @@
+import { BLOCK_STYLES, DEFAULT_BLOCK_STYLE, type BlockStyle } from './blockstyle.js';
+
 function setButtonProperties (button: HTMLButtonElement, text: string, isToggle: boolean, div: HTMLDivElement): HTMLButtonElement {
   button.textContent = text;
   if (isToggle) {
@@ -63,6 +65,7 @@ class UINodes {
   private readonly inputRows: HTMLInputElement;
   private readonly inputColumns: HTMLInputElement;
   private readonly inputClusterStrength: HTMLInputElement;
+  private readonly inputBlockStyle: HTMLSelectElement;
   private readonly inputColors: HTMLInputElement[];
 
   constructor () {
@@ -80,6 +83,7 @@ class UINodes {
     this.inputRows = document.createElement('input');
     this.inputColumns = document.createElement('input');
     this.inputClusterStrength = document.createElement('input');
+    this.inputBlockStyle = document.createElement('select');
     this.inputColors = [];
   }
 
@@ -152,6 +156,26 @@ class UINodes {
 
     {
       const d = this.createSettingsRow(appearanceSection);
+
+      const label = document.createElement('label');
+      label.setAttribute('for', 'block-style');
+      label.textContent = 'Block style:';
+      d.appendChild(label);
+
+      this.inputBlockStyle.id = 'block-style';
+      this.inputBlockStyle.className = 'settings-select';
+      for (const style of BLOCK_STYLES) {
+        const option = document.createElement('option');
+        option.value = style;
+        option.textContent = style;
+        this.inputBlockStyle.appendChild(option);
+      }
+      this.inputBlockStyle.value = DEFAULT_BLOCK_STYLE;
+      d.appendChild(this.inputBlockStyle);
+    }
+
+    {
+      const d = this.createSettingsRow(appearanceSection);
       makeColorInputs(this.inputColors, 5);
 
       const div = document.createElement('div');
@@ -214,6 +238,10 @@ class UINodes {
     }
   }
 
+  addInputBlockStyleListener (func: () => void): void {
+    this.inputBlockStyle.addEventListener('input', func);
+  }
+
   addApplySettingsListener (func: () => void): void {
     this.cmdApplySettings.addEventListener('click', func);
   }
@@ -261,6 +289,17 @@ class UINodes {
 
   getInputClusterStrength (): number {
     return this.clampFloat(this.inputClusterStrength.valueAsNumber, 0, 1);
+  }
+
+  setInputBlockStyle (style: BlockStyle): void {
+    this.inputBlockStyle.value = style;
+  }
+
+  getInputBlockStyle (): BlockStyle {
+    const style = this.inputBlockStyle.value;
+    return (BLOCK_STYLES as readonly string[]).includes(style)
+      ? (style as BlockStyle)
+      : DEFAULT_BLOCK_STYLE;
   }
 
   setInputColors (vals: string[]): void {

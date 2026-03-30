@@ -179,6 +179,11 @@ class GameRunner {
       this.settings.uiColorsToSettings();
       this.gameState.blocksDirty = true;
     });
+
+    this.page.ui.addInputBlockStyleListener(() => {
+      this.settings.uiToSettings();
+      this.gameState.blocksDirty = true;
+    });
   }
 
   private startNewGameFromUI (): void {
