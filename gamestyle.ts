@@ -160,7 +160,7 @@ styleElement.textContent = `
   }
 
   button.start-overlay-play {
-    margin: 80px auto 8o0px auto;
+    margin: 80px auto;
     display: block;
     min-width: 150px;
     padding-top: 16px;
