@@ -7,6 +7,11 @@ interface coordinate {
   col: number
 }
 
+interface CanvasSizeConstraints {
+  width: number
+  height: number
+}
+
 // todo: compute this? compute max num blocks?
 const MAXBLOCKSIZE = 100;
 
@@ -74,19 +79,20 @@ class Renderer {
     }
   }
 
-  adjustCanvasSize (): void {
-    // choose whether width or height is the constraint:
-    const heightNormRows = window.innerHeight / this.gameSettings.numRows;
-    const widthNormCols = window.innerWidth / this.gameSettings.numColumns;
+  adjustCanvasSize (constraints?: CanvasSizeConstraints): void {
+    const availableWidth = Math.max(120, Math.floor((constraints?.width ?? window.innerWidth) - 4));
+    const availableHeight = Math.max(120, Math.floor(constraints?.height ?? window.innerHeight));
+    const heightNormRows = availableHeight / this.gameSettings.numRows;
+    const widthNormCols = availableWidth / this.gameSettings.numColumns;
 
     const AR = this.gameSettings.numRows / this.gameSettings.numColumns;
     if (widthNormCols > heightNormRows) {
       // plenty of width, use height as constraint
-      this.canvas.height = window.innerHeight * 0.8;
+      this.canvas.height = availableHeight;
       this.canvas.width = this.canvas.height / AR;
     } else {
       // plenty of height, use width as a constraint
-      this.canvas.width = window.innerWidth * 0.8;
+      this.canvas.width = availableWidth;
       this.canvas.height = this.canvas.width * AR;
     }
     this.blockSize = this.canvas.width / this.gameSettings.numColumns;
@@ -275,3 +281,4 @@ class Renderer {
 }
 
 export default Renderer;
+export type { CanvasSizeConstraints };

@@ -59,7 +59,8 @@ class GameRunner {
     this.gameState.resetScore();
     this.gameState.resetRoundStats();
     this.gameState.resetUndo();
-    this.renderer.adjustCanvasSize();
+    this.renderer.adjustCanvasSize(this.page.getCanvasSizeConstraints());
+    this.page.resize();
     this.gameOverAnimationState = 0;
     this.animationLoopRunning = false;
     this.hasShownGameOverSummary = false;
@@ -253,7 +254,8 @@ class GameRunner {
       this.settings.deserialize(settings as Parameters<typeof this.settings.deserialize>[0]);
       this.gameState.deserialize(state as Parameters<typeof this.gameState.deserialize>[0]);
       this.setAudioState();
-      this.renderer.adjustCanvasSize();
+      this.renderer.adjustCanvasSize(this.page.getCanvasSizeConstraints());
+      this.page.resize();
     }
   }
 }

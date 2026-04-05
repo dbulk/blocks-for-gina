@@ -1,7 +1,9 @@
 const styleElement = document.createElement('style');
 styleElement.textContent = `  
 .blocks4Gina { 
-  
+  box-sizing: border-box;
+  width: min(100%, 960px);
+  padding: 8px;
   font-family: Helvetica, Arial, Sans-Serif;
   canvas {
     border: 1px solid;
@@ -54,7 +56,7 @@ styleElement.textContent = `
 
   .ui-toolbar {
     display: flex;
-    padding-top: 10px;
+    padding-top: 8px;
     flex-wrap: wrap;
     flex-shrink: 1;
     gap: 4px;
@@ -257,7 +259,7 @@ styleElement.textContent = `
   }
 
   .start-overlay-backdrop {
-    position: absolute;
+    position: fixed;
     inset: 0;
     display: flex;
     align-items: center;
@@ -266,13 +268,15 @@ styleElement.textContent = `
     box-sizing: border-box;
     background-color: rgba(0, 0, 0, 0.2);
     overflow: auto;
+    z-index: 10;
   }
 
   .start-overlay {
     position: relative;
     width: min(100%, 900px);
-    max-height: 100%;
-    overflow: auto;
+    display: flex;
+    flex-direction: column;
+    gap: clamp(12px, 2.8vw, 18px);
     padding: 14px;
     border: 2px solid #0089b3;
     border-radius: 12px;
@@ -300,7 +304,7 @@ styleElement.textContent = `
   }
 
   button.start-overlay-play {
-    margin: 80px auto;
+    margin: 0 auto;
     display: block;
     min-width: 150px;
     padding-top: 16px;
@@ -320,7 +324,7 @@ styleElement.textContent = `
   }
 
   .start-overlay-meta-grid {
-    margin-top: 14px;
+    margin-top: 0;
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 10px;
@@ -358,6 +362,21 @@ styleElement.textContent = `
   }
 
   @media (max-width: 640px) {
+    .blocks4Gina {
+      padding: 8px;
+    }
+
+    button {
+      padding: 12px 16px;
+      font-size: 14px;
+      line-height: 14px;
+    }
+
+    .ui-toolbar {
+      padding-top: 6px;
+      gap: 6px;
+    }
+
     div.settings-expandy {
       min-width: 0;
       width: 100%;
@@ -386,14 +405,26 @@ styleElement.textContent = `
 
     .start-overlay-backdrop {
       padding: 8px;
+      align-items: flex-start;
     }
 
     .start-overlay {
       padding: 10px;
+      gap: 10px;
+      max-height: none;
+      overflow: visible;
     }
 
     .start-overlay-subtitle {
       margin-top: 8px;
+    }
+
+    button.start-overlay-play {
+      width: min(100%, 280px);
+      min-width: 0;
+      padding-top: 14px;
+      padding-bottom: 14px;
+      font-size: 18px;
     }
 
     .start-overlay-meta-grid {

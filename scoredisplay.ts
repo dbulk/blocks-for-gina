@@ -14,9 +14,9 @@ class HudView {
   constructor () {
     this.div = document.createElement('div');
     this.div.style.display = 'grid';
-    this.div.style.gridTemplateColumns = 'repeat(auto-fit, minmax(180px, 1fr))';
-    this.div.style.gap = '8px';
-    this.div.style.marginBottom = '8px';
+    this.div.style.gridTemplateColumns = 'repeat(auto-fit, minmax(88px, 1fr))';
+    this.div.style.gap = '6px';
+    this.div.style.marginBottom = '6px';
   }
 
   setVisibility (onoff: boolean): void {
@@ -61,26 +61,27 @@ class HudView {
     card.style.display = 'flex';
     card.style.flexDirection = 'column';
     card.style.gap = '2px';
-    card.style.padding = '8px 12px';
+    card.style.padding = '6px 8px';
     card.style.border = '1px solid #0089b3';
     card.style.borderRadius = '8px';
 
     const label = document.createElement('span');
     label.style.color = '#d5f4ff';
-    label.style.fontSize = '12px';
+    label.style.fontSize = '11px';
+    label.style.lineHeight = '1.2';
     label.style.userSelect = 'none';
 
     const value = document.createElement('span');
     value.style.color = '#fff';
-    value.style.fontSize = '24px';
+    value.style.fontSize = 'clamp(18px, 4.6vw, 24px)';
     value.style.lineHeight = '1.1';
     value.style.userSelect = 'none';
 
     const delta = document.createElement('span');
     delta.style.color = '#ccc';
-    delta.style.fontSize = '12px';
+    delta.style.fontSize = '11px';
     delta.style.lineHeight = '1.2';
-    delta.style.minHeight = '14px';
+    delta.style.minHeight = '13px';
     delta.style.userSelect = 'none';
 
     card.appendChild(label);

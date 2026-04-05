@@ -4,6 +4,7 @@ import HudView from './scoredisplay.js';
 import StartOverlayView from './startoverlayview.js';
 import GameOverOverlayView from './gameoveroverlayview.js';
 import type { HighScoreEntry } from './highscores.js';
+import type { CanvasSizeConstraints } from './renderer.js';
 
 type SessionUIState = 'preGame' | 'inGame' | 'paused' | 'gameOverSummary';
 
@@ -114,6 +115,7 @@ class HTMLInterface {
 
     this.overlayLayer.style.display = showOverlayLayer ? 'block' : 'none';
     this.startOverlay.setVisible(showSplash);
+    this.canvas.style.display = showSplash ? 'none' : 'block';
 
     const showHudAndControls = !showSplash;
     this.ui.setVisibility(showHudAndControls);
@@ -124,6 +126,18 @@ class HTMLInterface {
   resize (): void {
     this.playfield.style.width = `${this.canvas.width}px`;
     this.playfield.style.height = `${this.canvas.height}px`;
+  }
+
+  getCanvasSizeConstraints (): CanvasSizeConstraints {
+    const viewportHeight = window.visualViewport?.height ?? window.innerHeight;
+    const playfieldTop = this.playfield.getBoundingClientRect().top;
+    const width = this.playfield.parentElement?.clientWidth ?? window.innerWidth;
+    const height = viewportHeight - playfieldTop - 8;
+
+    return {
+      width,
+      height
+    };
   }
 }
 

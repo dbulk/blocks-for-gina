@@ -11,11 +11,12 @@ class Blocks4Gina extends HTMLElement {
     const ui = page.ui;
     const gameSettings = new GameSettings(ui);
     const renderer = new Renderer(canvas, gameSettings);
-    window.addEventListener('resize', () => {
-      renderer.adjustCanvasSize();
+    const resizeLayout = (): void => {
+      renderer.adjustCanvasSize(page.getCanvasSizeConstraints());
       page.resize();
-    });
-    renderer.adjustCanvasSize();
+    };
+    window.addEventListener('resize', resizeLayout);
+    resizeLayout();
     page.resize();
     page.addStartClickListener(() => {
       page.setSessionUIState('inGame');
