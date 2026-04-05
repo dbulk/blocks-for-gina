@@ -96,10 +96,18 @@ styleElement.textContent = `
     padding: 8px;
     margin-top: 4px;
     min-width: 320px;
+    box-sizing: border-box;
   }
 
   .settings-panel {
     background-color: rgba(0, 0, 0, 0.2);
+  }
+
+  .settings-section-board,
+  .settings-section-generation,
+  .settings-section-appearance,
+  .settings-section-actions {
+    flex: 1 1 220px;
   }
 
   .settings-section {
@@ -107,6 +115,7 @@ styleElement.textContent = `
     border-radius: 8px;
     padding: 8px;
     background-color: rgba(0, 0, 0, 0.12);
+    box-sizing: border-box;
   }
 
   .settings-section-title {
@@ -166,7 +175,7 @@ styleElement.textContent = `
     display: flex;
     align-items: center;
     flex-wrap: wrap;
-    gap: 2px;
+    gap: 4px;
   }
 
   .settings-section label {
@@ -380,27 +389,103 @@ styleElement.textContent = `
     div.settings-expandy {
       min-width: 0;
       width: 100%;
+      gap: 8px;
+      padding: 8px;
+    }
+
+    .settings-section {
+      flex: 1 1 160px;
+      padding: 8px;
+    }
+
+    .settings-section-board {
+      flex-basis: 132px;
+      max-width: 132px;
+    }
+
+    .settings-section-generation,
+    .settings-section-actions {
+      flex-basis: calc(100% - 140px);
+    }
+
+    .settings-section-appearance {
+      flex-basis: 100%;
     }
 
     .settings-row {
-      flex-wrap: wrap;
+      flex-wrap: nowrap;
       gap: 6px;
     }
 
     .settings-row-grid {
-      grid-template-columns: 1fr;
-      gap: 8px;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 6px;
     }
 
     .settings-section label {
       min-width: 0;
-      width: 100%;
+      width: auto;
+      font-size: 13px;
     }
 
-    input.settings-number,
-    input.settings-range {
+    .settings-field {
+      min-width: 0;
+    }
+
+    input.settings-number {
       width: 100%;
-      max-width: 220px;
+      max-width: none;
+      margin: 2px 0 0 0;
+      padding: 10px 0;
+      font-size: 15px;
+    }
+
+    input.settings-range {
+      flex: 1 1 132px;
+      width: auto;
+      max-width: none;
+      min-width: 0;
+    }
+
+    select.settings-select {
+      flex: 1 1 148px;
+      min-width: 0;
+      margin: 0;
+      padding: 8px 10px;
+      font-size: 13px;
+    }
+
+    .settings-row-style,
+    .settings-row-colors,
+    .settings-row-cluster {
+      align-items: center;
+    }
+
+    .settings-row-colors {
+      flex-wrap: wrap;
+      row-gap: 4px;
+    }
+
+    .settings-row-actions {
+      flex-wrap: wrap;
+    }
+
+    .settings-colors {
+      flex: 1 1 160px;
+      min-width: 0;
+      gap: 6px;
+    }
+
+    span.cluster-value {
+      margin-left: 0;
+      min-width: 34px;
+      font-size: 12px;
+    }
+
+    button.settings-mini {
+      flex: 1 1 132px;
+      padding: 8px 10px;
+      font-size: 12px;
     }
 
     .start-overlay-backdrop {

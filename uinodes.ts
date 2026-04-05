@@ -134,6 +134,7 @@ class UINodes {
 
     {
       const d = this.createSettingsRow(generationSection);
+      d.classList.add('settings-row-cluster');
       d.appendChild(setInputProperties(this.inputClusterStrength, 'range', 'Clustering:', 'clusterstrength', 0, 1, 0.2));
       this.inputClusterStrength.step = '0.05';
       this.inputClusterStrength.className = 'settings-range';
@@ -148,7 +149,7 @@ class UINodes {
 
     {
       const d = this.createSettingsRow(actionsSection, true);
-      d.classList.add('settings-row-inline');
+      d.classList.add('settings-row-inline', 'settings-row-actions');
 
       this.cmdApplySettings.textContent = 'Apply & New Game';
       this.cmdResetSettings.textContent = 'Reset Defaults';
@@ -160,6 +161,7 @@ class UINodes {
 
     {
       const d = this.createSettingsRow(appearanceSection);
+      d.classList.add('settings-row-style');
 
       const label = document.createElement('label');
       label.setAttribute('for', 'block-style');
@@ -180,6 +182,7 @@ class UINodes {
 
     {
       const d = this.createSettingsRow(appearanceSection);
+      d.classList.add('settings-row-colors');
       makeColorInputs(this.inputColors, 5);
 
       const div = document.createElement('div');
@@ -348,7 +351,8 @@ class UINodes {
 
   private createSettingsSection (title: string): HTMLDivElement {
     const section = document.createElement('div');
-    section.className = 'settings-section';
+    const sectionSlug = title.toLowerCase().replace(/\s+/g, '-');
+    section.className = `settings-section settings-section-${sectionSlug}`;
 
     const heading = document.createElement('div');
     heading.className = 'settings-section-title';
