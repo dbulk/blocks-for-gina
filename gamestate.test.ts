@@ -98,6 +98,24 @@ describe('GameState', () => {
     expect(state.hasUndo()).toBe(false);
   });
 
+  it('still removes blocks if selection changes after a pop is committed', () => {
+    const state = makeStateFromGrid([
+      [1, 2, 3],
+      [1, 4, 5],
+      [6, 7, 8]
+    ]);
+
+    state.updateSelection({ row: 0, col: 0 });
+    state.doPop();
+
+    // Touch/pointer cleanup can clear hover state before the next frame.
+    state.updateSelection({ row: -1, col: -1 });
+    state.updateBlocks();
+
+    expect(state.getNumBlocksRemaining()).toBe(7);
+    expect(state.getScore()).toBe(state.computeScore(2));
+  });
+
   it('supports redo after undo', () => {
     const state = makeStateFromGrid([
       [1, 2, 3],

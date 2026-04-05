@@ -149,15 +149,27 @@ class GameRunner {
   }
 
   private attachListeners (): void {
-    this.canvas.addEventListener('click', this.gameState.doPop.bind(this.gameState));
-    this.canvas.addEventListener('mousemove', (event: MouseEvent) => {
-      const coord = this.renderer.getGridIndicesFromMouse(event);
+    this.canvas.addEventListener('pointermove', (event: PointerEvent) => {
+      if (event.pointerType !== 'mouse') {
+        return;
+      }
+      const coord = this.renderer.getGridIndicesFromClientPosition(event.clientX, event.clientY);
       this.gameState.updateSelection(coord);
     });
-    this.canvas.addEventListener(
-      'mouseleave',
-      () => { this.gameState.updateSelection({ row: -1, col: -1 }); }
-    );
+    this.canvas.addEventListener('pointerup', (event: PointerEvent) => {
+      const coord = this.renderer.getGridIndicesFromClientPosition(event.clientX, event.clientY);
+      this.gameState.updateSelection(coord);
+      this.gameState.doPop();
+      if (event.pointerType !== 'mouse') {
+        this.gameState.clearSelectionTarget();
+      }
+    });
+    this.canvas.addEventListener('pointerleave', () => {
+      this.gameState.updateSelection({ row: -1, col: -1 });
+    });
+    this.canvas.addEventListener('pointercancel', () => {
+      this.gameState.updateSelection({ row: -1, col: -1 });
+    });
 
     this.page.ui.addNewGameClickListener(
       () => {

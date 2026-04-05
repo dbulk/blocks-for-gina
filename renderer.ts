@@ -102,9 +102,13 @@ class Renderer {
   }
 
   getGridIndicesFromMouse (event: MouseEvent): coordinate {
+    return this.getGridIndicesFromClientPosition(event.clientX, event.clientY);
+  }
+
+  getGridIndicesFromClientPosition (clientX: number, clientY: number): coordinate {
     const rect = this.canvas.getBoundingClientRect();
-    const mouseX = event.clientX - rect.left;
-    const mouseY = event.clientY - rect.top;
+    const mouseX = clientX - rect.left;
+    const mouseY = clientY - rect.top;
     const col = Math.floor(mouseX / this.blockSize);
     const row = Math.floor(mouseY / this.blockSize);
     return { row, col };

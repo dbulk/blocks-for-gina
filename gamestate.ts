@@ -32,6 +32,7 @@ const isEqual = (a: coordinate, b: coordinate): boolean =>
 class GameState {
   private grid: item[][] = [];
   popList: coordinate[] = [];
+  private pendingPopList: coordinate[] = [];
   blocksDirty = true;
   animating = false;
   private score: number = 0;
@@ -221,6 +222,10 @@ class GameState {
     this.selectionCache = target;
   }
 
+  clearSelectionTarget (): void {
+    this.selectionCache = { row: -1, col: -1 };
+  }
+
   hasMoreMoves (): boolean {
     this.refreshMoveAvailabilityCache();
     return this.hasMoreMovesCache;
@@ -351,11 +356,12 @@ class GameState {
     if (this.popList.length > 0) {
       this.undostack.push(this.serialize());
       this.redostack = [];
+      this.pendingPopList = [...this.popList];
       this.needsPop = true;
       this.totalMoves++;
-      this.largestCluster = Math.max(this.largestCluster, this.popList.length);
-      this.blocksPopped += this.popList.length;
-      this.score += this.computeScore(this.popList.length);
+      this.largestCluster = Math.max(this.largestCluster, this.pendingPopList.length);
+      this.blocksPopped += this.pendingPopList.length;
+      this.score += this.computeScore(this.pendingPopList.length);
       this.blocksDirty = true;
       this.soundEffectCallback();
     }
@@ -436,9 +442,10 @@ class GameState {
   updateBlocks (): void {
     if (!this.needsPop) return;
     const dropMap = new Map<string, number>();
-    for (const coord of this.popList) {
+    for (const coord of this.pendingPopList) {
       this.removeBlock(coord, dropMap);
     }
+    this.pendingPopList = [];
     this.popList = [];
     this.zeroOffsets();
     this.applyDrop(dropMap);
