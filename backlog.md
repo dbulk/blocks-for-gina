@@ -1,5 +1,35 @@
 # Backlog
 
+## AI Execution Workflow
+- Pick one backlog tag and create a branch named `feat/<tag-without-hash>` (example: `#mode-aware-hud` -> `feat/mode-aware-hud`).
+- Read the matching plan file (`plan-<tag-without-hash>.md`) and expand it into concrete implementation steps before coding. Commit the expanded plan as the first commit on the branch.
+- Implement in small increments with short one-line commits.
+- Before opening the PR, delete the plan file (`git rm plan-<tag-without-hash>.md`) and commit the removal. Plan files are branch-scoped working documents and must never land on main.
+- Keep changes scoped to the selected backlog item; if scope shifts, update related backlog and plan files in the same branch.
+- Push the branch and open a PR using a heredoc to avoid literal `\n` in the body:
+  ```sh
+  gh pr create --base main --head feat/<tag> --title "<title>" --body "$(cat <<'EOF'
+  ## Summary
+  ...
+
+  ## What changed
+  - ...
+
+  ## Commits
+  - `abc1234` message
+
+  ## Validation
+  - `npm run typecheck`
+  - `npm run test`
+  - `npm run build`
+  EOF
+  )"
+  ```
+- Alternatively write the body to a temp file and pass `--body-file body.md`, then delete the file.
+- In the PR body, include: summary of changes, commit list, test/build evidence, and any follow-up items.
+- Require human review before merge; do not self-merge.
+- After merge, remove the completed item from this backlog and adjust remaining backlog items/plans as needed.
+
 ## #mode-select-entry
 Mode picker landing screen
 - Arcade and Sandbox as first choices
