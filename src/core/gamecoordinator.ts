@@ -1,5 +1,6 @@
 import GameState from '@/core/gamestate';
 import GameLoopManager from '@/core/gameloopmanager';
+import { ARCADE_RUN_CONFIG } from '@/core/arcadeconfig';
 import { shouldEndGameForMode } from '@/core/moderules';
 import AudioController from '@/audio/audiocontroller';
 import GameEventBus from '@/events/eventbus';
@@ -97,9 +98,16 @@ class GameCoordinator {
     };
     this.eventBus.emit('modeSelected', modeSelectedEvent);
 
+    const runConfig = this.settings.modeId === 'arcade' ? ARCADE_RUN_CONFIG : {
+      numRows: this.settings.numRows,
+      numColumns: this.settings.numColumns,
+      numBlockTypes: this.settings.numBlockTypes,
+      clusterStrength: this.settings.clusterStrength
+    };
+
     this.page.setSessionUIState('inGame');
     this.renderer.setGameState(this.gameState);
-    this.gameState.initializeGrid(this.settings.numRows, this.settings.numColumns, this.settings.numBlockTypes, this.settings.clusterStrength);
+    this.gameState.initializeGrid(runConfig.numRows, runConfig.numColumns, runConfig.numBlockTypes, runConfig.clusterStrength);
     this.gameState.resetClock();
     this.gameState.resetScore();
     this.gameState.resetRoundStats();
@@ -112,9 +120,9 @@ class GameCoordinator {
 
     const event: GameStartedEvent = {
       type: 'gameStarted',
-      rows: this.settings.numRows,
-      columns: this.settings.numColumns,
-      blockTypes: this.settings.numBlockTypes
+      rows: runConfig.numRows,
+      columns: runConfig.numColumns,
+      blockTypes: runConfig.numBlockTypes
     };
     this.eventBus.emit('gameStarted', event);
 
