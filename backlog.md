@@ -4,12 +4,6 @@
 
 See [ai-workflow.md](ai-workflow.md) for the full step-by-step execution process.
 
-## #settings-split
-Persistent prefs vs run setup split
-- Preferences: audio and visuals only
-- Run setup: board generation and mode knobs
-- Remove mixed semantics in one panel
-
 ## #sandbox-setup-flow
 Sandbox setup before game start
 - Rows, columns, clustering inputs
