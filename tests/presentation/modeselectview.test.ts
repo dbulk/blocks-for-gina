@@ -4,11 +4,15 @@ import { describe, expect, it, vi } from 'vitest';
 import ModeSelectView from '@/presentation/modeselectview';
 
 const ALL_MODES = [
-  { id: 'arcade', name: 'Arcade', description: 'Fixed board, competitive scoring.' },
+  { id: 'arcade', name: 'Arcade', description: 'Play until there are no valid moves.' },
   { id: 'sandbox', name: 'Sandbox', description: 'Custom board.' },
-  { id: 'classic', name: 'Classic', description: 'Play until no moves.' },
   { id: 'timed', name: 'Timed', description: 'Beat the clock.' },
-  { id: 'move-limited', name: 'Move-Limited', description: 'Fixed move budget.' }
+  { id: 'sprint', name: 'Sprint', description: 'Fixed move budget.' },
+  { id: 'antigravity', name: 'Antigravity', description: 'Blocks float upward.' },
+  { id: 'cascade', name: 'Cascade', description: 'Chain reactions.' },
+  { id: 'precision', name: 'Precision', description: 'Min cluster size required.' },
+  { id: 'daily', name: 'Daily', description: 'Same board every day.' },
+  { id: 'zen', name: 'Zen', description: 'No pressure.' }
 ];
 
 describe('ModeSelectView', () => {
@@ -18,14 +22,14 @@ describe('ModeSelectView', () => {
     document.body.appendChild(view.container);
 
     const toggles = view.container.querySelectorAll('button.mode-toggle');
-    expect(toggles.length).toBe(5);
+    expect(toggles.length).toBe(9);
 
     const modeIds = Array.from(toggles).map((btn) => (btn as HTMLButtonElement).dataset.modeId);
     expect(modeIds).toContain('arcade');
     expect(modeIds).toContain('sandbox');
-    expect(modeIds).toContain('classic');
     expect(modeIds).toContain('timed');
-    expect(modeIds).toContain('move-limited');
+    expect(modeIds).toContain('sprint');
+    expect(modeIds).toContain('antigravity');
 
     document.body.removeChild(view.container);
   });
@@ -98,7 +102,7 @@ describe('ModeSelectView', () => {
     document.body.appendChild(view.container);
 
     const toggles = view.container.querySelectorAll('button.mode-toggle');
-    expect(toggles.length).toBe(5);
+    expect(toggles.length).toBe(9);
 
     document.body.removeChild(view.container);
   });

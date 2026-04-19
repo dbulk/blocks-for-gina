@@ -7,7 +7,7 @@ const makeUiStub = () => {
     rows: 10,
     columns: 20,
     clusterStrength: 0.2,
-    modeId: 'classic',
+    modeId: 'arcade',
     blockStyle: 'Classic',
     colors: ['#111111', '#222222'],
     music: true,
@@ -56,13 +56,13 @@ describe('SettingsPresenter', () => {
   it('syncs UI values back into settings', () => {
     const settings = new GameSettings();
     const { ui, uiState } = makeUiStub();
-    uiState.modeId = 'move-limited';
+    uiState.modeId = 'sprint';
     uiState.rows = 12;
     const presenter = new SettingsPresenter(settings, ui as never);
 
     presenter.uiToSettings();
 
-    expect(settings.modeId).toBe('move-limited');
+    expect(settings.modeId).toBe('sprint');
     expect(settings.numRows).toBe(12);
   });
 });

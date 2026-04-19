@@ -63,7 +63,7 @@ const createCoordinator = (settings: GameSettings, bus: GameEventBus): { coordin
     attachBeforeUnloadListener: false
   };
 
-  const coordinator = new GameCoordinator(renderer as never, settings, settingsPresenter as never, page as never, dependencies as never);
+  const coordinator = new GameCoordinator(renderer as never, settings, {} as never, settingsPresenter as never, page as never, dependencies as never);
   return { coordinator, canvas };
 };
 
@@ -103,7 +103,7 @@ describe('#arcade-default-config', () => {
   it('non-arcade start emits gameStarted with settings values, not arcade config', () => {
     const bus = new GameEventBus();
     const settings = new GameSettings();
-    settings.modeId = 'classic';
+    settings.modeId = 'sandbox';
     settings.numRows = 7;
     settings.numColumns = 15;
     settings.numBlockTypes = 3;

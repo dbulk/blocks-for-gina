@@ -9,6 +9,7 @@ import SessionStorage from '@/persistence/sessionstorage';
 import LocalHighScores from '@/persistence/highscores';
 import type { BlocksPoppedEvent, GameEndedEvent, GameStartedEvent, ModeRulesAppliedEvent, ModeSelectedEvent } from '@/events/events';
 import type GameSettings from '@/core/gamesettings';
+import type UserPreferences from '@/core/userpreferences';
 import type HTMLInterface from '@/presentation/htmlinterface';
 import type SettingsPresenter from '@/presentation/settingspresenter';
 import type Renderer from '@/rendering/renderer';
@@ -29,6 +30,7 @@ interface GameCoordinatorDependencies {
 class GameCoordinator {
   renderer: Renderer;
   settings: GameSettings;
+  private readonly prefs: UserPreferences;
   gameState: GameState;
   canvas: HTMLCanvasElement;
   private readonly page: HTMLInterface;
@@ -48,12 +50,14 @@ class GameCoordinator {
   constructor (
     renderer: Renderer,
     settings: GameSettings,
+    userPreferences: UserPreferences,
     settingsPresenter: SettingsPresenter,
     page: HTMLInterface,
     dependencies: GameCoordinatorDependencies = {}
   ) {
     this.renderer = renderer;
     this.settings = settings;
+    this.prefs = userPreferences;
     this.settingsPresenter = settingsPresenter;
     this.eventBus = dependencies.eventBus ?? new GameEventBus();
     this.gameLoopManager = dependencies.gameLoopManager ?? new GameLoopManager();
@@ -274,7 +278,6 @@ class GameCoordinator {
 
     this.page.ui.addResetSettingsListener(() => {
       this.settingsPresenter.resetToDefaults();
-      this.settingsPresenter.uiAllToSettings();
       this.setAudioState();
       this.gameState.blocksDirty = true;
     });
@@ -296,33 +299,40 @@ class GameCoordinator {
     );
 
     this.page.ui.addTogMusicClickListener(() => {
+      this.prefs.isMusicEnabled = this.page.ui.getTogMusic();
+      this.prefs.save();
       this.setAudioState();
     });
 
     this.page.ui.addTogSoundClickListener(() => {
+      this.prefs.isSoundEnabled = this.page.ui.getTogSound();
+      this.prefs.save();
       this.setAudioState();
     });
 
     this.page.ui.addInputColorsInputListener(() => {
-      this.settingsPresenter.uiColorsToSettings();
+      const colors: string[] = [];
+      this.page.ui.getInputColors(colors);
+      this.prefs.blockColors = colors;
+      this.prefs.save();
+      this.settings.numBlockTypes = colors.length;
       this.gameState.blocksDirty = true;
     });
 
     this.page.ui.addInputBlockStyleListener(() => {
-      this.settingsPresenter.uiToSettings();
+      this.prefs.blockStyle = this.page.ui.getInputBlockStyle();
+      this.prefs.save();
       this.gameState.blocksDirty = true;
     });
   }
 
   private startNewGameFromUI (): void {
-    this.settingsPresenter.uiAllToSettings();
-    this.setAudioState();
+    this.settingsPresenter.uiToSettings();
     this.newGame();
   }
 
   private setAudioState (): void {
-    this.settingsPresenter.syncAudioToSettings();
-    this.audioController.applySettings(this.settings.isMusicEnabled, this.settings.isSoundEnabled);
+    this.audioController.applySettings(this.prefs.isMusicEnabled, this.prefs.isSoundEnabled);
   }
 
   private getClockText (): string {

@@ -87,7 +87,7 @@ const createCoordinator = (modeId: string, bus: GameEventBus): { coordinator: Ga
     attachBeforeUnloadListener: false
   };
 
-  const coordinator = new GameCoordinator(renderer as never, settings, settingsPresenter as never, page as never, dependencies as never);
+  const coordinator = new GameCoordinator(renderer as never, settings, {} as never, settingsPresenter as never, page as never, dependencies as never);
   return { coordinator, canvas };
 };
 
@@ -106,7 +106,7 @@ describe('GameCoordinator event sequencing', () => {
     const bus = new GameEventBus();
     const capture = captureEvents(bus);
 
-    bus.emit('modeSelected', { type: 'modeSelected', modeId: 'classic' });
+    bus.emit('modeSelected', { type: 'modeSelected', modeId: 'arcade' });
     bus.emit('gameStarted', { type: 'gameStarted', rows: 10, columns: 20, blockTypes: 5 });
 
     expect(capture.sequence).toEqual(['modeSelected', 'gameStarted']);
@@ -140,7 +140,7 @@ describe('GameCoordinator event sequencing', () => {
   it('keeps startup event ordering stable across arcade and sandbox branches', () => {
     const arcadeBus = new GameEventBus();
     const arcadeCapture = captureEvents(arcadeBus);
-    createCoordinator('classic', arcadeBus);
+    createCoordinator('arcade', arcadeBus);
 
     const sandboxBus = new GameEventBus();
     const sandboxCapture = captureEvents(sandboxBus);
