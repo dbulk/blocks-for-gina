@@ -312,25 +312,6 @@ styleElement.textContent = `
     background-color: rgba(0, 0, 0, 0.18);
   }
 
-  .mode-select-section-label {
-    margin: 0;
-    color: #fff;
-    font-size: clamp(10px, 1.4vw, 12px);
-    text-transform: uppercase;
-    letter-spacing: 0.12em;
-    opacity: 0.55;
-  }
-
-  .mode-select-label {
-    margin: 0 auto;
-    text-align: center;
-    color: #fff;
-    font-size: clamp(12px, 1.6vw, 14px);
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    opacity: 0.7;
-  }
-
   .mode-toggles {
     display: flex;
     flex-wrap: wrap;
