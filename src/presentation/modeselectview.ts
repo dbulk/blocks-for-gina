@@ -56,11 +56,29 @@ class ModeSelectView {
   setModes (modes: GameMode[]): void {
     this.toggleRow.innerHTML = '';
     this.toggleButtons.length = 0;
-    for (const mode of modes) {
+
+    const playable = modes.filter(m => m.implemented);
+    const upcoming = modes.filter(m => !m.implemented);
+
+    for (const mode of playable) {
       const btn = this.createModeToggle(mode);
       this.toggleButtons.push(btn);
       this.toggleRow.appendChild(btn);
     }
+
+    if (upcoming.length > 0) {
+      const divider = document.createElement('div');
+      divider.className = 'mode-toggles-divider';
+      divider.textContent = 'Coming Soon';
+      this.toggleRow.appendChild(divider);
+
+      for (const mode of upcoming) {
+        const btn = this.createModeToggle(mode);
+        btn.disabled = true;
+        this.toggleRow.appendChild(btn);
+      }
+    }
+
     if (!this.toggleButtons.some(b => b.dataset.modeId === this.selectedModeId)) {
       this.selectedModeId = this.toggleButtons[0]?.dataset.modeId ?? 'arcade';
     }

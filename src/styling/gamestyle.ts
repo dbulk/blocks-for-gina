@@ -313,10 +313,22 @@ styleElement.textContent = `
   }
 
   .mode-toggles {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
     gap: 10px;
+  }
+
+  .mode-toggles-divider {
+    grid-column: 1 / -1;
+    text-align: center;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.3);
+    padding: 4px 0 2px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    margin-top: 4px;
   }
 
   button.mode-toggle {
@@ -329,6 +341,13 @@ styleElement.textContent = `
     color: #bbb;
     cursor: pointer;
     transition: border-color 0.15s, background-color 0.15s, color 0.15s;
+  }
+
+  button.mode-toggle:disabled {
+    opacity: 0.38;
+    cursor: default;
+    border-color: #444;
+    color: #888;
   }
 
   button.mode-toggle:hover:not(.selected) {

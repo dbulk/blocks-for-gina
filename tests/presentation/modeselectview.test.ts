@@ -4,15 +4,14 @@ import { describe, expect, it, vi } from 'vitest';
 import ModeSelectView from '@/presentation/modeselectview';
 
 const ALL_MODES = [
-  { id: 'arcade', name: 'Arcade', description: 'Play until there are no valid moves.' },
-  { id: 'sandbox', name: 'Sandbox', description: 'Custom board.' },
-  { id: 'timed', name: 'Timed', description: 'Beat the clock.' },
-  { id: 'sprint', name: 'Sprint', description: 'Fixed move budget.' },
-  { id: 'antigravity', name: 'Antigravity', description: 'Blocks float upward.' },
-  { id: 'cascade', name: 'Cascade', description: 'Chain reactions.' },
-  { id: 'precision', name: 'Precision', description: 'Min cluster size required.' },
-  { id: 'daily', name: 'Daily', description: 'Same board every day.' },
-  { id: 'zen', name: 'Zen', description: 'No pressure.' }
+  { id: 'arcade', name: 'Arcade', description: 'Play until there are no valid moves.', implemented: true },
+  { id: 'sandbox', name: 'Sandbox', description: 'Custom board.', implemented: true },
+  { id: 'timed', name: 'Timed', description: 'Beat the clock.', implemented: true },
+  { id: 'sprint', name: 'Sprint', description: 'Fixed move budget.', implemented: true },
+  { id: 'antigravity', name: 'Antigravity', description: 'Blocks float upward.', implemented: false },
+  { id: 'cascade', name: 'Cascade', description: 'Chain reactions.', implemented: false },
+  { id: 'precision', name: 'Precision', description: 'Min cluster size required.', implemented: false },
+  { id: 'zen', name: 'Zen', description: 'No pressure.', implemented: false }
 ];
 
 describe('ModeSelectView', () => {
@@ -22,7 +21,7 @@ describe('ModeSelectView', () => {
     document.body.appendChild(view.container);
 
     const toggles = view.container.querySelectorAll('button.mode-toggle');
-    expect(toggles.length).toBe(9);
+    expect(toggles.length).toBe(8);
 
     const modeIds = Array.from(toggles).map((btn) => (btn as HTMLButtonElement).dataset.modeId);
     expect(modeIds).toContain('arcade');
@@ -97,12 +96,12 @@ describe('ModeSelectView', () => {
 
   it('setModes replaces existing toggles', () => {
     const view = new ModeSelectView();
-    view.setModes([{ id: 'arcade', name: 'Arcade', description: '' }]);
+    view.setModes([{ id: 'arcade', name: 'Arcade', description: '', implemented: true }]);
     view.setModes(ALL_MODES);
     document.body.appendChild(view.container);
 
     const toggles = view.container.querySelectorAll('button.mode-toggle');
-    expect(toggles.length).toBe(9);
+    expect(toggles.length).toBe(8);
 
     document.body.removeChild(view.container);
   });
