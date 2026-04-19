@@ -267,6 +267,100 @@ styleElement.textContent = `
     text-align: right;
   }
 
+  .mode-select-backdrop {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px;
+    box-sizing: border-box;
+    background-color: rgba(0, 0, 0, 0.2);
+    overflow: auto;
+    z-index: 10;
+  }
+
+  .mode-select-panel {
+    position: relative;
+    width: min(100%, 900px);
+    display: flex;
+    flex-direction: column;
+    gap: clamp(12px, 2.8vw, 18px);
+    padding: 14px;
+    border: 2px solid #0089b3;
+    border-radius: 12px;
+    background-color: rgba(0, 0, 0, 0.35);
+    box-sizing: border-box;
+  }
+
+  .mode-select-title {
+    margin: 0;
+    text-align: center;
+    color: #d5f4ff;
+    font-size: clamp(28px, 4.8vw, 46px);
+    line-height: 1.1;
+    text-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+  }
+
+  .mode-select-section {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 12px 14px;
+    border: 1px solid rgba(0, 137, 179, 0.3);
+    border-radius: 8px;
+    background-color: rgba(0, 0, 0, 0.18);
+  }
+
+  .mode-toggles {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+  }
+
+  button.mode-toggle {
+    padding: 8px 22px;
+    font-size: clamp(13px, 1.8vw, 15px);
+    font-weight: 600;
+    border-radius: 6px;
+    border: 2px solid #555;
+    background-color: rgba(255, 255, 255, 0.07);
+    color: #bbb;
+    cursor: pointer;
+    transition: border-color 0.15s, background-color 0.15s, color 0.15s;
+  }
+
+  button.mode-toggle:hover:not(.selected) {
+    border-color: #888;
+    color: #ddd;
+    background-color: rgba(255, 255, 255, 0.12);
+  }
+
+  button.mode-toggle.selected {
+    border-color: #0089b3;
+    background-color: rgba(0, 137, 179, 0.25);
+    color: #d5f4ff;
+  }
+
+  button.mode-play-btn {
+    display: block;
+    margin: 0 auto;
+    padding: 14px 48px;
+    font-size: clamp(15px, 2vw, 18px);
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    background-color: #0089b3;
+  }
+
+  button.mode-play-btn:hover {
+    background-color: #1aaad8;
+  }
+
+  button.mode-play-btn:active {
+    background-color: #00779d;
+  }
+
   .start-overlay-backdrop {
     position: fixed;
     inset: 0;

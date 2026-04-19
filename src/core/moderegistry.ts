@@ -26,6 +26,8 @@ class ModeRegistry {
 
 const createDefaultModeRegistry = (): ModeRegistry => {
   const registry = new ModeRegistry();
+  registry.register({ id: 'arcade', name: 'Arcade', description: 'Fixed board, competitive scoring. Compare your best runs.' });
+  registry.register({ id: 'sandbox', name: 'Sandbox', description: 'Custom board size and generation. Explore freely.' });
   registry.register({ id: 'classic', name: 'Classic', description: 'Play until there are no valid moves.' });
   registry.register({ id: 'timed', name: 'Timed', description: 'Score as much as possible before time runs out.' });
   registry.register({ id: 'move-limited', name: 'Move-Limited', description: 'Maximize score within a fixed move budget.' });
