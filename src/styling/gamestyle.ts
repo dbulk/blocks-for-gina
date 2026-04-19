@@ -267,6 +267,107 @@ styleElement.textContent = `
     text-align: right;
   }
 
+  .mode-select-backdrop {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px;
+    box-sizing: border-box;
+    background-color: rgba(0, 0, 0, 0.2);
+    overflow: auto;
+    z-index: 10;
+  }
+
+  .mode-select-panel {
+    position: relative;
+    width: min(100%, 900px);
+    display: flex;
+    flex-direction: column;
+    gap: clamp(12px, 2.8vw, 18px);
+    padding: 14px;
+    border: 2px solid #0089b3;
+    border-radius: 12px;
+    background-color: rgba(0, 0, 0, 0.35);
+    box-sizing: border-box;
+  }
+
+  .mode-select-title {
+    margin: 0;
+    text-align: center;
+    color: #d5f4ff;
+    font-size: clamp(28px, 4.8vw, 46px);
+    line-height: 1.1;
+    text-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+  }
+
+  .mode-select-subtitle {
+    margin: 0 auto;
+    text-align: center;
+    color: #fff;
+    font-size: clamp(14px, 2vw, 17px);
+    opacity: 0.85;
+  }
+
+  .mode-cards {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+
+  .mode-card {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 14px;
+    border: 2px solid #0089b3;
+    border-radius: 10px;
+    background-color: rgba(0, 0, 0, 0.25);
+    box-sizing: border-box;
+  }
+
+  .mode-card-title {
+    margin: 0;
+    color: #d5f4ff;
+    font-size: clamp(18px, 2.4vw, 24px);
+    font-weight: 700;
+  }
+
+  .mode-card-desc {
+    margin: 0;
+    color: #fff;
+    font-size: clamp(13px, 1.6vw, 15px);
+    line-height: 1.4;
+    flex: 1;
+    opacity: 0.9;
+  }
+
+  button.mode-card-play {
+    margin-top: 4px;
+    width: 100%;
+    padding-top: 12px;
+    padding-bottom: 12px;
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    background-color: #0089b3;
+  }
+
+  button.mode-card-play:hover {
+    background-color: #1aaad8;
+  }
+
+  button.mode-card-play:active {
+    background-color: #00779d;
+  }
+
+  @media (max-width: 560px) {
+    .mode-cards {
+      grid-template-columns: 1fr;
+    }
+  }
+
   .start-overlay-backdrop {
     position: fixed;
     inset: 0;
