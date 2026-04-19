@@ -1,227 +1,220 @@
 # Blocks4Gina Product + Engineering Roadmap
 
-Last updated: 2026-03-29
+Last updated: 2026-04-19
 
-## 1) Where We Are Now
+## 1) Product Direction Reset
 
-### Completed foundation work
+We are moving from one blended settings/gameplay experience to a two-track model:
 
-- TypeScript/Vite toolchain is in place with clean `build`, `typecheck`, and `lint` workflows.
-- Unit tests are running with Vitest for key logic/presenter coverage.
-- Animation stability issues were addressed and game-state invariants were added for development.
-- HUD was refactored to typed metrics/presenter/view architecture.
-- Session overlays were formalized (`preGame`, `inGame`, `gameOverSummary`).
-- Redo stack is implemented.
-- Settings UX was substantially improved (layout, apply/reset flow, board controls, appearance controls).
-- Block style system is implemented with multiple named render styles.
-- High scores are implemented and shown in game-over summary.
+1. **Arcade**: curated/default board configuration intended for score competition.
+2. **Sandbox**: player-defined board generation settings for experimentation/fun.
 
-### What is still open
-
-- New gameplay modes (timed/infinite/reverse gravity/etc.).
-- Online/shared leaderboard architecture.
-- Deeper performance optimization for very large boards.
-- Stronger app-level architecture boundaries for long-term feature velocity.
+This shift clarifies what counts for progression/leaderboards and gives us a clean entry point for additional game modes.
 
 ---
 
-## 2) Product Goals (Next 3-6 Months)
+## 2) Core Experience Model
 
-1. Keep the core game fast and responsive even at large board sizes.
-2. Ship multiple game modes that feel meaningfully different.
-3. Evolve high scores from local-only to optional shared online leaderboard.
-4. Move toward event-driven architecture to reduce coupling and simplify future features.
-5. Preserve reliability through tests, deterministic logic paths, and observable performance metrics.
+## Game Type Selection First
 
----
+The player starts by choosing a game type/mode before entering gameplay.
 
-## 3) Proposed Architecture Direction
+- Arcade
+- Sandbox
+- Future modes (Timed, Move-Limited, Infinite, Reverse Gravity, Daily Seed, etc.)
 
-## Event-driven app model (next major step)
+## End-of-Game Behavior
 
-Adopt a small event bus inside the app shell so systems communicate via typed events rather than direct ad-hoc calls.
+At game end, we return to **game type selection** rather than immediately restarting with the same setup.
 
-### Example event categories
+Why:
 
-- Game lifecycle: `gameStarted`, `gameEnded`, `gameReset`
-- State transitions: `selectionChanged`, `blocksPopped`, `boardSettled`
-- Animation: `animationStarted`, `animationCompleted`
-- UI/session: `uiStateChanged`, `settingsApplied`
-- Scoreboard: `scoreUpdated`, `highScoreRecorded`
-
-### Why this helps
-
-- Reduces responsibilities in `GameRunner` (currently orchestration-heavy).
-- Makes rendering updates easier to scope (only react to relevant events).
-- Simplifies adding new modes with mode-specific handlers.
-- Improves testability by asserting emitted events and their payloads.
-
-### Guardrails
-
-- Use typed payload contracts per event.
-- Keep event names stable and versioned if needed.
-- Avoid hidden side effects in event listeners; prefer pure derivation where possible.
+- Encourages mode switching and replay variety.
+- Makes mode identity explicit at each run start.
+- Prevents accidental carry-over of setup from prior run.
 
 ---
 
-## 4) Gameplay Mode Expansion Roadmap
+## 3) Settings Model (New Separation)
 
-## Mode set to target
+## Persistent Preferences (global, survive sessions)
 
-1. **Classic** (existing baseline)
-2. **Timed**
-   - fixed duration (e.g., 2-3 minutes)
-   - maximize score before timer ends
-3. **Infinite**
-   - board replenishes/extends instead of ending on no moves
-   - score and survival milestones
-4. **Reverse Gravity**
-   - popped spaces refill from bottom-up (or rise instead of fall)
-5. **Move-Limited**
-   - fixed move budget
-   - optimize score per move
-6. **Daily Seed Challenge**
-   - deterministic board seed for comparable runs
+These are user preferences, not run rules:
 
-## Delivery sequence recommendation
+- Color palette / appearance choices.
+- Audio toggles (music/sfx).
+- Optional visual style preferences.
 
-- Step 1: Timed mode (lowest risk + easy to communicate)
-- Step 2: Move-limited mode (shares most logic with Classic)
-- Step 3: Infinite mode
-- Step 4: Reverse Gravity (highest design + balance risk)
-- Step 5: Daily Seed challenge (pairs with leaderboard evolution)
+## Run Configuration (ephemeral, per run)
 
----
+These affect gameplay rules and board generation, and belong to setup flow, not global settings:
 
-## 5) Leaderboard Roadmap (Local -> Online)
+- Rows / columns.
+- Cluster strength.
+- Board generation parameters.
+- Mode-specific knobs.
 
-## Current
+### Arcade
 
-- High scores are persisted locally and shown in game-over summary.
+- Uses default/curated run config (fixed baseline).
+- Player does not tweak board generation before run.
 
-## Phase A: stronger local metadata
+### Sandbox
 
-- Add mode name, board size, style, and timestamp grouping/filtering.
-- Keep per-mode top lists (Classic/Timed/etc.) instead of one global list.
-- Add migration-safe storage schema versioning.
-
-## Phase B: optional online leaderboard
-
-- Add backend endpoint to receive run submissions.
-- Store score + mode + seed + summarized move/event trace.
-- Return top-N rankings by mode and daily/weekly/all-time scopes.
-
-## Anti-cheat baseline (pragmatic)
-
-- Treat client score as untrusted.
-- Prefer server-side score recomputation from move/event trace.
-- Use deterministic seeds and deterministic scoring logic on server.
-- Sign game sessions with short-lived tokens.
-- Add anomaly checks (impossible timings, impossible clusters, malformed traces).
-
-## Reality check
-
-No browser-only approach fully prevents cheating. Goal is to make abuse costly and obvious while keeping honest players friction-free.
+- Uses custom run config from setup UI.
+- Intended for experimentation and custom challenges.
 
 ---
 
-## 6) Performance Roadmap
+## 4) Score Policy
 
-## Immediate (next cycle)
+## Competitive Tracking
 
-- Cache offscreen style canvases and rebuild only when appearance settings change.
-- Reduce full-board redraws during hover/preview interactions.
-- Add lightweight runtime perf counters (frame time, draw count, large-board warning thresholds).
+High scores are tracked by **game mode** where competition is meaningful and comparable:
+
+- Arcade (yes)
+- Timed (yes)
+- Move-Limited (yes)
+- Daily Seed (yes)
+- Other competitive modes as added
+
+## Sandbox Policy
+
+Sandbox is treated as non-competitive by default:
+
+- No global high score ranking.
+- Optionally show personal best in-session/local profile, but do not mix with competitive boards.
+
+Rationale:
+
+- Custom board parameters break fairness/comparability.
+- Keeps leaderboards meaningful and avoids noise.
+
+---
+
+## 5) Target Mode Catalog
+
+## Immediate
+
+1. Arcade (default curated classic baseline)
+2. Sandbox (custom board setup)
 
 ## Near-term
 
-- Introduce dirty-region/dirty-column rendering paths.
-- Convert expensive queue operations in flood fill (`shift`) to index-based queue pattern.
-- Reduce object/string allocations in hot loops.
+3. Timed
+4. Move-Limited
 
-## Medium-term
+## Mid-term
 
-- Separate static board layer from dynamic animation/preview overlay layer.
-- Optional worker/off-main-thread experiments for large-board analysis paths.
+5. Infinite
+6. Reverse Gravity
+7. Daily Seed Challenge
 
----
+## Open mode pipeline
 
-## 7) Quality + Reliability
-
-## Testing expansion
-
-- Add tests for:
-  - available-move counting correctness,
-  - high-score ranking/tie-break logic,
-  - mode-specific win/lose conditions,
-  - event emission sequences (after event-driven migration).
-
-## Observability
-
-- Add optional debug panel toggle showing:
-  - FPS / frame ms,
-  - board size,
-  - available moves,
-  - animation queue/active state.
-
-## Robustness
-
-- Validate and clamp all deserialized settings and score payloads.
-- Add explicit save schema version and migration path for old entries.
+New mode ideas are expected and encouraged. The mode-selection screen and mode registry should be treated as extensibility infrastructure, not a closed list.
 
 ---
 
-## 8) Phased Delivery Plan
+## 6) Architecture Implications
 
-## Phase 1 (Now -> 1 sprint): polish + prep
+## Mode Identity Must Be First-Class
 
-- Performance caching pass (renderer/offscreen rebuild policy).
-- High score metadata and per-mode structure.
-- Add mode selector UI shell (without changing gameplay yet).
+Mode ID needs to flow through:
 
-**Exit criteria**: stable perf at larger boards and leaderboard schema ready for multi-mode.
+- Run start payload
+- HUD behavior
+- End-of-game summary
+- Score persistence decisions
 
-## Phase 2 (1-2 sprints): first mode wave
+## Setup Flow Split
 
-- Implement Timed + Move-Limited.
-- Add mode-aware game-over summaries and scoreboards.
-- Expand tests for mode-specific logic.
+UI should distinguish:
 
-**Exit criteria**: at least 2 additional production-ready modes.
+- **Preferences panel** (persistent)
+- **Run setup panel** (ephemeral, mode-specific)
 
-## Phase 3 (1-2 sprints): architecture evolution
+## Coordinator / State Changes
 
-- Introduce typed event bus and migrate core flow.
-- Split runner orchestration into smaller services.
-- Add event-sequence tests.
-
-**Exit criteria**: reduced coupling and cleaner extension points for new features.
-
-## Phase 4 (ongoing): online-ready progression
-
-- Build server-backed leaderboard prototype.
-- Add deterministic submission verification.
-- Launch daily seed challenge if backend readiness is sufficient.
-
-**Exit criteria**: trusted shared leaderboard beta for at least one mode.
+- End-of-game transition should route to mode-selection state.
+- New-run initialization should consume selected mode + setup payload.
+- Restart behavior should be explicit (Replay same run vs Back to mode select).
 
 ---
 
-## 9) Backlog Ideas (Optional / Stretch)
+## 7) Leaderboard Evolution
 
-- Theme packs / seasonal palettes.
-- Power-ups or limited-use board tools.
-- Accessibility options (colorblind-safe palettes, keyboard-only play).
-- Touch-first interaction mode refinements.
-- Replay viewer for interesting runs.
-- “Coach” hints (show best cluster options).
+## Phase A (local)
+
+- Store per-mode top lists.
+- Exclude Sandbox from competitive list by default.
+- Keep schema versioning and migration safety.
+
+## Phase B (optional online)
+
+- Server-backed per-mode leaderboard.
+- Deterministic fields for comparable competitive modes.
+- Daily Seed naturally maps to global comparability windows.
+
+---
+
+## 8) Implementation Roadmap
+
+## Phase 1: UX and flow reset (next)
+
+1. Add/upgrade game type selection as canonical entry screen.
+2. Change game-over flow to return to type selection.
+3. Split settings UI into:
+   - persistent preferences
+   - run setup (Sandbox-focused)
+
+**Exit criteria**: player can clearly choose Arcade vs Sandbox; game-over routes back to selection.
+
+## Phase 2: score and policy alignment
+
+1. Per-mode score storage and summaries.
+2. Exclude Sandbox from competitive ranking.
+3. Add personal Sandbox stats (optional, local-only).
+
+**Exit criteria**: leaderboard reflects mode-aware competitive policy.
+
+## Phase 3: first feature wave
+
+1. Ship Timed and Move-Limited using the same mode entry path.
+2. Add mode-aware HUD/game-over variants.
+3. Expand tests for mode-specific end conditions and scoring.
+
+**Exit criteria**: two additional production-ready modes integrated into selection flow.
+
+## Phase 4: expansion
+
+1. Infinite + Reverse Gravity.
+2. Daily Seed challenge.
+3. Optional online leaderboard prototype for competitive modes.
+
+---
+
+## 9) Testing and Quality Gates
+
+For every phase:
+
+- `npm run typecheck`
+- `npm run lint`
+- `npm run test`
+- `npm run build`
+
+Add targeted tests for:
+
+- Mode-selection -> run-start -> game-over -> return-to-selection flow.
+- Persistence split (preferences persist, run setup does not persist as global settings).
+- Leaderboard inclusion/exclusion policy by mode.
 
 ---
 
 ## 10) Success Metrics
 
-- **Performance**: smooth play at larger board presets without major frame drops.
-- **Feature velocity**: new mode shipped without regressions every 1-2 sprints.
-- **Quality**: green test/lint/typecheck/build gates before release.
-- **Engagement**: repeat play uplift after mode and leaderboard updates.
-- **Integrity**: leaderboard abuse remains low and detectable with server validation in place.
+- **Clarity**: users understand Arcade vs Sandbox before starting a run.
+- **Integrity**: competitive boards remain comparable because Sandbox is separated.
+- **Velocity**: new modes plug into one shared selection/setup pipeline.
+- **Quality**: green typecheck/lint/test/build gate before release.
+- **Engagement**: replay rate improves due to mode selection loop at game end.
