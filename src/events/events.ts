@@ -22,9 +22,19 @@ interface GameEndedEvent {
 
 type GameEvent = GameStartedEvent | BlocksPoppedEvent | GameEndedEvent;
 
+interface GameEventByType {
+  gameStarted: GameStartedEvent
+  blocksPopped: BlocksPoppedEvent
+  gameEnded: GameEndedEvent
+}
+
+type GameEventType = keyof GameEventByType;
+
 export type {
   GameStartedEvent,
   BlocksPoppedEvent,
   GameEndedEvent,
-  GameEvent
+  GameEvent,
+  GameEventByType,
+  GameEventType
 };

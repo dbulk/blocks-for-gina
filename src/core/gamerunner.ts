@@ -1,7 +1,9 @@
 import GameState from '@/core/gamestate';
 import AudioController from '@/audio/audiocontroller';
+import GameEventBus from '@/events/eventbus';
 import ScoreBoard from '@/persistence/scoreboard';
 import LocalHighScores from '@/persistence/highscores';
+import type { BlocksPoppedEvent, GameEndedEvent, GameStartedEvent } from '@/events/events';
 import type GameSettings from '@/core/gamesettings';
 import type HTMLInterface from '@/presentation/htmlinterface';
 import type SettingsPresenter from '@/presentation/settingspresenter';
@@ -22,6 +24,7 @@ class GameRunner {
   private animationLoopRunning: boolean = false;
   private hasShownGameOverSummary: boolean = false;
   private readonly highScores: LocalHighScores;
+  private readonly eventBus: GameEventBus;
   private readonly soundEffectSrc = new URL('../../sound.wav', import.meta.url).href;
   private readonly musicSrc = new URL('../../scott-buckley-permafrost(chosic.com).mp3', import.meta.url).href;
 
@@ -29,10 +32,12 @@ class GameRunner {
     this.renderer = renderer;
     this.settings = settings;
     this.settingsPresenter = settingsPresenter;
+    this.eventBus = new GameEventBus();
     this.audioController = new AudioController(this.soundEffectSrc, this.musicSrc);
-    this.gameState = new GameState(this.playSoundEffect.bind(this));
+    this.gameState = new GameState(() => {});
     this.scoreBoard = new ScoreBoard(this.gameState, page.scoreDisplay);
     this.highScores = new LocalHighScores();
+    this.registerEventListeners();
 
     this.page = page;
     this.canvas = page.canvas;
@@ -48,9 +53,13 @@ class GameRunner {
     if (!this.gameState.hasMoreMoves()) {
       this.newGame();
     }
-
-    this.playSoundEffect();
     window.addEventListener('beforeunload', this.serialize.bind(this));
+  }
+
+  private registerEventListeners (): void {
+    this.eventBus.on('blocksPopped', () => {
+      this.audioController.playSoundEffect();
+    });
   }
 
   private newGame (): void {
@@ -66,9 +75,18 @@ class GameRunner {
     this.gameOverAnimationState = 0;
     this.animationLoopRunning = false;
     this.hasShownGameOverSummary = false;
+
+    const event: GameStartedEvent = {
+      type: 'gameStarted',
+      rows: this.settings.numRows,
+      columns: this.settings.numColumns,
+      blockTypes: this.settings.numBlockTypes
+    };
+    this.eventBus.emit('gameStarted', event);
   }
 
   private gameLoop (): void {
+    const previousBlocksPopped = this.gameState.getBlocksPopped();
     this.gameState.updateBlocks();
     this.page.ui.setUndoEnabled(this.gameState.hasUndo());
     this.page.ui.setRedoEnabled(this.gameState.hasRedo());
@@ -82,6 +100,17 @@ class GameRunner {
       this.renderer.renderBlocks();
       this.renderer.renderPreview(this.gameState.popList);
       this.gameState.blocksDirty = false;
+    }
+
+    const poppedDelta = this.gameState.getBlocksPopped() - previousBlocksPopped;
+    if (poppedDelta > 0) {
+      const event: BlocksPoppedEvent = {
+        type: 'blocksPopped',
+        clusterSize: poppedDelta,
+        totalScore: this.gameState.getScore(),
+        remainingBlocks: this.gameState.getNumBlocksRemaining()
+      };
+      this.eventBus.emit('blocksPopped', event);
     }
 
     if (this.gameState.hasMoreMoves()) {
@@ -116,6 +145,15 @@ class GameRunner {
           recordResult.topEntries,
           recordResult.rank
         );
+
+        const gameEndedEvent: GameEndedEvent = {
+          type: 'gameEnded',
+          score: this.gameState.getScore(),
+          playedSeconds: elapsedSeconds,
+          blocksPopped: this.gameState.getBlocksPopped(),
+          largestCluster: this.gameState.getLargestCluster()
+        };
+        this.eventBus.emit('gameEnded', gameEndedEvent);
         this.hasShownGameOverSummary = true;
       }
     }
@@ -242,10 +280,6 @@ class GameRunner {
     const m = t.minutes.toString().padStart(2, '0');
     const s = t.seconds.toString().padStart(2, '0');
     return `${h}${m}:${s}`;
-  }
-
-  playSoundEffect (): void {
-    this.audioController.playSoundEffect();
   }
 
   serialize (): void {
