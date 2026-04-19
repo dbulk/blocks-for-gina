@@ -58,18 +58,34 @@ class ModeSelectView {
       }
     });
 
-    const creditsLabel = document.createElement('p');
-    creditsLabel.className = 'mode-select-label';
-    creditsLabel.textContent = 'Credits';
-
     const credits = this.createCredits();
 
+    const playSection = document.createElement('div');
+    playSection.className = 'mode-select-section';
+    const playSectionLabel = document.createElement('p');
+    playSectionLabel.className = 'mode-select-section-label';
+    playSectionLabel.textContent = 'Play';
+    playSection.appendChild(playSectionLabel);
+    playSection.appendChild(playBtn);
+
+    const modeSection = document.createElement('div');
+    modeSection.className = 'mode-select-section';
+    modeLabel.className = 'mode-select-section-label';
+    modeSection.appendChild(modeLabel);
+    modeSection.appendChild(toggleRow);
+
+    const creditsSection = document.createElement('div');
+    creditsSection.className = 'mode-select-section';
+    const creditsLabel = document.createElement('p');
+    creditsLabel.className = 'mode-select-section-label';
+    creditsLabel.textContent = 'Credits';
+    creditsSection.appendChild(creditsLabel);
+    creditsSection.appendChild(credits);
+
     panel.appendChild(title);
-    panel.appendChild(playBtn);
-    panel.appendChild(modeLabel);
-    panel.appendChild(toggleRow);
-    panel.appendChild(creditsLabel);
-    panel.appendChild(credits);
+    panel.appendChild(playSection);
+    panel.appendChild(modeSection);
+    panel.appendChild(creditsSection);
     this.container.appendChild(panel);
 
     this.updateSelection();

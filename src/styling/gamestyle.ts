@@ -302,6 +302,25 @@ styleElement.textContent = `
     text-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
   }
 
+  .mode-select-section {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 12px 14px;
+    border: 1px solid rgba(0, 137, 179, 0.3);
+    border-radius: 8px;
+    background-color: rgba(0, 0, 0, 0.18);
+  }
+
+  .mode-select-section-label {
+    margin: 0;
+    color: #fff;
+    font-size: clamp(10px, 1.4vw, 12px);
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    opacity: 0.55;
+  }
+
   .mode-select-label {
     margin: 0 auto;
     text-align: center;
