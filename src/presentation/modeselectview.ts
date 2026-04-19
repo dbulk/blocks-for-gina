@@ -1,12 +1,12 @@
-type ModeCardClickListener = (modeId: string) => void;
+type ModeSelectListener = (modeId: string) => void;
 
-interface ModeCardSpec {
+interface ModeSpec {
   id: string;
   name: string;
   description: string;
 }
 
-const PRIMARY_MODES: ModeCardSpec[] = [
+const PRIMARY_MODES: ModeSpec[] = [
   {
     id: 'arcade',
     name: 'Arcade',
@@ -21,8 +21,9 @@ const PRIMARY_MODES: ModeCardSpec[] = [
 
 class ModeSelectView {
   readonly container: HTMLDivElement;
-  private readonly modeCards: HTMLDivElement;
-  private listener: ModeCardClickListener | null = null;
+  private selectedModeId: string = 'arcade';
+  private readonly toggleButtons: HTMLButtonElement[] = [];
+  private listener: ModeSelectListener | null = null;
 
   constructor () {
     this.container = document.createElement('div');
@@ -35,60 +36,65 @@ class ModeSelectView {
     title.className = 'mode-select-title';
     title.textContent = 'Blocks4Gina';
 
-    const subtitle = document.createElement('p');
-    subtitle.className = 'mode-select-subtitle';
-    subtitle.textContent = 'Choose how you want to play.';
+    const modeLabel = document.createElement('p');
+    modeLabel.className = 'mode-select-label';
+    modeLabel.textContent = 'Mode';
 
-    this.modeCards = document.createElement('div');
-    this.modeCards.className = 'mode-cards';
+    const toggleRow = document.createElement('div');
+    toggleRow.className = 'mode-toggles';
 
     for (const mode of PRIMARY_MODES) {
-      this.modeCards.appendChild(this.createModeCard(mode));
+      const btn = this.createModeToggle(mode);
+      this.toggleButtons.push(btn);
+      toggleRow.appendChild(btn);
     }
+
+    const playBtn = document.createElement('button');
+    playBtn.className = 'mode-play-btn';
+    playBtn.textContent = 'Play';
+    playBtn.addEventListener('click', () => {
+      if (this.listener) {
+        this.listener(this.selectedModeId);
+      }
+    });
 
     const credits = this.createCredits();
 
     panel.appendChild(title);
-    panel.appendChild(subtitle);
-    panel.appendChild(this.modeCards);
+    panel.appendChild(modeLabel);
+    panel.appendChild(toggleRow);
+    panel.appendChild(playBtn);
     panel.appendChild(credits);
     this.container.appendChild(panel);
+
+    this.updateSelection();
   }
 
   setVisible (onoff: boolean): void {
     this.container.style.display = onoff ? 'flex' : 'none';
   }
 
-  addModeCardClickListener (callback: ModeCardClickListener): void {
+  addModeCardClickListener (callback: ModeSelectListener): void {
     this.listener = callback;
   }
 
-  private createModeCard (mode: ModeCardSpec): HTMLDivElement {
-    const card = document.createElement('div');
-    card.className = 'mode-card';
-
-    const title = document.createElement('h2');
-    title.className = 'mode-card-title';
-    title.textContent = mode.name;
-
-    const desc = document.createElement('p');
-    desc.className = 'mode-card-desc';
-    desc.textContent = mode.description;
-
-    const playBtn = document.createElement('button');
-    playBtn.className = 'mode-card-play';
-    playBtn.textContent = `Play ${mode.name}`;
-    playBtn.dataset.modeId = mode.id;
-    playBtn.addEventListener('click', () => {
-      if (this.listener) {
-        this.listener(mode.id);
-      }
+  private createModeToggle (mode: ModeSpec): HTMLButtonElement {
+    const btn = document.createElement('button');
+    btn.className = 'mode-toggle';
+    btn.textContent = mode.name;
+    btn.title = mode.description;
+    btn.dataset.modeId = mode.id;
+    btn.addEventListener('click', () => {
+      this.selectedModeId = mode.id;
+      this.updateSelection();
     });
+    return btn;
+  }
 
-    card.appendChild(title);
-    card.appendChild(desc);
-    card.appendChild(playBtn);
-    return card;
+  private updateSelection (): void {
+    for (const btn of this.toggleButtons) {
+      btn.classList.toggle('selected', btn.dataset.modeId === this.selectedModeId);
+    }
   }
 
   private createCredits (): HTMLDivElement {

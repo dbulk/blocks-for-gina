@@ -302,70 +302,63 @@ styleElement.textContent = `
     text-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
   }
 
-  .mode-select-subtitle {
+  .mode-select-label {
     margin: 0 auto;
     text-align: center;
     color: #fff;
-    font-size: clamp(14px, 2vw, 17px);
-    opacity: 0.85;
+    font-size: clamp(12px, 1.6vw, 14px);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    opacity: 0.7;
   }
 
-  .mode-cards {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 12px;
-  }
-
-  .mode-card {
+  .mode-toggles {
     display: flex;
-    flex-direction: column;
-    gap: 8px;
-    padding: 14px;
-    border: 2px solid #0089b3;
-    border-radius: 10px;
-    background-color: rgba(0, 0, 0, 0.25);
-    box-sizing: border-box;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
   }
 
-  .mode-card-title {
-    margin: 0;
+  button.mode-toggle {
+    padding: 8px 22px;
+    font-size: clamp(13px, 1.8vw, 15px);
+    font-weight: 600;
+    border-radius: 6px;
+    border: 2px solid #555;
+    background-color: rgba(255, 255, 255, 0.07);
+    color: #bbb;
+    cursor: pointer;
+    transition: border-color 0.15s, background-color 0.15s, color 0.15s;
+  }
+
+  button.mode-toggle:hover:not(.selected) {
+    border-color: #888;
+    color: #ddd;
+    background-color: rgba(255, 255, 255, 0.12);
+  }
+
+  button.mode-toggle.selected {
+    border-color: #0089b3;
+    background-color: rgba(0, 137, 179, 0.25);
     color: #d5f4ff;
-    font-size: clamp(18px, 2.4vw, 24px);
-    font-weight: 700;
   }
 
-  .mode-card-desc {
-    margin: 0;
-    color: #fff;
-    font-size: clamp(13px, 1.6vw, 15px);
-    line-height: 1.4;
-    flex: 1;
-    opacity: 0.9;
-  }
-
-  button.mode-card-play {
-    margin-top: 4px;
+  button.mode-play-btn {
     width: 100%;
-    padding-top: 12px;
-    padding-bottom: 12px;
-    font-size: 16px;
+    padding-top: 14px;
+    padding-bottom: 14px;
+    font-size: clamp(15px, 2vw, 18px);
     font-weight: 700;
-    letter-spacing: 0.04em;
+    letter-spacing: 0.06em;
     background-color: #0089b3;
   }
 
-  button.mode-card-play:hover {
+  button.mode-play-btn:hover {
     background-color: #1aaad8;
   }
 
-  button.mode-card-play:active {
+  button.mode-play-btn:active {
     background-color: #00779d;
-  }
-
-  @media (max-width: 560px) {
-    .mode-cards {
-      grid-template-columns: 1fr;
-    }
   }
 
   .start-overlay-backdrop {
