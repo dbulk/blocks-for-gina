@@ -30,8 +30,8 @@ class GameCoordinator {
   private readonly eventBus: GameEventBus;
   private readonly gameLoopManager: GameLoopManager;
   private readonly sessionStorage: SessionStorage;
-  private readonly soundEffectSrc = new URL('../../sound.wav', import.meta.url).href;
-  private readonly musicSrc = new URL('../../scott-buckley-permafrost(chosic.com).mp3', import.meta.url).href;
+  private readonly soundEffectSrc = new URL('../assets/audio/pop.wav', import.meta.url).href;
+  private readonly musicSrc = new URL('../assets/audio/music.mp3', import.meta.url).href;
 
   constructor (renderer: Renderer, settings: GameSettings, settingsPresenter: SettingsPresenter, page: HTMLInterface) {
     this.renderer = renderer;
@@ -105,7 +105,6 @@ class GameCoordinator {
   }
 
   private gameLoop (): void {
-    const previousBlocksPopped = this.gameState.getBlocksPopped();
     this.gameState.updateBlocks();
     this.page.ui.setUndoEnabled(this.gameState.hasUndo());
     this.page.ui.setRedoEnabled(this.gameState.hasRedo());
@@ -119,17 +118,6 @@ class GameCoordinator {
       this.renderer.renderBlocks();
       this.renderer.renderPreview(this.gameState.popList);
       this.gameState.blocksDirty = false;
-    }
-
-    const poppedDelta = this.gameState.getBlocksPopped() - previousBlocksPopped;
-    if (poppedDelta > 0) {
-      const event: BlocksPoppedEvent = {
-        type: 'blocksPopped',
-        clusterSize: poppedDelta,
-        totalScore: this.gameState.getScore(),
-        remainingBlocks: this.gameState.getNumBlocksRemaining()
-      };
-      this.eventBus.emit('blocksPopped', event);
     }
 
     const hasMoreMoves = this.gameState.hasMoreMoves();
@@ -217,9 +205,23 @@ class GameCoordinator {
       this.gameState.updateSelection(coord);
     });
     this.canvas.addEventListener('pointerup', (event: PointerEvent) => {
+      const previousMoves = this.gameState.getTotalMoves();
+      const previousBlocksPopped = this.gameState.getBlocksPopped();
       const coord = this.renderer.getGridIndicesFromClientPosition(event.clientX, event.clientY);
       this.gameState.updateSelection(coord);
       this.gameState.doPop();
+
+      if (this.gameState.getTotalMoves() > previousMoves) {
+        const poppedDelta = this.gameState.getBlocksPopped() - previousBlocksPopped;
+        const poppedEvent: BlocksPoppedEvent = {
+          type: 'blocksPopped',
+          clusterSize: poppedDelta,
+          totalScore: this.gameState.getScore(),
+          remainingBlocks: this.gameState.getNumBlocksRemaining()
+        };
+        this.eventBus.emit('blocksPopped', poppedEvent);
+      }
+
       if (event.pointerType !== 'mouse') {
         this.gameState.clearSelectionTarget();
       }
