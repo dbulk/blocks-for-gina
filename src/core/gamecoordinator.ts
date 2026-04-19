@@ -5,7 +5,7 @@ import GameEventBus from '@/events/eventbus';
 import ScoreBoard from '@/persistence/scoreboard';
 import SessionStorage from '@/persistence/sessionstorage';
 import LocalHighScores from '@/persistence/highscores';
-import type { BlocksPoppedEvent, GameEndedEvent, GameStartedEvent } from '@/events/events';
+import type { BlocksPoppedEvent, GameEndedEvent, GameStartedEvent, ModeRulesAppliedEvent, ModeSelectedEvent } from '@/events/events';
 import type GameSettings from '@/core/gamesettings';
 import type HTMLInterface from '@/presentation/htmlinterface';
 import type SettingsPresenter from '@/presentation/settingspresenter';
@@ -69,6 +69,12 @@ class GameCoordinator {
   }
 
   private newGame (): void {
+    const modeSelectedEvent: ModeSelectedEvent = {
+      type: 'modeSelected',
+      modeId: this.settings.modeId
+    };
+    this.eventBus.emit('modeSelected', modeSelectedEvent);
+
     this.page.setSessionUIState('inGame');
     this.renderer.setGameState(this.gameState);
     this.gameState.initializeGrid(this.settings.numRows, this.settings.numColumns, this.settings.numBlockTypes, this.settings.clusterStrength);
@@ -89,6 +95,12 @@ class GameCoordinator {
       blockTypes: this.settings.numBlockTypes
     };
     this.eventBus.emit('gameStarted', event);
+
+    const modeRulesAppliedEvent: ModeRulesAppliedEvent = {
+      type: 'modeRulesApplied',
+      modeId: this.settings.modeId
+    };
+    this.eventBus.emit('modeRulesApplied', modeRulesAppliedEvent);
   }
 
   private gameLoop (): void {

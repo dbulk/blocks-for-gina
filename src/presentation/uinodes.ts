@@ -69,6 +69,7 @@ class UINodes {
   private readonly inputRows: HTMLInputElement;
   private readonly inputColumns: HTMLInputElement;
   private readonly inputClusterStrength: HTMLInputElement;
+  private readonly inputMode: HTMLSelectElement;
   private readonly inputBlockStyle: HTMLSelectElement;
   private readonly inputColors: HTMLInputElement[];
 
@@ -87,6 +88,7 @@ class UINodes {
     this.inputRows = document.createElement('input');
     this.inputColumns = document.createElement('input');
     this.inputClusterStrength = document.createElement('input');
+    this.inputMode = document.createElement('select');
     this.inputBlockStyle = document.createElement('select');
     this.inputColors = [];
   }
@@ -145,6 +147,34 @@ class UINodes {
       this.inputClusterStrength.addEventListener('input', () => {
         this.updateClusterValue();
       });
+    }
+
+    {
+      const d = this.createSettingsRow(generationSection);
+      d.classList.add('settings-row-style');
+
+      const label = document.createElement('label');
+      label.setAttribute('for', 'game-mode');
+      label.textContent = 'Mode:';
+      d.appendChild(label);
+
+      this.inputMode.id = 'game-mode';
+      this.inputMode.className = 'settings-select';
+
+      const modes = [
+        { id: 'classic', name: 'Classic' },
+        { id: 'timed', name: 'Timed' },
+        { id: 'move-limited', name: 'Move-Limited' }
+      ];
+
+      for (const mode of modes) {
+        const option = document.createElement('option');
+        option.value = mode.id;
+        option.textContent = mode.name;
+        this.inputMode.appendChild(option);
+      }
+
+      d.appendChild(this.inputMode);
     }
 
     {
@@ -300,6 +330,14 @@ class UINodes {
 
   setInputBlockStyle (style: BlockStyle): void {
     this.inputBlockStyle.value = style;
+  }
+
+  setInputMode (modeId: string): void {
+    this.inputMode.value = modeId;
+  }
+
+  getInputMode (): string {
+    return this.inputMode.value;
   }
 
   getInputBlockStyle (): BlockStyle {

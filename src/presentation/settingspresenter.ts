@@ -14,6 +14,7 @@ class SettingsPresenter {
     this.ui.setInputRows(this.settings.numRows);
     this.ui.setInputColumns(this.settings.numColumns);
     this.ui.setInputClusterStrength(this.settings.clusterStrength);
+    this.ui.setInputMode(this.settings.modeId);
     this.ui.setInputBlockStyle(this.settings.blockStyle);
     this.ui.setInputColors(this.settings.blockColors);
     this.ui.setTogMusic(this.settings.isMusicEnabled);
@@ -24,6 +25,7 @@ class SettingsPresenter {
     this.settings.numRows = this.ui.getInputRows();
     this.settings.numColumns = this.ui.getInputColumns();
     this.settings.clusterStrength = this.ui.getInputClusterStrength();
+    this.settings.modeId = this.ui.getInputMode();
     this.settings.blockStyle = this.ui.getInputBlockStyle();
   }
 
