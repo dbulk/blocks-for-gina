@@ -1,87 +1,90 @@
-# Architectural Roadmap
+# Architectural Action Plan
 
 Last updated: 2026-04-19
 
-## Current State
-- Layered structure exists in src: bootstrap, core, presentation, rendering, persistence, audio, events, styling.
-- Alias imports are configured and stable.
-- Initial decoupling is complete:
-  - Audio lifecycle in src/audio/audiocontroller.ts.
-  - Settings/UI bridge in src/presentation/settingspresenter.ts.
-  - Overlay orchestration in src/presentation/overlaymanager.ts.
-  - Event contracts in src/events/events.ts.
-- Extended implementation completed in this execution run:
-  - Runtime typed event bus in src/events/eventbus.ts.
-  - Coordinator split with src/core/gamecoordinator.ts and facade src/core/gamerunner.ts.
-  - Loop extraction via src/core/gameloopmanager.ts.
-  - Versioned session persistence via src/persistence/sessionstorage.ts.
-  - Mode registry/mode rules groundwork via src/core/moderegistry.ts and src/core/moderules.ts.
-  - Architecture boundary test guardrails in tests/architecture/boundaries.test.ts.
+This file is forward-only. It tracks what to build next, not historical progress.
 
-## Architecture Target
-- bootstrap remains the only cross-layer composition root.
-- core remains UI-agnostic and rendering-agnostic except explicit coordinator seams.
-- event-driven orchestration replaces direct cross-module side effects.
-- persistence is centralized behind versioned contracts.
-- boundaries are enforced by tests/lint, not convention only.
+## Scope
+- Deliver Arcade/Sandbox experience flow from [roadmap.md](roadmap.md).
+- Keep mode architecture extensible for upcoming modes.
+- Preserve quality gates while reducing coordinator coupling.
 
-## Dependency Rules
-- core imports core/events/types.
-- presentation imports core/events/types.
-- rendering imports core state/settings for read-only render inputs.
-- persistence imports core/types and storage contracts.
-- audio imports event/core types and controls audio side effects.
-- bootstrap imports all layers and wires them.
+## Immediate Priorities
 
-## Phased Plan
+### 1) Game Type Selection Flow
+- Add canonical mode-select entry state before gameplay.
+- Route game-over back to mode selection.
+- Make "play again" explicit: replay same mode or return to selection.
 
-### Now
-1. Event bus integration and lifecycle emissions.
-2. Coordinator/loop split.
-3. Persistence service centralization.
-4. Boundary guardrails in tests/lint.
-5. Mode groundwork (registry + settings mode field + base mode rules).
+Primary files:
+- [src/presentation/overlaymanager.ts](src/presentation/overlaymanager.ts)
+- [src/presentation/startoverlayview.ts](src/presentation/startoverlayview.ts)
+- [src/presentation/gameoveroverlayview.ts](src/presentation/gameoveroverlayview.ts)
+- [src/core/gamecoordinator.ts](src/core/gamecoordinator.ts)
 
-### Next
-1. Use mode registry as runtime source for selectable modes in UI.
-2. Add mode-aware HUD details (timer for timed mode, move counter emphasis for move-limited mode).
-3. Add event-sequence tests for coordinator lifecycle.
-4. Reduce remaining coordinator coupling by moving UI listeners and animation orchestration into dedicated modules.
+### 2) Settings Split (Preferences vs Run Setup)
+- Keep persistent settings limited to audio/visual preferences.
+- Treat board generation values as per-run setup payload.
+- Ensure Sandbox setup does not become global persistent defaults.
 
-### Later
-1. Full event-driven subscribers for HUD/persistence/audio with minimal imperative wiring.
-2. Schema migrations for saved session/high-score versions.
-3. Performance work: dirty-region rendering and instrumentation panel.
-4. Online leaderboard abstraction and validation pipeline.
+Primary files:
+- [src/core/gamesettings.ts](src/core/gamesettings.ts)
+- [src/presentation/settingspresenter.ts](src/presentation/settingspresenter.ts)
+- [src/presentation/uinodes.ts](src/presentation/uinodes.ts)
+- [src/persistence/sessionstorage.ts](src/persistence/sessionstorage.ts)
 
-## Priority Before Feature Growth
-1. Event bus and coordinator split (done).
-2. Persistence centralization (done).
-3. Boundary guardrails (done).
-4. Mode contract and rule baseline (done).
-5. Event-sequence and integration coverage expansion (next).
+### 3) Score Policy by Mode
+- Track high scores by competitive mode.
+- Exclude Sandbox from competitive ranking.
+- Optionally add local-only Sandbox personal best.
 
-## Verification Gates
-- `npm run typecheck`
-- `npm run lint`
-- `npm run test`
-- `npm run build`
-- Manual smoke flow: start game, pop blocks, undo/redo, mode change via settings, game over, restart, persisted restore.
+Primary files:
+- [src/persistence/highscores.ts](src/persistence/highscores.ts)
+- [src/core/gamecoordinator.ts](src/core/gamecoordinator.ts)
+- [src/presentation/gameoveroverlayview.ts](src/presentation/gameoveroverlayview.ts)
 
-## Scope Boundaries
-Included:
-- architecture and structural evolution, mode foundations, event/persistence seams, test guardrails.
+### 4) Event-Sequence Coverage
+- Add coordinator integration tests for:
+  - mode select -> run start
+  - run end -> return to mode select
+  - scoring event flow by mode
 
-Excluded (for later phases):
-- full online leaderboard backend, anti-cheat service, large rendering rewrites, major visual redesign.
+Primary files:
+- [tests/events/eventbus.test.ts](tests/events/eventbus.test.ts)
+- new tests under [tests/core](tests/core) and [tests/presentation](tests/presentation)
 
-## Suggested PR Slices
-1. add event bus
-2. extract loop and storage
-3. split coordinator
-4. add boundary guards
-5. add mode foundation
-6. add mode plumbing
-7. add mode rules
-8. add event-sequence integration tests
-9. wire mode registry into UI options
+### 5) Reduce Coordinator Surface Area
+- Move remaining UI listener wiring out of coordinator over time.
+- Keep coordinator focused on lifecycle and orchestration only.
+
+Primary files:
+- [src/core/gamecoordinator.ts](src/core/gamecoordinator.ts)
+- [src/bootstrap/blocks-4-gina.ts](src/bootstrap/blocks-4-gina.ts)
+
+## Next Feature Wave (after above)
+- Timed mode end-to-end.
+- Move-Limited mode end-to-end.
+- Mode-aware HUD and game-over summaries.
+
+Primary files:
+- [src/core/moderules.ts](src/core/moderules.ts)
+- [src/core/moderegistry.ts](src/core/moderegistry.ts)
+- [src/presentation/hudpresenter.ts](src/presentation/hudpresenter.ts)
+- [src/presentation/gameoveroverlayview.ts](src/presentation/gameoveroverlayview.ts)
+
+## Guardrails
+- Keep layer boundaries enforced by lint + tests.
+- No new direct core -> presentation imports (except current temporary coordinator seam).
+- New modes must be registered through mode registry, not hardcoded conditionals spread across UI.
+
+## Definition of Done (per milestone)
+1. `npm run typecheck`
+2. `npm run lint`
+3. `npm run test`
+4. `npm run build`
+5. Manual smoke: mode select -> play -> game over -> mode select
+
+## Out of Scope Here
+- Online leaderboard backend.
+- Anti-cheat services.
+- Major rendering rewrites beyond targeted optimization.
