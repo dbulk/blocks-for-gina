@@ -22,12 +22,14 @@ class GameRunner {
   private animationLoopRunning: boolean = false;
   private hasShownGameOverSummary: boolean = false;
   private readonly highScores: LocalHighScores;
+  private readonly soundEffectSrc = new URL('../../sound.wav', import.meta.url).href;
+  private readonly musicSrc = new URL('../../scott-buckley-permafrost(chosic.com).mp3', import.meta.url).href;
 
   constructor (renderer: Renderer, settings: GameSettings, settingsPresenter: SettingsPresenter, page: HTMLInterface) {
     this.renderer = renderer;
     this.settings = settings;
     this.settingsPresenter = settingsPresenter;
-    this.audioController = new AudioController('/sound.wav', '/scott-buckley-permafrost(chosic.com).mp3');
+    this.audioController = new AudioController(this.soundEffectSrc, this.musicSrc);
     this.gameState = new GameState(this.playSoundEffect.bind(this));
     this.scoreBoard = new ScoreBoard(this.gameState, page.scoreDisplay);
     this.highScores = new LocalHighScores();
@@ -39,9 +41,9 @@ class GameRunner {
     this.newGame();
     this.attachListeners();
 
-    this.audioController.startMusic();
-    this.gameLoop();
     this.deserialize();
+    this.setAudioState();
+    this.gameLoop();
 
     if (!this.gameState.hasMoreMoves()) {
       this.newGame();

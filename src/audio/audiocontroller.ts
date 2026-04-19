@@ -2,6 +2,7 @@ class AudioController {
   private readonly soundEffect: HTMLAudioElement;
   private readonly music: HTMLAudioElement;
   private soundEnabled: boolean = true;
+  private musicEnabled: boolean = true;
 
   constructor (soundEffectSrc: string, musicSrc: string) {
     this.soundEffect = new Audio(soundEffectSrc);
@@ -10,10 +11,11 @@ class AudioController {
   }
 
   startMusic (): void {
-    this.music.play().catch(() => { });
+    this.setMusicEnabled(this.musicEnabled);
   }
 
   setMusicEnabled (enabled: boolean): void {
+    this.musicEnabled = enabled;
     if (enabled) {
       this.music.play().catch(() => { });
       return;
@@ -36,6 +38,7 @@ class AudioController {
       return;
     }
 
+    this.soundEffect.currentTime = 0;
     this.soundEffect.play().catch(() => { });
   }
 }
