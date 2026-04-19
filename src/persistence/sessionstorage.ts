@@ -4,7 +4,7 @@ interface SessionSnapshot {
   settings: unknown
 }
 
-const CURRENT_SESSION_VERSION = 1;
+const CURRENT_SESSION_VERSION = 2;
 
 class SessionStorage {
   private readonly storageKey: string;
