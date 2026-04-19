@@ -361,6 +361,42 @@ styleElement.textContent = `
     background-color: #00779d;
   }
 
+  .game-over-action-row {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-top: 10px;
+  }
+
+  button.game-over-action-primary {
+    flex: 1;
+    max-width: 160px;
+    padding: 10px 0;
+    font-size: 15px;
+    font-weight: 700;
+    background-color: #0089b3;
+  }
+
+  button.game-over-action-primary:hover {
+    background-color: #1aaad8;
+  }
+
+  button.game-over-action-secondary {
+    flex: 1;
+    max-width: 160px;
+    padding: 10px 0;
+    font-size: 15px;
+    font-weight: 600;
+    background-color: transparent;
+    border: 2px solid #555;
+    color: #bbb;
+  }
+
+  button.game-over-action-secondary:hover {
+    border-color: #888;
+    color: #ddd;
+  }
+
   .start-overlay-backdrop {
     position: fixed;
     inset: 0;
