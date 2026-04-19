@@ -1,5 +1,6 @@
 import GameState from '@/core/gamestate';
 import GameLoopManager from '@/core/gameloopmanager';
+import { shouldEndGameForMode } from '@/core/moderules';
 import AudioController from '@/audio/audiocontroller';
 import GameEventBus from '@/events/eventbus';
 import ScoreBoard from '@/persistence/scoreboard';
@@ -131,7 +132,10 @@ class GameCoordinator {
       this.eventBus.emit('blocksPopped', event);
     }
 
-    if (this.gameState.hasMoreMoves()) {
+    const hasMoreMoves = this.gameState.hasMoreMoves();
+    const isGameOver = shouldEndGameForMode(this.settings.modeId, this.gameState, hasMoreMoves);
+
+    if (!isGameOver) {
       this.scoreBoard.update();
       if (this.hasShownGameOverSummary) {
         this.page.setSessionUIState('inGame');
