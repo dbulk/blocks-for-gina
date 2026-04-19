@@ -1,4 +1,5 @@
 import { BLOCK_STYLES, DEFAULT_BLOCK_STYLE, type BlockStyle } from '@/rendering/blockstyle';
+import type { GameMode } from '@/core/moderegistry';
 
 function setButtonProperties (button: HTMLButtonElement, text: string, isToggle: boolean, div: HTMLDivElement): HTMLButtonElement {
   button.textContent = text;
@@ -72,6 +73,7 @@ class UINodes {
   private readonly inputMode: HTMLSelectElement;
   private readonly inputBlockStyle: HTMLSelectElement;
   private readonly inputColors: HTMLInputElement[];
+  private modeOptions: GameMode[];
 
   constructor () {
     this.div = document.createElement('div');
@@ -91,6 +93,11 @@ class UINodes {
     this.inputMode = document.createElement('select');
     this.inputBlockStyle = document.createElement('select');
     this.inputColors = [];
+    this.modeOptions = [
+      { id: 'classic', name: 'Classic', description: 'Play until there are no valid moves.' },
+      { id: 'timed', name: 'Timed', description: 'Score as much as possible before time runs out.' },
+      { id: 'move-limited', name: 'Move-Limited', description: 'Maximize score within a fixed move budget.' }
+    ];
   }
 
   createUI (): void {
@@ -160,19 +167,7 @@ class UINodes {
 
       this.inputMode.id = 'game-mode';
       this.inputMode.className = 'settings-select';
-
-      const modes = [
-        { id: 'classic', name: 'Classic' },
-        { id: 'timed', name: 'Timed' },
-        { id: 'move-limited', name: 'Move-Limited' }
-      ];
-
-      for (const mode of modes) {
-        const option = document.createElement('option');
-        option.value = mode.id;
-        option.textContent = mode.name;
-        this.inputMode.appendChild(option);
-      }
+      this.refreshModeOptions();
 
       d.appendChild(this.inputMode);
     }
@@ -336,6 +331,11 @@ class UINodes {
     this.inputMode.value = modeId;
   }
 
+  setAvailableModes (modes: GameMode[]): void {
+    this.modeOptions = [...modes];
+    this.refreshModeOptions();
+  }
+
   getInputMode (): string {
     return this.inputMode.value;
   }
@@ -410,6 +410,16 @@ class UINodes {
     row.className = wrap ? 'settings-row settings-row-wrap' : 'settings-row';
     parent.appendChild(row);
     return row;
+  }
+
+  private refreshModeOptions (): void {
+    this.inputMode.innerHTML = '';
+    for (const mode of this.modeOptions) {
+      const option = document.createElement('option');
+      option.value = mode.id;
+      option.textContent = mode.name;
+      this.inputMode.appendChild(option);
+    }
   }
 }
 

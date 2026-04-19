@@ -1,6 +1,7 @@
 import HTMLInterface from '@/presentation/htmlinterface';
 import GameRunner from '@/core/gamerunner';
 import GameSettings from '@/core/gamesettings';
+import { createDefaultModeRegistry } from '@/core/moderegistry';
 import SettingsPresenter from '@/presentation/settingspresenter';
 import Renderer from '@/rendering/renderer';
 
@@ -10,6 +11,8 @@ class Blocks4Gina extends HTMLElement {
     const page = new HTMLInterface(shadow);
     const canvas = page.canvas;
     const ui = page.ui;
+    const modeRegistry = createDefaultModeRegistry();
+    ui.setAvailableModes(modeRegistry.list());
     const gameSettings = new GameSettings();
     const settingsPresenter = new SettingsPresenter(gameSettings, ui);
     settingsPresenter.settingsToUI();
