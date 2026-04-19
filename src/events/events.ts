@@ -20,12 +20,24 @@ interface GameEndedEvent {
   largestCluster: number
 }
 
-type GameEvent = GameStartedEvent | BlocksPoppedEvent | GameEndedEvent;
+interface ModeSelectedEvent {
+  type: 'modeSelected'
+  modeId: string
+}
+
+interface ModeRulesAppliedEvent {
+  type: 'modeRulesApplied'
+  modeId: string
+}
+
+type GameEvent = GameStartedEvent | BlocksPoppedEvent | GameEndedEvent | ModeSelectedEvent | ModeRulesAppliedEvent;
 
 interface GameEventByType {
   gameStarted: GameStartedEvent
   blocksPopped: BlocksPoppedEvent
   gameEnded: GameEndedEvent
+  modeSelected: ModeSelectedEvent
+  modeRulesApplied: ModeRulesAppliedEvent
 }
 
 type GameEventType = keyof GameEventByType;
@@ -34,6 +46,8 @@ export type {
   GameStartedEvent,
   BlocksPoppedEvent,
   GameEndedEvent,
+  ModeSelectedEvent,
+  ModeRulesAppliedEvent,
   GameEvent,
   GameEventByType,
   GameEventType

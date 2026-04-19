@@ -6,6 +6,7 @@ interface serializationPayload {
   numRows: number
   clusterStrength: number
   blockStyle: BlockStyle
+  modeId?: string
   isMusicEnabled: boolean
   isSoundEnabled: boolean
 }
@@ -18,6 +19,7 @@ class GameSettings {
   clusterStrength!: number;
   blockLabels!: boolean;
   blockStyle!: BlockStyle;
+  modeId: string = 'classic';
   isMusicEnabled: boolean = true;
   isSoundEnabled: boolean = true;
 
@@ -34,6 +36,7 @@ class GameSettings {
     this.clusterStrength = 0.2;
     this.blockLabels = false;
     this.blockStyle = DEFAULT_BLOCK_STYLE;
+    this.modeId = 'classic';
     this.isMusicEnabled = true;
     this.isSoundEnabled = true;
   }
@@ -44,6 +47,7 @@ class GameSettings {
     this.numRows = 'numRows' in settings ? settings.numRows : 10;
     this.clusterStrength = 'clusterStrength' in settings ? settings.clusterStrength : 0.2;
     this.blockStyle = 'blockStyle' in settings && isBlockStyle(settings.blockStyle) ? settings.blockStyle : DEFAULT_BLOCK_STYLE;
+    this.modeId = typeof settings.modeId === 'string' ? settings.modeId : 'classic';
     this.isMusicEnabled = 'isMusicEnabled' in settings ? settings.isMusicEnabled : true;
     this.isSoundEnabled = 'isSoundEnabled' in settings ? settings.isSoundEnabled : true;
   }
@@ -55,6 +59,7 @@ class GameSettings {
       numRows: this.numRows,
       clusterStrength: this.clusterStrength,
       blockStyle: this.blockStyle,
+      modeId: this.modeId,
       isMusicEnabled: this.isMusicEnabled,
       isSoundEnabled: this.isSoundEnabled
     };
