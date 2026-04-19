@@ -58,12 +58,17 @@ class ModeSelectView {
       }
     });
 
+    const creditsLabel = document.createElement('p');
+    creditsLabel.className = 'mode-select-label';
+    creditsLabel.textContent = 'Credits';
+
     const credits = this.createCredits();
 
     panel.appendChild(title);
+    panel.appendChild(playBtn);
     panel.appendChild(modeLabel);
     panel.appendChild(toggleRow);
-    panel.appendChild(playBtn);
+    panel.appendChild(creditsLabel);
     panel.appendChild(credits);
     this.container.appendChild(panel);
 

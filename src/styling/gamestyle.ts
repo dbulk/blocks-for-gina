@@ -344,9 +344,9 @@ styleElement.textContent = `
   }
 
   button.mode-play-btn {
-    width: 100%;
-    padding-top: 14px;
-    padding-bottom: 14px;
+    display: block;
+    margin: 0 auto;
+    padding: 14px 48px;
     font-size: clamp(15px, 2vw, 18px);
     font-weight: 700;
     letter-spacing: 0.06em;
