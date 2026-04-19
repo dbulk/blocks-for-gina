@@ -12,7 +12,7 @@ class Blocks4Gina extends HTMLElement {
     const canvas = page.canvas;
     const ui = page.ui;
     const modeRegistry = createDefaultModeRegistry();
-    ui.setAvailableModes(modeRegistry.list());
+    page.setAvailableModes(modeRegistry.list());
     const gameSettings = new GameSettings();
     const settingsPresenter = new SettingsPresenter(gameSettings, ui);
     settingsPresenter.settingsToUI();

@@ -1,28 +1,12 @@
+import type { GameMode } from '@/core/moderegistry';
+
 type ModeSelectListener = (modeId: string) => void;
-
-interface ModeSpec {
-  id: string;
-  name: string;
-  description: string;
-}
-
-const PRIMARY_MODES: ModeSpec[] = [
-  {
-    id: 'arcade',
-    name: 'Arcade',
-    description: 'Fixed board, competitive scoring. Compare your best runs and climb the leaderboard.'
-  },
-  {
-    id: 'sandbox',
-    name: 'Sandbox',
-    description: 'Custom board size and generation settings. Explore freely with no pressure.'
-  }
-];
 
 class ModeSelectView {
   readonly container: HTMLDivElement;
   private selectedModeId: string = 'arcade';
   private readonly toggleButtons: HTMLButtonElement[] = [];
+  private readonly toggleRow: HTMLDivElement;
   private listener: ModeSelectListener | null = null;
 
   constructor () {
@@ -36,14 +20,8 @@ class ModeSelectView {
     title.className = 'mode-select-title';
     title.textContent = 'Blocks4Gina';
 
-    const toggleRow = document.createElement('div');
-    toggleRow.className = 'mode-toggles';
-
-    for (const mode of PRIMARY_MODES) {
-      const btn = this.createModeToggle(mode);
-      this.toggleButtons.push(btn);
-      toggleRow.appendChild(btn);
-    }
+    this.toggleRow = document.createElement('div');
+    this.toggleRow.className = 'mode-toggles';
 
     const playBtn = document.createElement('button');
     playBtn.className = 'mode-play-btn';
@@ -62,7 +40,7 @@ class ModeSelectView {
 
     const modeSection = document.createElement('div');
     modeSection.className = 'mode-select-section';
-    modeSection.appendChild(toggleRow);
+    modeSection.appendChild(this.toggleRow);
 
     const creditsSection = document.createElement('div');
     creditsSection.className = 'mode-select-section';
@@ -73,7 +51,19 @@ class ModeSelectView {
     panel.appendChild(modeSection);
     panel.appendChild(creditsSection);
     this.container.appendChild(panel);
+  }
 
+  setModes (modes: GameMode[]): void {
+    this.toggleRow.innerHTML = '';
+    this.toggleButtons.length = 0;
+    for (const mode of modes) {
+      const btn = this.createModeToggle(mode);
+      this.toggleButtons.push(btn);
+      this.toggleRow.appendChild(btn);
+    }
+    if (!this.toggleButtons.some(b => b.dataset.modeId === this.selectedModeId)) {
+      this.selectedModeId = this.toggleButtons[0]?.dataset.modeId ?? 'arcade';
+    }
     this.updateSelection();
   }
 
@@ -85,7 +75,7 @@ class ModeSelectView {
     this.listener = callback;
   }
 
-  private createModeToggle (mode: ModeSpec): HTMLButtonElement {
+  private createModeToggle (mode: GameMode): HTMLButtonElement {
     const btn = document.createElement('button');
     btn.className = 'mode-toggle';
     btn.textContent = mode.name;
