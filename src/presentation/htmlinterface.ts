@@ -3,10 +3,9 @@ import UINodes from '@/presentation/uinodes';
 import HudView from '@/presentation/scoredisplay';
 import StartOverlayView from '@/presentation/startoverlayview';
 import GameOverOverlayView from '@/presentation/gameoveroverlayview';
+import OverlayManager, { type SessionUIState } from '@/presentation/overlaymanager';
 import type { HighScoreEntry } from '@/persistence/highscores';
 import type { CanvasSizeConstraints } from '@/rendering/renderer';
-
-type SessionUIState = 'preGame' | 'inGame' | 'paused' | 'gameOverSummary';
 
 class HTMLInterface {
   canvas!: HTMLCanvasElement;
@@ -15,6 +14,7 @@ class HTMLInterface {
   isvalid = false;
   private readonly playfield: HTMLDivElement;
   private readonly overlayLayer: HTMLDivElement;
+  private readonly overlayManager: OverlayManager;
   private readonly startOverlay: StartOverlayView;
   private readonly gameOverOverlay: GameOverOverlayView;
   private sessionUIState: SessionUIState = 'preGame';
@@ -51,6 +51,7 @@ class HTMLInterface {
     this.overlayLayer.style.top = '0';
     this.overlayLayer.style.width = '100%';
     this.overlayLayer.style.height = '100%';
+    this.overlayManager = new OverlayManager(this.overlayLayer);
 
     this.ui = new UINodes();
     this.ui.createUI();
@@ -59,8 +60,8 @@ class HTMLInterface {
 
     div.appendChild(this.scoreDisplay.div);
     this.playfield.appendChild(this.canvas);
-    this.overlayLayer.appendChild(this.startOverlay.container);
-    this.overlayLayer.appendChild(this.gameOverOverlay.container);
+    this.overlayManager.register('start', this.startOverlay);
+    this.overlayManager.register('gameOver', this.gameOverOverlay);
     this.playfield.appendChild(this.overlayLayer);
     div.appendChild(this.playfield);
     this.ui.setParent(div);
@@ -94,33 +95,13 @@ class HTMLInterface {
 
   setSessionUIState (state: SessionUIState): void {
     this.sessionUIState = state;
-
-    let showSplash = false;
-    let showOverlayLayer = false;
-    switch (state) {
-      case 'preGame':
-        showSplash = true;
-        showOverlayLayer = true;
-        break;
-      case 'inGame':
-      case 'paused':
-        showSplash = false;
-        showOverlayLayer = false;
-        break;
-      case 'gameOverSummary':
-        showSplash = false;
-        showOverlayLayer = true;
-        break;
-    }
-
-    this.overlayLayer.style.display = showOverlayLayer ? 'block' : 'none';
-    this.startOverlay.setVisible(showSplash);
+    this.overlayManager.setState(state);
+    const showSplash = state === 'preGame';
     this.canvas.style.display = showSplash ? 'none' : 'block';
 
     const showHudAndControls = !showSplash;
     this.ui.setVisibility(showHudAndControls);
     this.scoreDisplay.setVisibility(showHudAndControls);
-    this.gameOverOverlay.setVisible(state === 'gameOverSummary');
   }
 
   resize (): void {
