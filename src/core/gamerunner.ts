@@ -1,7 +1,9 @@
 import GameState from '@/core/gamestate';
+import GameLoopManager from '@/core/gameloopmanager';
 import AudioController from '@/audio/audiocontroller';
 import GameEventBus from '@/events/eventbus';
 import ScoreBoard from '@/persistence/scoreboard';
+import SessionStorage from '@/persistence/sessionstorage';
 import LocalHighScores from '@/persistence/highscores';
 import type { BlocksPoppedEvent, GameEndedEvent, GameStartedEvent } from '@/events/events';
 import type GameSettings from '@/core/gamesettings';
@@ -25,6 +27,8 @@ class GameRunner {
   private hasShownGameOverSummary: boolean = false;
   private readonly highScores: LocalHighScores;
   private readonly eventBus: GameEventBus;
+  private readonly gameLoopManager: GameLoopManager;
+  private readonly sessionStorage: SessionStorage;
   private readonly soundEffectSrc = new URL('../../sound.wav', import.meta.url).href;
   private readonly musicSrc = new URL('../../scott-buckley-permafrost(chosic.com).mp3', import.meta.url).href;
 
@@ -33,6 +37,8 @@ class GameRunner {
     this.settings = settings;
     this.settingsPresenter = settingsPresenter;
     this.eventBus = new GameEventBus();
+    this.gameLoopManager = new GameLoopManager();
+    this.sessionStorage = new SessionStorage();
     this.audioController = new AudioController(this.soundEffectSrc, this.musicSrc);
     this.gameState = new GameState(() => {});
     this.scoreBoard = new ScoreBoard(this.gameState, page.scoreDisplay);
@@ -48,7 +54,7 @@ class GameRunner {
 
     this.deserialize();
     this.setAudioState();
-    this.gameLoop();
+    this.gameLoopManager.start(this.gameLoop.bind(this));
 
     if (!this.gameState.hasMoreMoves()) {
       this.newGame();
@@ -158,8 +164,6 @@ class GameRunner {
       }
     }
 
-    // Schedule the next iteration of the game loop
-    requestAnimationFrame(this.gameLoop.bind(this));
   }
 
   private animationLoop (startTime: number): void {
@@ -283,23 +287,21 @@ class GameRunner {
   }
 
   serialize (): void {
-    // needs to serialize GameState and GameSettings
-    const state = this.gameState.serialize();
-    const settings = this.settings.serialize();
-    localStorage.setItem('b4g', JSON.stringify({ state, settings }));
+    this.sessionStorage.save(this.gameState.serialize(), this.settings.serialize());
   }
 
   deserialize (): void {
-    const data = localStorage.getItem('b4g');
-    if (data !== null) {
-      const { state, settings } = JSON.parse(data) as { state: unknown, settings: unknown };
-      this.settings.deserialize(settings as Parameters<typeof this.settings.deserialize>[0]);
-      this.settingsPresenter.settingsToUI();
-      this.gameState.deserialize(state as Parameters<typeof this.gameState.deserialize>[0]);
-      this.setAudioState();
-      this.renderer.adjustCanvasSize(this.page.getCanvasSizeConstraints());
-      this.page.resize();
+    const snapshot = this.sessionStorage.load();
+    if (snapshot === null) {
+      return;
     }
+
+    this.settings.deserialize(snapshot.settings as Parameters<typeof this.settings.deserialize>[0]);
+    this.settingsPresenter.settingsToUI();
+    this.gameState.deserialize(snapshot.state as Parameters<typeof this.gameState.deserialize>[0]);
+    this.setAudioState();
+    this.renderer.adjustCanvasSize(this.page.getCanvasSizeConstraints());
+    this.page.resize();
   }
 }
 
