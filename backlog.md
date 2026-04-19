@@ -28,12 +28,6 @@ Sandbox setup before game start
 - Validate and clamp user values
 - Build run config payload
 
-## #arcade-default-config
-Curated Arcade baseline
-- Fixed board generation defaults
-- No board-shape tuning in Arcade
-- Consistent competitive baseline
-
 ## #mode-context-plumbing
 Mode and run context propagation
 - Mode ID in start and end payloads
