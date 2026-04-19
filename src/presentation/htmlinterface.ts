@@ -3,6 +3,7 @@ import UINodes from '@/presentation/uinodes';
 import HudView from '@/presentation/scoredisplay';
 import StartOverlayView from '@/presentation/startoverlayview';
 import GameOverOverlayView from '@/presentation/gameoveroverlayview';
+import ModeSelectView from '@/presentation/modeselectview';
 import OverlayManager, { type SessionUIState } from '@/presentation/overlaymanager';
 import type { HighScoreEntry } from '@/persistence/highscores';
 import type { CanvasSizeConstraints } from '@/rendering/renderer';
@@ -17,7 +18,8 @@ class HTMLInterface {
   private readonly overlayManager: OverlayManager;
   private readonly startOverlay: StartOverlayView;
   private readonly gameOverOverlay: GameOverOverlayView;
-  private sessionUIState: SessionUIState = 'preGame';
+  private readonly modeSelectView: ModeSelectView;
+  private sessionUIState: SessionUIState = 'modeSelect';
 
   constructor (root: ShadowRoot) {
     root.appendChild(styleElement);
@@ -57,15 +59,21 @@ class HTMLInterface {
     this.ui.createUI();
     this.startOverlay = new StartOverlayView();
     this.gameOverOverlay = new GameOverOverlayView();
+    this.modeSelectView = new ModeSelectView();
 
     div.appendChild(this.scoreDisplay.div);
     this.playfield.appendChild(this.canvas);
+    this.overlayManager.register('modeSelect', this.modeSelectView);
     this.overlayManager.register('start', this.startOverlay);
     this.overlayManager.register('gameOver', this.gameOverOverlay);
     this.playfield.appendChild(this.overlayLayer);
     div.appendChild(this.playfield);
     this.ui.setParent(div);
-    this.setSessionUIState('preGame');
+    this.setSessionUIState('modeSelect');
+  }
+
+  addModeSelectListener (callback: (modeId: string) => void): void {
+    this.modeSelectView.addModeCardClickListener(callback);
   }
 
   addStartClickListener (func: () => void): void {
@@ -96,7 +104,7 @@ class HTMLInterface {
   setSessionUIState (state: SessionUIState): void {
     this.sessionUIState = state;
     this.overlayManager.setState(state);
-    const showSplash = state === 'preGame';
+    const showSplash = state === 'modeSelect' || state === 'preGame';
     this.canvas.style.display = showSplash ? 'none' : 'block';
 
     const showHudAndControls = !showSplash;

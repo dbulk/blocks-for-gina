@@ -1,6 +1,6 @@
-type SessionUIState = 'preGame' | 'inGame' | 'paused' | 'gameOverSummary';
+type SessionUIState = 'modeSelect' | 'preGame' | 'inGame' | 'paused' | 'gameOverSummary';
 
-type OverlayKey = 'start' | 'gameOver';
+type OverlayKey = 'modeSelect' | 'start' | 'gameOver';
 
 interface OverlayView {
   container: HTMLDivElement
@@ -22,13 +22,21 @@ class OverlayManager {
 
   setState (state: SessionUIState): void {
     switch (state) {
+      case 'modeSelect':
+        this.setLayerVisibility(true);
+        this.setOverlayVisibility('modeSelect', true);
+        this.setOverlayVisibility('start', false);
+        this.setOverlayVisibility('gameOver', false);
+        return;
       case 'preGame':
         this.setLayerVisibility(true);
+        this.setOverlayVisibility('modeSelect', false);
         this.setOverlayVisibility('start', true);
         this.setOverlayVisibility('gameOver', false);
         return;
       case 'gameOverSummary':
         this.setLayerVisibility(true);
+        this.setOverlayVisibility('modeSelect', false);
         this.setOverlayVisibility('start', false);
         this.setOverlayVisibility('gameOver', true);
         return;
@@ -36,6 +44,7 @@ class OverlayManager {
       case 'paused':
       default:
         this.setLayerVisibility(false);
+        this.setOverlayVisibility('modeSelect', false);
         this.setOverlayVisibility('start', false);
         this.setOverlayVisibility('gameOver', false);
     }
