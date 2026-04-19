@@ -1,4 +1,5 @@
 import type GameSettings from '@/core/gamesettings';
+import type UserPreferences from '@/core/userpreferences';
 import type GameState from '@/core/gamestate';
 import type { BlockStyle } from '@/rendering/blockstyle';
 
@@ -20,16 +21,18 @@ class Renderer {
   private readonly ctx: CanvasRenderingContext2D | null;
   private readonly blockCanvases: HTMLCanvasElement[] = [];
   private readonly gameSettings: GameSettings;
+  private readonly prefs: UserPreferences;
   private gameState!: GameState;
   private blockSize: number = 0;
 
-  constructor (canvas: HTMLCanvasElement, gameSettings: GameSettings) {
+  constructor (canvas: HTMLCanvasElement, gameSettings: GameSettings, userPreferences: UserPreferences) {
     this.canvas = canvas;
     this.ctx = canvas.getContext('2d');
     this.gameSettings = gameSettings;
+    this.prefs = userPreferences;
 
     // create an offscreen canvas for each block type:
-    for (let i = 0; i < gameSettings.blockColors.length; i++) {
+    for (let i = 0; i < userPreferences.blockColors.length; i++) {
       const canvas = document.createElement('canvas');
       canvas.width = MAXBLOCKSIZE;
       canvas.height = MAXBLOCKSIZE;
@@ -117,10 +120,10 @@ class Renderer {
   private createOffscrenCanvases (lightStrength: number): void {
     for (let i = 0; i < this.blockCanvases.length; i++) {
       const canvas = this.blockCanvases[i];
-      const color = this.gameSettings.blockColors[i];
+      const color = this.prefs.blockColors[i];
       const ctx = canvas.getContext('2d');
       if (ctx !== null) {
-        this.drawBlockStyle(ctx, color, this.gameSettings.blockStyle, lightStrength);
+        this.drawBlockStyle(ctx, color, this.prefs.blockStyle, lightStrength);
 
         if (this.gameSettings.blockLabels) {
           const fontFamily = 'Arial'; // Font family

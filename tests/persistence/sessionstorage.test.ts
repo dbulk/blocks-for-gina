@@ -43,7 +43,7 @@ describe('SessionStorage', () => {
 
     const snapshot = sessionStorage.load();
     expect(snapshot).not.toBeNull();
-    expect(snapshot?.version).toBe(1);
+    expect(snapshot?.version).toBe(2);
     expect(snapshot?.state).toEqual({ score: 10 });
     expect(snapshot?.settings).toEqual({ rows: 10 });
   });

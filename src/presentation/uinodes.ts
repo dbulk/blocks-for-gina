@@ -94,9 +94,8 @@ class UINodes {
     this.inputBlockStyle = document.createElement('select');
     this.inputColors = [];
     this.modeOptions = [
-      { id: 'classic', name: 'Classic', description: 'Play until there are no valid moves.' },
       { id: 'timed', name: 'Timed', description: 'Score as much as possible before time runs out.' },
-      { id: 'move-limited', name: 'Move-Limited', description: 'Maximize score within a fixed move budget.' }
+      { id: 'sprint', name: 'Sprint', description: 'Maximize score within a fixed move budget.' }
     ];
   }
 

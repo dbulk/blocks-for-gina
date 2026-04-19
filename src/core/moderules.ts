@@ -1,7 +1,7 @@
 import type GameState from '@/core/gamestate';
 
 const TIMED_MODE_DURATION_SECONDS = 180;
-const MOVE_LIMITED_MODE_MAX_MOVES = 30;
+const SPRINT_MODE_MAX_MOVES = 30;
 
 const shouldEndGameForMode = (modeId: string, gameState: GameState, hasMoreMoves: boolean): boolean => {
   if (modeId === 'timed') {
@@ -10,8 +10,8 @@ const shouldEndGameForMode = (modeId: string, gameState: GameState, hasMoreMoves
     return elapsedSeconds >= TIMED_MODE_DURATION_SECONDS;
   }
 
-  if (modeId === 'move-limited') {
-    return gameState.getTotalMoves() >= MOVE_LIMITED_MODE_MAX_MOVES || !hasMoreMoves;
+  if (modeId === 'sprint') {
+    return gameState.getTotalMoves() >= SPRINT_MODE_MAX_MOVES || !hasMoreMoves;
   }
 
   return !hasMoreMoves;
@@ -20,5 +20,5 @@ const shouldEndGameForMode = (modeId: string, gameState: GameState, hasMoreMoves
 export {
   shouldEndGameForMode,
   TIMED_MODE_DURATION_SECONDS,
-  MOVE_LIMITED_MODE_MAX_MOVES
+  SPRINT_MODE_MAX_MOVES
 };

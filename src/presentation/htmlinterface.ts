@@ -7,6 +7,7 @@ import ModeSelectView from '@/presentation/modeselectview';
 import OverlayManager, { type SessionUIState } from '@/presentation/overlaymanager';
 import type { HighScoreEntry } from '@/persistence/highscores';
 import type { CanvasSizeConstraints } from '@/rendering/renderer';
+import type { GameMode } from '@/core/moderegistry';
 
 class HTMLInterface {
   canvas!: HTMLCanvasElement;
@@ -70,6 +71,11 @@ class HTMLInterface {
     div.appendChild(this.playfield);
     this.ui.setParent(div);
     this.setSessionUIState('modeSelect');
+  }
+
+  setAvailableModes (modes: GameMode[]): void {
+    this.ui.setAvailableModes(modes);
+    this.modeSelectView.setModes(modes);
   }
 
   addModeSelectListener (callback: (modeId: string) => void): void {

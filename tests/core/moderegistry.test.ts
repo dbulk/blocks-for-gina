@@ -21,8 +21,9 @@ describe('ModeRegistry', () => {
 
   it('provides a default mode catalog', () => {
     const registry = createDefaultModeRegistry();
-    expect(registry.get('classic')).not.toBeNull();
+    expect(registry.get('arcade')).not.toBeNull();
     expect(registry.get('timed')).not.toBeNull();
-    expect(registry.get('move-limited')).not.toBeNull();
+    expect(registry.get('sprint')).not.toBeNull();
+    expect(registry.get('antigravity')).not.toBeNull();
   });
 });

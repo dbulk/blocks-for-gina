@@ -1,6 +1,8 @@
 import HTMLInterface from '@/presentation/htmlinterface';
 import GameRunner from '@/core/gamerunner';
 import GameSettings from '@/core/gamesettings';
+import UserPreferences from '@/core/userpreferences';
+import PreferencesPresenter from '@/presentation/preferencespresenter';
 import { createDefaultModeRegistry } from '@/core/moderegistry';
 import SettingsPresenter from '@/presentation/settingspresenter';
 import Renderer from '@/rendering/renderer';
@@ -12,11 +14,14 @@ class Blocks4Gina extends HTMLElement {
     const canvas = page.canvas;
     const ui = page.ui;
     const modeRegistry = createDefaultModeRegistry();
-    ui.setAvailableModes(modeRegistry.list());
+    page.setAvailableModes(modeRegistry.list());
     const gameSettings = new GameSettings();
+    const prefs = new UserPreferences();
     const settingsPresenter = new SettingsPresenter(gameSettings, ui);
+    const prefsPresenter = new PreferencesPresenter(prefs, ui);
     settingsPresenter.settingsToUI();
-    const renderer = new Renderer(canvas, gameSettings);
+    prefsPresenter.prefsToUI();
+    const renderer = new Renderer(canvas, gameSettings, prefs);
     const resizeLayout = (): void => {
       renderer.adjustCanvasSize(page.getCanvasSizeConstraints());
       page.resize();
@@ -27,7 +32,7 @@ class Blocks4Gina extends HTMLElement {
     const startGame = (modeId: string): void => {
       gameSettings.modeId = modeId;
       page.setSessionUIState('inGame');
-      new GameRunner(renderer, gameSettings, settingsPresenter, page);
+      new GameRunner(renderer, gameSettings, prefs, settingsPresenter, page);
     };
 
     page.addModeSelectListener((modeId: string) => {

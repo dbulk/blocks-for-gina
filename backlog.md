@@ -4,12 +4,6 @@
 
 See [ai-workflow.md](ai-workflow.md) for the full step-by-step execution process.
 
-## #settings-split
-Persistent prefs vs run setup split
-- Preferences: audio and visuals only
-- Run setup: board generation and mode knobs
-- Remove mixed semantics in one panel
-
 ## #sandbox-setup-flow
 Sandbox setup before game start
 - Rows, columns, clustering inputs
@@ -40,9 +34,9 @@ Timed mode first playable version
 - End condition on timer expiry
 - Mode-specific game-over summary
 
-## #move-limited-v1
-Move-limited mode first playable version
-- Fixed move budget
+## #sprint-mode-v1
+Sprint mode first playable version
+- Fixed move budget (30 moves)
 - End condition on budget exhaustion
 - Mode-specific summary details
 
@@ -69,3 +63,33 @@ New mode authoring contract
 - Mode registration checklist
 - Rule hooks and summary hooks
 - Test template for new mode PRs
+
+## #antigravity-mode-v1
+Antigravity mode first playable version
+- Blocks float upward instead of falling down
+- Clear from the top of the board
+- New gravity direction rendering pass
+
+## #cascade-mode-v1
+Cascade mode first playable version
+- Each pop triggers a chain reaction on neighbours
+- Combo multiplier scoring
+- Chain animation and combo HUD indicator
+
+## #precision-mode-v1
+Precision mode first playable version
+- Define minimum cluster size to score
+- Pops below threshold do not count
+- HUD shows minimum cluster requirement
+
+## #zen-mode-v1
+Zen mode first playable version
+- No timer, no move limit, no game over state
+- Infinite play until player exits
+- No competitive scoring or leaderboard entry
+
+## #sandbox-mode-v1
+Sandbox mode first playable version (depends on #sandbox-setup-flow)
+- Board config screen before game start
+- Rows, columns, clustering, block count inputs
+- Non-competitive, no leaderboard entry

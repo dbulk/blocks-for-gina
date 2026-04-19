@@ -313,14 +313,15 @@ styleElement.textContent = `
   }
 
   .mode-toggles {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 10px;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    width: fit-content;
+    margin: 0 auto;
   }
 
   button.mode-toggle {
-    padding: 8px 22px;
+    padding: 10px 24px;
     font-size: clamp(13px, 1.8vw, 15px);
     font-weight: 600;
     border-radius: 6px;
@@ -328,7 +329,15 @@ styleElement.textContent = `
     background-color: rgba(255, 255, 255, 0.07);
     color: #bbb;
     cursor: pointer;
+    white-space: nowrap;
     transition: border-color 0.15s, background-color 0.15s, color 0.15s;
+  }
+
+  button.mode-toggle:disabled {
+    opacity: 0.35;
+    cursor: default;
+    border-color: #444;
+    color: #888;
   }
 
   button.mode-toggle:hover:not(.selected) {
