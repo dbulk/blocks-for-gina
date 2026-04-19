@@ -4,18 +4,6 @@
 
 See [ai-workflow.md](ai-workflow.md) for the full step-by-step execution process.
 
-## #mode-select-entry
-Mode picker landing screen
-- Arcade and Sandbox as first choices
-- Clear mode card affordances
-- Future modes discoverable
-
-## #game-over-return-select
-Post-run return to mode selection
-- Replace auto-restart behavior
-- Keep replay same mode option
-- Preserve summary before transition
-
 ## #settings-split
 Persistent prefs vs run setup split
 - Preferences: audio and visuals only
