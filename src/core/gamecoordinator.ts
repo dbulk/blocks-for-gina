@@ -14,6 +14,17 @@ import type Renderer from '@/rendering/renderer';
 
 const MOVERATE = 0.15;
 const GAME_OVER_FADE_STEP = 0.375;
+
+interface GameCoordinatorDependencies {
+  eventBus?: GameEventBus
+  gameLoopManager?: GameLoopManager
+  sessionStorage?: SessionStorage
+  audioController?: AudioController
+  highScores?: LocalHighScores
+  autoStartLoop?: boolean
+  attachBeforeUnloadListener?: boolean
+}
+
 class GameCoordinator {
   renderer: Renderer;
   settings: GameSettings;
@@ -33,17 +44,23 @@ class GameCoordinator {
   private readonly soundEffectSrc = new URL('../assets/audio/pop.wav', import.meta.url).href;
   private readonly musicSrc = new URL('../assets/audio/music.mp3', import.meta.url).href;
 
-  constructor (renderer: Renderer, settings: GameSettings, settingsPresenter: SettingsPresenter, page: HTMLInterface) {
+  constructor (
+    renderer: Renderer,
+    settings: GameSettings,
+    settingsPresenter: SettingsPresenter,
+    page: HTMLInterface,
+    dependencies: GameCoordinatorDependencies = {}
+  ) {
     this.renderer = renderer;
     this.settings = settings;
     this.settingsPresenter = settingsPresenter;
-    this.eventBus = new GameEventBus();
-    this.gameLoopManager = new GameLoopManager();
-    this.sessionStorage = new SessionStorage();
-    this.audioController = new AudioController(this.soundEffectSrc, this.musicSrc);
+    this.eventBus = dependencies.eventBus ?? new GameEventBus();
+    this.gameLoopManager = dependencies.gameLoopManager ?? new GameLoopManager();
+    this.sessionStorage = dependencies.sessionStorage ?? new SessionStorage();
+    this.audioController = dependencies.audioController ?? new AudioController(this.soundEffectSrc, this.musicSrc);
     this.gameState = new GameState(() => {});
     this.scoreBoard = new ScoreBoard(this.gameState, page.scoreDisplay);
-    this.highScores = new LocalHighScores();
+    this.highScores = dependencies.highScores ?? new LocalHighScores();
     this.registerEventListeners();
 
     this.page = page;
@@ -55,12 +72,16 @@ class GameCoordinator {
 
     this.deserialize();
     this.setAudioState();
-    this.gameLoopManager.start(this.gameLoop.bind(this));
+    if (dependencies.autoStartLoop ?? true) {
+      this.gameLoopManager.start(this.gameLoop.bind(this));
+    }
 
     if (!this.gameState.hasMoreMoves()) {
       this.newGame();
     }
-    window.addEventListener('beforeunload', this.serialize.bind(this));
+    if (dependencies.attachBeforeUnloadListener ?? true) {
+      window.addEventListener('beforeunload', this.serialize.bind(this));
+    }
   }
 
   private registerEventListeners (): void {
