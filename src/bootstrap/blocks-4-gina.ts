@@ -24,10 +24,18 @@ class Blocks4Gina extends HTMLElement {
     window.addEventListener('resize', resizeLayout);
     resizeLayout();
     page.resize();
-    page.addModeSelectListener((modeId: string) => {
+    const startGame = (modeId: string): void => {
       gameSettings.modeId = modeId;
       page.setSessionUIState('inGame');
       new GameRunner(renderer, gameSettings, settingsPresenter, page);
+    };
+
+    page.addModeSelectListener((modeId: string) => {
+      startGame(modeId);
+    });
+
+    page.addChangeModeClickListener(() => {
+      page.setSessionUIState('modeSelect');
     });
   }
 }
