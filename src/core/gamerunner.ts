@@ -4,6 +4,7 @@ import ScoreBoard from '@/persistence/scoreboard';
 import LocalHighScores from '@/persistence/highscores';
 import type GameSettings from '@/core/gamesettings';
 import type HTMLInterface from '@/presentation/htmlinterface';
+import type SettingsPresenter from '@/presentation/settingspresenter';
 import type Renderer from '@/rendering/renderer';
 
 const MOVERATE = 0.15;
@@ -14,6 +15,7 @@ class GameRunner {
   gameState: GameState;
   canvas: HTMLCanvasElement;
   private readonly page: HTMLInterface;
+  private readonly settingsPresenter: SettingsPresenter;
   scoreBoard: ScoreBoard;
   private readonly audioController: AudioController;
   gameOverAnimationState = 0;
@@ -21,9 +23,10 @@ class GameRunner {
   private hasShownGameOverSummary: boolean = false;
   private readonly highScores: LocalHighScores;
 
-  constructor (renderer: Renderer, settings: GameSettings, page: HTMLInterface) {
+  constructor (renderer: Renderer, settings: GameSettings, settingsPresenter: SettingsPresenter, page: HTMLInterface) {
     this.renderer = renderer;
     this.settings = settings;
+    this.settingsPresenter = settingsPresenter;
     this.audioController = new AudioController('/sound.wav', '/scott-buckley-permafrost(chosic.com).mp3');
     this.gameState = new GameState(this.playSoundEffect.bind(this));
     this.scoreBoard = new ScoreBoard(this.gameState, page.scoreDisplay);
@@ -179,8 +182,8 @@ class GameRunner {
     });
 
     this.page.ui.addResetSettingsListener(() => {
-      this.settings.resetToDefaults();
-      this.settings.uiAllToSettings();
+      this.settingsPresenter.resetToDefaults();
+      this.settingsPresenter.uiAllToSettings();
       this.setAudioState();
       this.gameState.blocksDirty = true;
     });
@@ -210,24 +213,25 @@ class GameRunner {
     });
 
     this.page.ui.addInputColorsInputListener(() => {
-      this.settings.uiColorsToSettings();
+      this.settingsPresenter.uiColorsToSettings();
       this.gameState.blocksDirty = true;
     });
 
     this.page.ui.addInputBlockStyleListener(() => {
-      this.settings.uiToSettings();
+      this.settingsPresenter.uiToSettings();
       this.gameState.blocksDirty = true;
     });
   }
 
   private startNewGameFromUI (): void {
-    this.settings.uiAllToSettings();
+    this.settingsPresenter.uiAllToSettings();
     this.setAudioState();
     this.newGame();
   }
 
   private setAudioState (): void {
-    this.audioController.applySettings(this.settings.ui.getTogMusic(), this.settings.ui.getTogSound());
+    this.settingsPresenter.syncAudioToSettings();
+    this.audioController.applySettings(this.settings.isMusicEnabled, this.settings.isSoundEnabled);
   }
 
   private getClockText (): string {
@@ -254,6 +258,7 @@ class GameRunner {
     if (data !== null) {
       const { state, settings } = JSON.parse(data) as { state: unknown, settings: unknown };
       this.settings.deserialize(settings as Parameters<typeof this.settings.deserialize>[0]);
+      this.settingsPresenter.settingsToUI();
       this.gameState.deserialize(state as Parameters<typeof this.gameState.deserialize>[0]);
       this.setAudioState();
       this.renderer.adjustCanvasSize(this.page.getCanvasSizeConstraints());

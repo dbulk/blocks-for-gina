@@ -1,4 +1,3 @@
-import type UINodes from '@/presentation/uinodes';
 import { DEFAULT_BLOCK_STYLE, isBlockStyle, type BlockStyle } from '@/rendering/blockstyle';
 
 interface serializationPayload {
@@ -19,12 +18,11 @@ class GameSettings {
   clusterStrength!: number;
   blockLabels!: boolean;
   blockStyle!: BlockStyle;
-  ui: UINodes;
+  isMusicEnabled: boolean = true;
+  isSoundEnabled: boolean = true;
 
-  constructor (ui: UINodes) {
-    this.ui = ui;
+  constructor () {
     this.loadSettings();
-    this.settingsToUI();
   }
 
   loadSettings (): void {
@@ -36,6 +34,8 @@ class GameSettings {
     this.clusterStrength = 0.2;
     this.blockLabels = false;
     this.blockStyle = DEFAULT_BLOCK_STYLE;
+    this.isMusicEnabled = true;
+    this.isSoundEnabled = true;
   }
 
   deserialize (settings: serializationPayload): void {
@@ -44,9 +44,8 @@ class GameSettings {
     this.numRows = 'numRows' in settings ? settings.numRows : 10;
     this.clusterStrength = 'clusterStrength' in settings ? settings.clusterStrength : 0.2;
     this.blockStyle = 'blockStyle' in settings && isBlockStyle(settings.blockStyle) ? settings.blockStyle : DEFAULT_BLOCK_STYLE;
-    this.ui.setTogMusic(settings.isMusicEnabled);
-    this.ui.setTogSound(settings.isSoundEnabled);
-    this.settingsToUI();
+    this.isMusicEnabled = 'isMusicEnabled' in settings ? settings.isMusicEnabled : true;
+    this.isSoundEnabled = 'isSoundEnabled' in settings ? settings.isSoundEnabled : true;
   }
 
   serialize (): serializationPayload {
@@ -56,43 +55,13 @@ class GameSettings {
       numRows: this.numRows,
       clusterStrength: this.clusterStrength,
       blockStyle: this.blockStyle,
-      isMusicEnabled: this.ui.getTogMusic(),
-      isSoundEnabled: this.ui.getTogSound()
+      isMusicEnabled: this.isMusicEnabled,
+      isSoundEnabled: this.isSoundEnabled
     };
-  }
-
-  settingsToUI (): void {
-    this.ui.setInputRows(this.numRows);
-    this.ui.setInputColumns(this.numColumns);
-    this.ui.setInputClusterStrength(this.clusterStrength);
-    this.ui.setInputBlockStyle(this.blockStyle);
-    this.ui.setInputColors(this.blockColors);
   }
 
   resetToDefaults (): void {
     this.loadSettings();
-    this.settingsToUI();
-    this.ui.setTogMusic(true);
-    this.ui.setTogSound(true);
-  }
-
-  uiToSettings (): void {
-    // note: this shouldn't be called 'mid-game'
-    this.numRows = this.ui.getInputRows();
-    this.numColumns = this.ui.getInputColumns();
-    this.clusterStrength = this.ui.getInputClusterStrength();
-    this.blockStyle = this.ui.getInputBlockStyle();
-  }
-
-  uiAllToSettings (): void {
-    this.uiToSettings();
-    this.uiColorsToSettings();
-  }
-
-  uiColorsToSettings (): void {
-    // this is safe to call mid game
-    this.blockColors = [];
-    this.ui.getInputColors(this.blockColors);
   }
 }
 export default GameSettings;

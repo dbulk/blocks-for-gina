@@ -1,6 +1,7 @@
 import HTMLInterface from '@/presentation/htmlinterface';
 import GameRunner from '@/core/gamerunner';
 import GameSettings from '@/core/gamesettings';
+import SettingsPresenter from '@/presentation/settingspresenter';
 import Renderer from '@/rendering/renderer';
 
 class Blocks4Gina extends HTMLElement {
@@ -9,7 +10,9 @@ class Blocks4Gina extends HTMLElement {
     const page = new HTMLInterface(shadow);
     const canvas = page.canvas;
     const ui = page.ui;
-    const gameSettings = new GameSettings(ui);
+    const gameSettings = new GameSettings();
+    const settingsPresenter = new SettingsPresenter(gameSettings, ui);
+    settingsPresenter.settingsToUI();
     const renderer = new Renderer(canvas, gameSettings);
     const resizeLayout = (): void => {
       renderer.adjustCanvasSize(page.getCanvasSizeConstraints());
@@ -21,7 +24,7 @@ class Blocks4Gina extends HTMLElement {
     page.addStartClickListener(() => {
       page.setSessionUIState('inGame');
       
-      new GameRunner(renderer, gameSettings, page);
+      new GameRunner(renderer, gameSettings, settingsPresenter, page);
     });
   }
 }
