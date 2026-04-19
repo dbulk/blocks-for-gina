@@ -2,23 +2,29 @@
 
 Gina was playing blocks at 1001games, I thought the game was ugly and it would be fun to make my own. Mostly I'm just playing around with making a game using canvas api.
 
-## Todos
-### New Features
- - redo support (?), break undo from serialization interface and serialize undo stack (?)
- - high scores somewhere
+## Development
 
-### Enhancements
- - Consider putting music buttons in settings
- - mobile: better layout esp. ui, disable preview with touch
- - reset button for settings
- - could do better with responsive layout (settings, scoreboard)...
+- Install dependencies: `npm install`
+- Run dev server: `npm run dev`
+- Typecheck: `npm run typecheck`
+- Test: `npm run test`
+- Build: `npm run build`
 
-### Optimization
- - optimize render with blockdirty or column dirty...or even tiling
+## Project Structure
 
-### Debug
- - FR tracking
- - logging
+- src/bootstrap: entrypoint and app composition.
+- src/core: game rules/state/loop orchestration.
+- src/presentation: overlays, HUD, and UI controls.
+- src/rendering: canvas renderer and block styles.
+- src/persistence: high scores and scoreboard integration.
+- src/audio: music and sound control.
+- src/events: typed event contracts for future event bus work.
+- src/styling: stylesheets and style element definitions.
+- tests: centralized test tree by responsibility.
 
-### Bugs
- - need to apply down-move before left-move
+## Docs
+
+- docs/ARCHITECTURE.md
+- docs/MODULES.md
+- docs/EXTENDING_GAME.md
+- roadmap.md
