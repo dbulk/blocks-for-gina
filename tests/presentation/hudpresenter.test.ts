@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import GameState from './gamestate';
-import HudPresenter from './hudpresenter';
+import GameState from '@/core/gamestate';
+import HudPresenter from '@/presentation/hudpresenter';
 
 const makeStateFromGrid = (griddata: Array<Array<number | null>>, score: number = 0): GameState => {
   const state = new GameState(() => {});

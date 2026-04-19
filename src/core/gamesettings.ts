@@ -1,5 +1,5 @@
-import type UINodes from './uinodes.js';
-import { DEFAULT_BLOCK_STYLE, isBlockStyle, type BlockStyle } from './blockstyle.js';
+import type UINodes from '@/presentation/uinodes';
+import { DEFAULT_BLOCK_STYLE, isBlockStyle, type BlockStyle } from '@/rendering/blockstyle';
 
 interface serializationPayload {
   blockColors: string[]

@@ -1,6 +1,6 @@
-import type GameSettings from './gamesettings.js';
-import type GameState from './gamestate.js';
-import type { BlockStyle } from './blockstyle.js';
+import type GameSettings from '@/core/gamesettings';
+import type GameState from '@/core/gamestate';
+import type { BlockStyle } from '@/rendering/blockstyle';
 
 interface coordinate {
   row: number

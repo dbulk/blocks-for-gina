@@ -1,9 +1,10 @@
-import GameState from './gamestate.js';
-import ScoreBoard from './scoreboard.js';
-import LocalHighScores from './highscores.js';
-import type GameSettings from './gamesettings.js';
-import type htmlInterface from './htmlinterface.js';
-import type Renderer from './renderer.js';
+import GameState from '@/core/gamestate';
+import AudioController from '@/audio/audiocontroller';
+import ScoreBoard from '@/persistence/scoreboard';
+import LocalHighScores from '@/persistence/highscores';
+import type GameSettings from '@/core/gamesettings';
+import type HTMLInterface from '@/presentation/htmlinterface';
+import type Renderer from '@/rendering/renderer';
 
 const MOVERATE = 0.15;
 const GAME_OVER_FADE_STEP = 0.375;
@@ -12,20 +13,18 @@ class GameRunner {
   settings: GameSettings;
   gameState: GameState;
   canvas: HTMLCanvasElement;
-  private readonly page: htmlInterface;
-  audio: HTMLAudioElement;
-  music: HTMLAudioElement;
-  soundEnabled: boolean = true;
+  private readonly page: HTMLInterface;
   scoreBoard: ScoreBoard;
+  private readonly audioController: AudioController;
   gameOverAnimationState = 0;
   private animationLoopRunning: boolean = false;
   private hasShownGameOverSummary: boolean = false;
   private readonly highScores: LocalHighScores;
 
-  constructor (renderer: Renderer, settings: GameSettings, page: htmlInterface) {
+  constructor (renderer: Renderer, settings: GameSettings, page: HTMLInterface) {
     this.renderer = renderer;
     this.settings = settings;
-    this.audio = new Audio('./sound.wav');
+    this.audioController = new AudioController('/sound.wav', '/scott-buckley-permafrost(chosic.com).mp3');
     this.gameState = new GameState(this.playSoundEffect.bind(this));
     this.scoreBoard = new ScoreBoard(this.gameState, page.scoreDisplay);
     this.highScores = new LocalHighScores();
@@ -37,9 +36,7 @@ class GameRunner {
     this.newGame();
     this.attachListeners();
 
-    this.music = new Audio('./scott-buckley-permafrost(chosic.com).mp3');
-    this.music.loop = true;
-    this.music.play().catch(() => { });
+    this.audioController.startMusic();
     this.gameLoop();
     this.deserialize();
 
@@ -230,12 +227,7 @@ class GameRunner {
   }
 
   private setAudioState (): void {
-    if (this.settings.ui.getTogMusic()) {
-      this.music.play().catch(() => { });
-    } else {
-      this.music.pause();
-    }
-    this.soundEnabled = this.settings.ui.getTogSound();
+    this.audioController.applySettings(this.settings.ui.getTogMusic(), this.settings.ui.getTogSound());
   }
 
   private getClockText (): string {
@@ -247,9 +239,7 @@ class GameRunner {
   }
 
   playSoundEffect (): void {
-    if (this.soundEnabled) {
-      this.audio.play().catch(() => { });
-    }
+    this.audioController.playSoundEffect();
   }
 
   serialize (): void {

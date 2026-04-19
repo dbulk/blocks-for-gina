@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import GameState from './gamestate';
+import GameState from '@/core/gamestate';
 
 interface TestPayload {
   griddata: Array<Array<number | null>>

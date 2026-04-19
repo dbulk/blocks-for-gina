@@ -1,6 +1,6 @@
-import type GameState from './gamestate';
-import type HudView from './scoredisplay';
-import HudPresenter from './hudpresenter';
+import type GameState from '@/core/gamestate';
+import type HudView from '@/presentation/scoredisplay';
+import HudPresenter from '@/presentation/hudpresenter';
 
 class ScoreBoard {
   gameState: GameState;

@@ -1,10 +1,10 @@
-import styleElement from './gamestyle.js';
-import UINodes from './uinodes.js';
-import HudView from './scoredisplay.js';
-import StartOverlayView from './startoverlayview.js';
-import GameOverOverlayView from './gameoveroverlayview.js';
-import type { HighScoreEntry } from './highscores.js';
-import type { CanvasSizeConstraints } from './renderer.js';
+import styleElement from '@/styling/gamestyle';
+import UINodes from '@/presentation/uinodes';
+import HudView from '@/presentation/scoredisplay';
+import StartOverlayView from '@/presentation/startoverlayview';
+import GameOverOverlayView from '@/presentation/gameoveroverlayview';
+import type { HighScoreEntry } from '@/persistence/highscores';
+import type { CanvasSizeConstraints } from '@/rendering/renderer';
 
 type SessionUIState = 'preGame' | 'inGame' | 'paused' | 'gameOverSummary';
 

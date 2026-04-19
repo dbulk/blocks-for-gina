@@ -1,5 +1,5 @@
-import type GameState from './gamestate';
-import type { HudMetric } from './hudmetric';
+import type GameState from '@/core/gamestate';
+import type { HudMetric } from '@/presentation/hudmetric';
 
 class HudPresenter {
   getMetrics (gameState: GameState): HudMetric[] {

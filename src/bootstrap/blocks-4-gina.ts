@@ -1,7 +1,7 @@
-import HTMLInterface from './htmlinterface.js';
-import GameRunner from './gamerunner.js';
-import GameSettings from './gamesettings.js';
-import Renderer from './renderer.js';
+import HTMLInterface from '@/presentation/htmlinterface';
+import GameRunner from '@/core/gamerunner';
+import GameSettings from '@/core/gamesettings';
+import Renderer from '@/rendering/renderer';
 
 class Blocks4Gina extends HTMLElement {
   connectedCallback (): void {

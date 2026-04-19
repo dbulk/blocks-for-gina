@@ -1,4 +1,4 @@
-import type { HighScoreEntry } from './highscores.js';
+import type { HighScoreEntry } from '@/persistence/highscores';
 
 class GameOverOverlayView {
   private readonly fadeDurationMs = 4000;

@@ -1,4 +1,4 @@
-import { BLOCK_STYLES, DEFAULT_BLOCK_STYLE, type BlockStyle } from './blockstyle.js';
+import { BLOCK_STYLES, DEFAULT_BLOCK_STYLE, type BlockStyle } from '@/rendering/blockstyle';
 
 function setButtonProperties (button: HTMLButtonElement, text: string, isToggle: boolean, div: HTMLDivElement): HTMLButtonElement {
   button.textContent = text;
