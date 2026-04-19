@@ -24,9 +24,9 @@ class Blocks4Gina extends HTMLElement {
     window.addEventListener('resize', resizeLayout);
     resizeLayout();
     page.resize();
-    page.addStartClickListener(() => {
+    page.addModeSelectListener((modeId: string) => {
+      gameSettings.modeId = modeId;
       page.setSessionUIState('inGame');
-      
       new GameRunner(renderer, gameSettings, settingsPresenter, page);
     });
   }
