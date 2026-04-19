@@ -36,7 +36,23 @@ class Blocks4Gina extends HTMLElement {
     };
 
     page.addModeSelectListener((modeId: string) => {
-      startGame(modeId);
+      if (modeId === 'sandbox') {
+        page.setSessionUIState('sandboxSetup');
+      } else {
+        startGame(modeId);
+      }
+    });
+
+    page.addSandboxStartListener((config) => {
+      gameSettings.numRows = config.numRows;
+      gameSettings.numColumns = config.numColumns;
+      gameSettings.numBlockTypes = config.numBlockTypes;
+      gameSettings.clusterStrength = config.clusterStrength;
+      startGame('sandbox');
+    });
+
+    page.addSandboxBackListener(() => {
+      page.setSessionUIState('modeSelect');
     });
 
     page.addChangeModeClickListener(() => {

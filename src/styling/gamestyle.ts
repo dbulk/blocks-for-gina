@@ -370,6 +370,77 @@ styleElement.textContent = `
     background-color: #00779d;
   }
 
+  .sandbox-setup-title {
+    margin: 0 0 4px;
+    text-align: center;
+    color: #d5f4ff;
+    font-size: clamp(22px, 3.5vw, 32px);
+  }
+
+  .sandbox-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px 20px;
+    margin: 12px 0;
+  }
+
+  .sandbox-field {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .sandbox-field label {
+    font-size: 13px;
+    color: #aaa;
+    letter-spacing: 0.04em;
+  }
+
+  .sandbox-number {
+    width: 100%;
+    padding: 6px 10px;
+    background: #1a1a2e;
+    border: 1px solid #444;
+    border-radius: 6px;
+    color: #e0e0e0;
+    font-size: 15px;
+    box-sizing: border-box;
+  }
+
+  .sandbox-number:focus {
+    outline: none;
+    border-color: #0089b3;
+  }
+
+  .sandbox-range {
+    width: 100%;
+    accent-color: #0089b3;
+    cursor: pointer;
+  }
+
+  .sandbox-cluster-value {
+    font-size: 13px;
+    color: #8df;
+    margin-left: 4px;
+  }
+
+  button.sandbox-back-btn {
+    display: block;
+    margin: 8px auto 0;
+    padding: 8px 28px;
+    font-size: 14px;
+    background-color: transparent;
+    border: 2px solid #555;
+    color: #bbb;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+
+  button.sandbox-back-btn:hover {
+    border-color: #888;
+    color: #ddd;
+  }
+
   .game-over-action-row {
     display: flex;
     gap: 10px;

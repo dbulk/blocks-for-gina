@@ -4,6 +4,7 @@ import HudView from '@/presentation/scoredisplay';
 import StartOverlayView from '@/presentation/startoverlayview';
 import GameOverOverlayView from '@/presentation/gameoveroverlayview';
 import ModeSelectView from '@/presentation/modeselectview';
+import SandboxSetupView, { type SandboxConfig } from '@/presentation/sandboxsetupview';
 import OverlayManager, { type SessionUIState } from '@/presentation/overlaymanager';
 import type { HighScoreEntry } from '@/persistence/highscores';
 import type { CanvasSizeConstraints } from '@/rendering/renderer';
@@ -20,6 +21,7 @@ class HTMLInterface {
   private readonly startOverlay: StartOverlayView;
   private readonly gameOverOverlay: GameOverOverlayView;
   private readonly modeSelectView: ModeSelectView;
+  private readonly sandboxSetupView: SandboxSetupView;
   private sessionUIState: SessionUIState = 'modeSelect';
 
   constructor (root: ShadowRoot) {
@@ -61,10 +63,12 @@ class HTMLInterface {
     this.startOverlay = new StartOverlayView();
     this.gameOverOverlay = new GameOverOverlayView();
     this.modeSelectView = new ModeSelectView();
+    this.sandboxSetupView = new SandboxSetupView();
 
     div.appendChild(this.scoreDisplay.div);
     this.playfield.appendChild(this.canvas);
     this.overlayManager.register('modeSelect', this.modeSelectView);
+    this.overlayManager.register('sandboxSetup', this.sandboxSetupView);
     this.overlayManager.register('start', this.startOverlay);
     this.overlayManager.register('gameOver', this.gameOverOverlay);
     this.playfield.appendChild(this.overlayLayer);
@@ -111,10 +115,18 @@ class HTMLInterface {
     this.setSessionUIState('inGame');
   }
 
+  addSandboxStartListener (callback: (config: SandboxConfig) => void): void {
+    this.sandboxSetupView.addStartListener(callback);
+  }
+
+  addSandboxBackListener (callback: () => void): void {
+    this.sandboxSetupView.addBackListener(callback);
+  }
+
   setSessionUIState (state: SessionUIState): void {
     this.sessionUIState = state;
     this.overlayManager.setState(state);
-    const showSplash = state === 'modeSelect' || state === 'preGame';
+    const showSplash = state === 'modeSelect' || state === 'preGame' || state === 'sandboxSetup';
     this.canvas.style.display = showSplash ? 'none' : 'block';
 
     const showHudAndControls = !showSplash;
