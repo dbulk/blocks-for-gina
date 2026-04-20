@@ -64,7 +64,7 @@ class SessionStorage {
     const snapshot = this.load();
     if (snapshot === null) return false;
     const settings = snapshot.settings as Record<string, unknown>;
-    return typeof settings?.modeId === 'string' && settings.modeId !== 'sandbox';
+    return typeof settings?.modeId === 'string';
   }
 
   getSavedModeId (): string | null {
