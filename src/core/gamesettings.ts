@@ -1,6 +1,7 @@
 interface serializationPayload {
   numColumns: number
   numRows: number
+  numBlockTypes: number
   clusterStrength: number
   modeId?: string
 }
@@ -29,6 +30,7 @@ class GameSettings {
   deserialize (settings: serializationPayload): void {
     this.numColumns = 'numColumns' in settings ? settings.numColumns : 20;
     this.numRows = 'numRows' in settings ? settings.numRows : 10;
+    this.numBlockTypes = 'numBlockTypes' in settings ? settings.numBlockTypes : 5;
     this.clusterStrength = 'clusterStrength' in settings ? settings.clusterStrength : 0.2;
     this.modeId = typeof settings.modeId === 'string' ? settings.modeId : 'classic';
   }
@@ -37,6 +39,7 @@ class GameSettings {
     return {
       numColumns: this.numColumns,
       numRows: this.numRows,
+      numBlockTypes: this.numBlockTypes,
       clusterStrength: this.clusterStrength,
       modeId: this.modeId
     };

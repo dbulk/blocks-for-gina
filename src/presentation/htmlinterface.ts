@@ -86,6 +86,14 @@ class HTMLInterface {
     this.modeSelectView.addModeCardClickListener(callback);
   }
 
+  addResumeClickListener (callback: () => void): void {
+    this.modeSelectView.addResumeClickListener(callback);
+  }
+
+  setResumeVisible (visible: boolean, modeId?: string): void {
+    this.modeSelectView.setResumeVisible(visible, modeId);
+  }
+
   addStartClickListener (func: () => void): void {
     this.startOverlay.addStartClickListener(func);
   }
@@ -111,12 +119,18 @@ class HTMLInterface {
     this.setSessionUIState('inGame');
   }
 
+  private modeSelectShownListeners: Array<() => void> = [];
+
   addSandboxStartListener (callback: (config: SandboxConfig) => void): void {
     this.sandboxSetupView.addStartListener(callback);
   }
 
   addSandboxBackListener (callback: () => void): void {
     this.sandboxSetupView.addBackListener(callback);
+  }
+
+  addModeSelectShownListener (callback: () => void): void {
+    this.modeSelectShownListeners.push(callback);
   }
 
   setSessionUIState (state: SessionUIState): void {
@@ -128,6 +142,9 @@ class HTMLInterface {
     const showHudAndControls = !showSplash;
     this.ui.setVisibility(showHudAndControls);
     this.scoreDisplay.setVisibility(showHudAndControls);
+    if (state === 'modeSelect') {
+      for (const cb of this.modeSelectShownListeners) cb();
+    }
   }
 
   resize (): void {

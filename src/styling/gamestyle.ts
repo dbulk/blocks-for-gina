@@ -385,6 +385,27 @@ styleElement.textContent = `
     background-color: #00779d;
   }
 
+  button.mode-resume-btn {
+    display: block;
+    margin: 0 auto 10px;
+    padding: 14px 48px;
+    font-size: clamp(15px, 2vw, 18px);
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    background-color: transparent;
+    border: 2px solid #0089b3;
+    color: #d5f4ff;
+  }
+
+  button.mode-resume-btn:hover {
+    background-color: rgba(0, 137, 179, 0.2);
+    border-color: #1aaad8;
+  }
+
+  button.mode-resume-btn:active {
+    background-color: rgba(0, 137, 179, 0.35);
+  }
+
   .sandbox-setup-title {
     margin: 0 0 4px;
     text-align: center;

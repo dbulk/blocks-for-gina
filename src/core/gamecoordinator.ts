@@ -25,6 +25,7 @@ interface GameCoordinatorDependencies {
   highScores?: LocalHighScores
   autoStartLoop?: boolean
   attachBeforeUnloadListener?: boolean
+  skipSessionRestore?: boolean
 }
 
 class GameCoordinator {
@@ -75,7 +76,9 @@ class GameCoordinator {
     this.newGame();
     this.attachListeners();
 
-    this.deserialize();
+    if (!(dependencies.skipSessionRestore ?? false)) {
+      this.deserialize();
+    }
     this.setAudioState();
     if (dependencies.autoStartLoop ?? true) {
       this.gameLoopManager.start(this.gameLoop.bind(this));
@@ -348,9 +351,6 @@ class GameCoordinator {
   }
 
   deserialize (): void {
-    if (this.settings.modeId === 'sandbox') {
-      return;
-    }
     const snapshot = this.sessionStorage.load();
     if (snapshot === null) {
       return;
