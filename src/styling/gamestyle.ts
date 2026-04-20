@@ -271,7 +271,7 @@ styleElement.textContent = `
     position: fixed;
     inset: 0;
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     justify-content: center;
     padding: 10px;
     box-sizing: border-box;
@@ -291,6 +291,7 @@ styleElement.textContent = `
     border-radius: 12px;
     background-color: rgba(0, 0, 0, 0.35);
     box-sizing: border-box;
+    margin: auto;
   }
 
   .mode-select-title {
@@ -314,15 +315,22 @@ styleElement.textContent = `
 
   .mode-toggles {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(2, 1fr);
     gap: 8px;
-    width: fit-content;
+    width: 100%;
     margin: 0 auto;
   }
 
+  @media (min-width: 560px) {
+    .mode-toggles {
+      grid-template-columns: repeat(4, 1fr);
+      width: fit-content;
+    }
+  }
+
   button.mode-toggle {
-    padding: 10px 24px;
-    font-size: clamp(13px, 1.8vw, 15px);
+    padding: 10px 12px;
+    font-size: clamp(12px, 3.5vw, 15px);
     font-weight: 600;
     border-radius: 6px;
     border: 2px solid #555;
@@ -331,6 +339,13 @@ styleElement.textContent = `
     cursor: pointer;
     white-space: nowrap;
     transition: border-color 0.15s, background-color 0.15s, color 0.15s;
+  }
+
+  @media (min-width: 560px) {
+    button.mode-toggle {
+      padding: 10px 24px;
+      font-size: clamp(13px, 1.8vw, 15px);
+    }
   }
 
   button.mode-toggle:disabled {
