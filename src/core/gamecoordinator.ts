@@ -348,6 +348,9 @@ class GameCoordinator {
   }
 
   deserialize (): void {
+    if (this.settings.modeId === 'sandbox') {
+      return;
+    }
     const snapshot = this.sessionStorage.load();
     if (snapshot === null) {
       return;
