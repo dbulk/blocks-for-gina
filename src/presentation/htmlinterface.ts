@@ -94,10 +94,6 @@ class HTMLInterface {
     this.gameOverOverlay.addPlayAgainClickListener(func);
   }
 
-  addChangeModeClickListener (func: () => void): void {
-    this.gameOverOverlay.addChangeModeClickListener(func);
-  }
-
   setGameOverSummary (
     score: number,
     time: string,

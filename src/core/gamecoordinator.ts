@@ -283,7 +283,7 @@ class GameCoordinator {
     });
 
     this.page.addPlayAgainClickListener(() => {
-      this.startNewGameFromUI();
+      this.page.setSessionUIState('modeSelect');
     });
 
     this.page.ui.addUndoListener(

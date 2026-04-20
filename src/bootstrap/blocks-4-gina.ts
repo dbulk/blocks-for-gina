@@ -54,10 +54,6 @@ class Blocks4Gina extends HTMLElement {
     page.addSandboxBackListener(() => {
       page.setSessionUIState('modeSelect');
     });
-
-    page.addChangeModeClickListener(() => {
-      page.setSessionUIState('modeSelect');
-    });
   }
 }
 
