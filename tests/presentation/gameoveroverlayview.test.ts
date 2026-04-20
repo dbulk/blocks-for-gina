@@ -11,7 +11,7 @@ describe('GameOverOverlayView', () => {
     const primary = view.container.querySelector('button.game-over-action-primary');
 
     expect(primary).not.toBeNull();
-    expect(primary?.textContent).toBe('Play Again');
+    expect(primary?.textContent).toBe('New Game');
 
     document.body.removeChild(view.container);
   });

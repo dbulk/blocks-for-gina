@@ -64,7 +64,7 @@ class GameOverOverlayView {
     this.leaderboardList.style.gap = '4px';
 
     this.playAgainButton = document.createElement('button');
-    this.playAgainButton.textContent = 'Play Again';
+    this.playAgainButton.textContent = 'New Game';
     this.playAgainButton.className = 'game-over-action-primary';
 
     const actionRow = document.createElement('div');
