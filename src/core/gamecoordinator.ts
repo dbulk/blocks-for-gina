@@ -288,7 +288,7 @@ class GameCoordinator {
 
     this.page.ui.addNewGameClickListener(
       () => {
-        this.page.setSessionUIState('modeSelect');
+        this.returnToModeSelect();
       }
     );
 
@@ -303,7 +303,7 @@ class GameCoordinator {
     });
 
     this.page.addPlayAgainClickListener(() => {
-      this.page.setSessionUIState('modeSelect');
+      this.returnToModeSelect();
     });
 
     this.page.ui.addUndoListener(
@@ -350,6 +350,11 @@ class GameCoordinator {
     this.settingsPresenter.uiToSettings();
     this.prefs.ensureBlockColorCapacity(this.settings.numBlockTypes);
     this.newGame();
+  }
+
+  private returnToModeSelect (): void {
+    this.serialize();
+    this.page.setSessionUIState('modeSelect');
   }
 
   private setAudioState (): void {

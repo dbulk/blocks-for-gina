@@ -311,6 +311,7 @@ describe('GameCoordinator event sequencing', () => {
   it('routes the toolbar Home button back to mode select', () => {
     const canvas = document.createElement('canvas');
     const setSessionUIState = vi.fn();
+    const save = vi.fn();
     let onNewGameClick: (() => void) | null = null;
 
     const renderer = {
@@ -378,7 +379,7 @@ describe('GameCoordinator event sequencing', () => {
       {
         eventBus: new GameEventBus(),
         gameLoopManager: { start: () => {}, stop: () => {} } as never,
-        sessionStorage: { save: () => {}, load: () => null } as never,
+        sessionStorage: { save, load: () => null } as never,
         audioController: { applySettings: () => {}, playSoundEffect: () => {} } as never,
         highScores: { record: () => ({ rank: null, topEntries: [] }) } as never,
         sandboxBest: { record: () => ({ bestEntry: null, isNewBest: false }) } as never,
@@ -391,5 +392,7 @@ describe('GameCoordinator event sequencing', () => {
     onNewGameClick?.();
 
     expect(setSessionUIState).toHaveBeenCalledWith('modeSelect');
+    expect(save).toHaveBeenCalledOnce();
+    expect(save).toHaveBeenCalledWith(expect.anything(), expect.objectContaining({ modeId: 'sandbox' }));
   });
 });
