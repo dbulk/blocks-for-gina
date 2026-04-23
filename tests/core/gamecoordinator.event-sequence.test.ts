@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import GameCoordinator from '@/core/gamecoordinator';
 import GameSettings from '@/core/gamesettings';
 import GameEventBus from '@/events/eventbus';
@@ -187,5 +187,104 @@ describe('GameCoordinator event sequencing', () => {
     expect((blocksPopped as { remainingBlocks: number }).remainingBlocks).toBeGreaterThanOrEqual(0);
     expect((gameEnded as { score: number }).score).toBeGreaterThanOrEqual(0);
     expect((gameEnded as { playedSeconds: number }).playedSeconds).toBeGreaterThanOrEqual(180);
+  });
+
+  it('does not record ranked highscores for sandbox runs', () => {
+    const canvas = document.createElement('canvas');
+    const record = vi.fn(() => ({ rank: 1, topEntries: [{ score: 25, elapsedSeconds: 10, rows: 8, columns: 8, playedAt: 1 }] }));
+    const setGameOverSummary = vi.fn();
+
+    const renderer = {
+      setGameState: () => {},
+      adjustCanvasSize: () => {},
+      renderBlocks: () => {},
+      renderPreview: () => {},
+      showGameOver: () => {},
+      getGridIndicesFromClientPosition: () => ({ row: 0, col: 0 })
+    };
+
+    const ui = {
+      setUndoEnabled: () => {},
+      setRedoEnabled: () => {},
+      addNewGameClickListener: () => {},
+      addApplySettingsListener: () => {},
+      addResetSettingsListener: () => {},
+      addUndoListener: () => {},
+      addRedoListener: () => {},
+      addTogMusicClickListener: () => {},
+      addTogSoundClickListener: () => {},
+      addInputColorsInputListener: () => {},
+      addInputBlockStyleListener: () => {}
+    };
+
+    const page = {
+      canvas,
+      ui,
+      scoreDisplay: { render: () => {} },
+      setSessionUIState: () => {},
+      setGameOverSummary,
+      getCanvasSizeConstraints: () => ({ width: 400, height: 300 }),
+      resize: () => {},
+      addPlayAgainClickListener: () => {}
+    };
+
+    const settingsPresenter = {
+      resetToDefaults: () => {},
+      uiAllToSettings: () => {},
+      syncAudioToSettings: () => {},
+      settingsToUI: () => {},
+      uiColorsToSettings: () => {},
+      uiToSettings: () => {}
+    };
+
+    const settings = new GameSettings();
+    settings.modeId = 'sandbox';
+
+    const coordinator = new GameCoordinator(
+      renderer as never,
+      settings,
+      {} as never,
+      settingsPresenter as never,
+      page as never,
+      {
+        eventBus: new GameEventBus(),
+        gameLoopManager: { start: () => {}, stop: () => {} } as never,
+        sessionStorage: { save: () => {}, load: () => null } as never,
+        audioController: { applySettings: () => {}, playSoundEffect: () => {} } as never,
+        highScores: { record } as never,
+        autoStartLoop: false,
+        attachBeforeUnloadListener: false
+      }
+    );
+
+    coordinator.gameState.deserialize({
+      griddata: [
+        [1, 1],
+        [2, 3]
+      ],
+      score: 0,
+      serializedGameDuration: 180000,
+      totalMoves: 0,
+      largestCluster: 0,
+      blocksPopped: 0
+    });
+
+    dispatchPointerUp(canvas);
+    (coordinator as unknown as { gameLoop: () => void }).gameLoop();
+
+    expect(record).not.toHaveBeenCalled();
+    expect(setGameOverSummary).toHaveBeenCalledWith(
+      'sandbox',
+      expect.any(Number),
+      expect.any(String),
+      expect.any(Number),
+      expect.any(Number),
+      expect.any(Number),
+      expect.any(Number),
+      [],
+      null,
+      expect.objectContaining({ score: expect.any(Number), rows: expect.any(Number), columns: expect.any(Number) }),
+      true
+    );
   });
 });

@@ -1,12 +1,13 @@
 import GameState from '@/core/gamestate';
 import GameLoopManager from '@/core/gameloopmanager';
 import { ARCADE_RUN_CONFIG } from '@/core/arcadeconfig';
+import { isCompetitiveMode } from '@/core/moderegistry';
 import { shouldEndGameForMode } from '@/core/moderules';
 import AudioController from '@/audio/audiocontroller';
 import GameEventBus from '@/events/eventbus';
 import ScoreBoard from '@/persistence/scoreboard';
 import SessionStorage from '@/persistence/sessionstorage';
-import LocalHighScores from '@/persistence/highscores';
+import LocalHighScores, { LocalSandboxBest } from '@/persistence/highscores';
 import type { BlocksPoppedEvent, GameEndedEvent, GameStartedEvent, ModeRulesAppliedEvent, ModeSelectedEvent } from '@/events/events';
 import type GameSettings from '@/core/gamesettings';
 import type UserPreferences from '@/core/userpreferences';
@@ -23,6 +24,7 @@ interface GameCoordinatorDependencies {
   sessionStorage?: SessionStorage
   audioController?: AudioController
   highScores?: LocalHighScores
+  sandboxBest?: LocalSandboxBest
   autoStartLoop?: boolean
   attachBeforeUnloadListener?: boolean
   skipSessionRestore?: boolean
@@ -42,6 +44,7 @@ class GameCoordinator {
   private animationLoopRunning: boolean = false;
   private hasShownGameOverSummary: boolean = false;
   private readonly highScores: LocalHighScores;
+  private readonly sandboxBest: LocalSandboxBest;
   private readonly eventBus: GameEventBus;
   private readonly gameLoopManager: GameLoopManager;
   private readonly sessionStorage: SessionStorage;
@@ -67,6 +70,7 @@ class GameCoordinator {
     this.gameState = new GameState(() => {});
     this.scoreBoard = new ScoreBoard(this.gameState, page.scoreDisplay);
     this.highScores = dependencies.highScores ?? new LocalHighScores();
+    this.sandboxBest = dependencies.sandboxBest ?? new LocalSandboxBest();
     this.registerEventListeners();
 
     this.page = page;
@@ -172,16 +176,23 @@ class GameCoordinator {
       if (!this.hasShownGameOverSummary) {
         const playedTime = this.gameState.getPlayedDuration();
         const elapsedSeconds = playedTime.hours * 3600 + playedTime.minutes * 60 + playedTime.seconds;
-        const recordResult = this.highScores.record({
+        const entry = {
           score: this.gameState.getScore(),
           elapsedSeconds,
           rows: this.settings.numRows,
           columns: this.settings.numColumns,
           playedAt: Date.now()
-        });
+        };
+        const recordResult = isCompetitiveMode(this.settings.modeId)
+          ? this.highScores.record(entry)
+          : { rank: null, topEntries: [] };
+        const sandboxBestResult = isCompetitiveMode(this.settings.modeId)
+          ? null
+          : this.sandboxBest.record(entry);
 
         this.page.setSessionUIState('gameOverSummary');
         this.page.setGameOverSummary(
+          this.settings.modeId,
           this.gameState.getScore(),
           this.getClockText(),
           this.gameState.getBlocksPopped(),
@@ -189,7 +200,9 @@ class GameCoordinator {
           this.gameState.getLargestCluster(),
           this.gameState.getTotalMoves(),
           recordResult.topEntries,
-          recordResult.rank
+          recordResult.rank,
+          sandboxBestResult?.bestEntry ?? null,
+          sandboxBestResult?.isNewBest ?? false
         );
 
         const gameEndedEvent: GameEndedEvent = {
