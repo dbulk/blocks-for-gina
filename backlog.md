@@ -52,12 +52,6 @@ Mode lifecycle integration coverage
 - End run -> return to selection flow
 - Replay same mode branch coverage
 
-## #session-schema-v2
-Session schema for split settings model
-- Persist preferences separately
-- Keep run setup ephemeral by default
-- Versioned migrate-on-load behavior
-
 ## #mode-extension-api
 New mode authoring contract
 - Mode registration checklist

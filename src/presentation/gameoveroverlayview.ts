@@ -14,7 +14,6 @@ class GameOverOverlayView {
   private readonly leaderboardTitle: HTMLDivElement;
   private readonly leaderboardList: HTMLDivElement;
   private readonly playAgainButton: HTMLButtonElement;
-  private readonly changeModeButton: HTMLButtonElement;
 
   constructor () {
     this.container = document.createElement('div');
@@ -65,17 +64,12 @@ class GameOverOverlayView {
     this.leaderboardList.style.gap = '4px';
 
     this.playAgainButton = document.createElement('button');
-    this.playAgainButton.textContent = 'Play Again';
+    this.playAgainButton.textContent = 'New Game';
     this.playAgainButton.className = 'game-over-action-primary';
-
-    this.changeModeButton = document.createElement('button');
-    this.changeModeButton.textContent = 'Change Mode';
-    this.changeModeButton.className = 'game-over-action-secondary';
 
     const actionRow = document.createElement('div');
     actionRow.className = 'game-over-action-row';
     actionRow.appendChild(this.playAgainButton);
-    actionRow.appendChild(this.changeModeButton);
 
     this.container.appendChild(this.title);
     this.container.appendChild(this.metricsGrid);
@@ -125,10 +119,6 @@ class GameOverOverlayView {
 
   addPlayAgainClickListener (func: () => void): void {
     this.playAgainButton.addEventListener('click', func);
-  }
-
-  addChangeModeClickListener (func: () => void): void {
-    this.changeModeButton.addEventListener('click', func);
   }
 
   private createMetricCell (labelText: string): HTMLSpanElement {

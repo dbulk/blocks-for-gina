@@ -8,6 +8,8 @@ class ModeSelectView {
   private readonly toggleButtons: HTMLButtonElement[] = [];
   private readonly toggleRow: HTMLDivElement;
   private listener: ModeSelectListener | null = null;
+  private resumeListener: (() => void) | null = null;
+  private readonly resumeBtn: HTMLButtonElement;
 
   constructor () {
     this.container = document.createElement('div');
@@ -25,10 +27,20 @@ class ModeSelectView {
 
     const playBtn = document.createElement('button');
     playBtn.className = 'mode-play-btn';
-    playBtn.textContent = 'Play';
+    playBtn.textContent = 'New Game';
     playBtn.addEventListener('click', () => {
       if (this.listener) {
         this.listener(this.selectedModeId);
+      }
+    });
+
+    this.resumeBtn = document.createElement('button');
+    this.resumeBtn.className = 'mode-resume-btn';
+    this.resumeBtn.textContent = 'Resume';
+    this.resumeBtn.style.display = 'none';
+    this.resumeBtn.addEventListener('click', () => {
+      if (this.resumeListener) {
+        this.resumeListener();
       }
     });
 
@@ -36,6 +48,7 @@ class ModeSelectView {
 
     const playSection = document.createElement('div');
     playSection.className = 'mode-select-section';
+    playSection.appendChild(this.resumeBtn);
     playSection.appendChild(playBtn);
 
     const modeSection = document.createElement('div');
@@ -77,6 +90,19 @@ class ModeSelectView {
 
   addModeCardClickListener (callback: ModeSelectListener): void {
     this.listener = callback;
+  }
+
+  addResumeClickListener (callback: () => void): void {
+    this.resumeListener = callback;
+  }
+
+  setResumeVisible (visible: boolean, modeId?: string): void {
+    this.resumeBtn.style.display = visible ? 'block' : 'none';
+    if (modeId) {
+      this.resumeBtn.textContent = `Resume ${modeId.charAt(0).toUpperCase() + modeId.slice(1)}`;
+    } else {
+      this.resumeBtn.textContent = 'Resume';
+    }
   }
 
   private createModeToggle (mode: GameMode): HTMLButtonElement {

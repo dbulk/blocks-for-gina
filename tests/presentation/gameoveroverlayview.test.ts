@@ -4,17 +4,14 @@ import { describe, expect, it, vi } from 'vitest';
 import GameOverOverlayView from '@/presentation/gameoveroverlayview';
 
 describe('GameOverOverlayView', () => {
-  it('renders Play Again and Change Mode buttons', () => {
+  it('renders Play Again button', () => {
     const view = new GameOverOverlayView();
     document.body.appendChild(view.container);
 
     const primary = view.container.querySelector('button.game-over-action-primary');
-    const secondary = view.container.querySelector('button.game-over-action-secondary');
 
     expect(primary).not.toBeNull();
-    expect(secondary).not.toBeNull();
-    expect(primary?.textContent).toBe('Play Again');
-    expect(secondary?.textContent).toBe('Change Mode');
+    expect(primary?.textContent).toBe('New Game');
 
     document.body.removeChild(view.container);
   });
@@ -31,30 +28,15 @@ describe('GameOverOverlayView', () => {
     document.body.removeChild(view.container);
   });
 
-  it('clicking Change Mode fires change-mode callback', () => {
-    const view = new GameOverOverlayView();
-    document.body.appendChild(view.container);
-    const callback = vi.fn();
-    view.addChangeModeClickListener(callback);
-
-    (view.container.querySelector('button.game-over-action-secondary') as HTMLButtonElement).click();
-
-    expect(callback).toHaveBeenCalledOnce();
-    document.body.removeChild(view.container);
-  });
-
-  it('clicking Play Again does not fire change-mode callback', () => {
+  it('clicking Play Again fires play-again callback only once', () => {
     const view = new GameOverOverlayView();
     document.body.appendChild(view.container);
     const playAgain = vi.fn();
-    const changeMode = vi.fn();
     view.addPlayAgainClickListener(playAgain);
-    view.addChangeModeClickListener(changeMode);
 
     (view.container.querySelector('button.game-over-action-primary') as HTMLButtonElement).click();
 
     expect(playAgain).toHaveBeenCalledOnce();
-    expect(changeMode).not.toHaveBeenCalled();
     document.body.removeChild(view.container);
   });
 

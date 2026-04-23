@@ -25,6 +25,7 @@ interface GameCoordinatorDependencies {
   highScores?: LocalHighScores
   autoStartLoop?: boolean
   attachBeforeUnloadListener?: boolean
+  skipSessionRestore?: boolean
 }
 
 class GameCoordinator {
@@ -75,7 +76,9 @@ class GameCoordinator {
     this.newGame();
     this.attachListeners();
 
-    this.deserialize();
+    if (!(dependencies.skipSessionRestore ?? false)) {
+      this.deserialize();
+    }
     this.setAudioState();
     if (dependencies.autoStartLoop ?? true) {
       this.gameLoopManager.start(this.gameLoop.bind(this));
@@ -283,7 +286,7 @@ class GameCoordinator {
     });
 
     this.page.addPlayAgainClickListener(() => {
-      this.startNewGameFromUI();
+      this.page.setSessionUIState('modeSelect');
     });
 
     this.page.ui.addUndoListener(

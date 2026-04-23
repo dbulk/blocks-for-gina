@@ -271,7 +271,7 @@ styleElement.textContent = `
     position: fixed;
     inset: 0;
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     justify-content: center;
     padding: 10px;
     box-sizing: border-box;
@@ -291,6 +291,7 @@ styleElement.textContent = `
     border-radius: 12px;
     background-color: rgba(0, 0, 0, 0.35);
     box-sizing: border-box;
+    margin: auto;
   }
 
   .mode-select-title {
@@ -314,15 +315,22 @@ styleElement.textContent = `
 
   .mode-toggles {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(2, 1fr);
     gap: 8px;
-    width: fit-content;
+    width: 100%;
     margin: 0 auto;
   }
 
+  @media (min-width: 560px) {
+    .mode-toggles {
+      grid-template-columns: repeat(4, 1fr);
+      width: fit-content;
+    }
+  }
+
   button.mode-toggle {
-    padding: 10px 24px;
-    font-size: clamp(13px, 1.8vw, 15px);
+    padding: 10px 12px;
+    font-size: clamp(12px, 3.5vw, 15px);
     font-weight: 600;
     border-radius: 6px;
     border: 2px solid #555;
@@ -331,6 +339,13 @@ styleElement.textContent = `
     cursor: pointer;
     white-space: nowrap;
     transition: border-color 0.15s, background-color 0.15s, color 0.15s;
+  }
+
+  @media (min-width: 560px) {
+    button.mode-toggle {
+      padding: 10px 24px;
+      font-size: clamp(13px, 1.8vw, 15px);
+    }
   }
 
   button.mode-toggle:disabled {
@@ -368,6 +383,98 @@ styleElement.textContent = `
 
   button.mode-play-btn:active {
     background-color: #00779d;
+  }
+
+  button.mode-resume-btn {
+    display: block;
+    margin: 0 auto 10px;
+    padding: 14px 48px;
+    font-size: clamp(15px, 2vw, 18px);
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    background-color: transparent;
+    border: 2px solid #0089b3;
+    color: #d5f4ff;
+  }
+
+  button.mode-resume-btn:hover {
+    background-color: rgba(0, 137, 179, 0.2);
+    border-color: #1aaad8;
+  }
+
+  button.mode-resume-btn:active {
+    background-color: rgba(0, 137, 179, 0.35);
+  }
+
+  .sandbox-setup-title {
+    margin: 0 0 4px;
+    text-align: center;
+    color: #d5f4ff;
+    font-size: clamp(22px, 3.5vw, 32px);
+  }
+
+  .sandbox-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px 20px;
+    margin: 12px 0;
+  }
+
+  .sandbox-field {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .sandbox-field label {
+    font-size: 13px;
+    color: #aaa;
+    letter-spacing: 0.04em;
+  }
+
+  .sandbox-number {
+    width: 100%;
+    padding: 6px 10px;
+    background: #1a1a2e;
+    border: 1px solid #444;
+    border-radius: 6px;
+    color: #e0e0e0;
+    font-size: 15px;
+    box-sizing: border-box;
+  }
+
+  .sandbox-number:focus {
+    outline: none;
+    border-color: #0089b3;
+  }
+
+  .sandbox-range {
+    width: 100%;
+    accent-color: #0089b3;
+    cursor: pointer;
+  }
+
+  .sandbox-cluster-value {
+    font-size: 13px;
+    color: #8df;
+    margin-left: 4px;
+  }
+
+  button.sandbox-back-btn {
+    display: block;
+    margin: 8px auto 0;
+    padding: 8px 28px;
+    font-size: 14px;
+    background-color: transparent;
+    border: 2px solid #555;
+    color: #bbb;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+
+  button.sandbox-back-btn:hover {
+    border-color: #888;
+    color: #ddd;
   }
 
   .game-over-action-row {

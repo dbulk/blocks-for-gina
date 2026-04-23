@@ -6,6 +6,7 @@ import PreferencesPresenter from '@/presentation/preferencespresenter';
 import { createDefaultModeRegistry } from '@/core/moderegistry';
 import SettingsPresenter from '@/presentation/settingspresenter';
 import Renderer from '@/rendering/renderer';
+import SessionStorage from '@/persistence/sessionstorage';
 
 class Blocks4Gina extends HTMLElement {
   connectedCallback (): void {
@@ -29,17 +30,53 @@ class Blocks4Gina extends HTMLElement {
     window.addEventListener('resize', resizeLayout);
     resizeLayout();
     page.resize();
-    const startGame = (modeId: string): void => {
-      gameSettings.modeId = modeId;
-      page.setSessionUIState('inGame');
-      new GameRunner(renderer, gameSettings, prefs, settingsPresenter, page);
+
+    const sessionStorage = new SessionStorage();
+
+    const refreshResumeButton = (): void => {
+      const savedModeId = sessionStorage.getSavedModeId();
+      const hasSave = sessionStorage.hasSavedGame();
+      page.setResumeVisible(hasSave, savedModeId ?? undefined);
     };
 
-    page.addModeSelectListener((modeId: string) => {
-      startGame(modeId);
+    refreshResumeButton();
+
+    page.addModeSelectShownListener(refreshResumeButton);
+
+    const startNewGame = (modeId: string): void => {
+      gameSettings.modeId = modeId;
+      page.setSessionUIState('inGame');
+      new GameRunner(renderer, gameSettings, prefs, settingsPresenter, page, { skipSessionRestore: true });
+    };
+
+    const resumeGame = (): void => {
+      const savedModeId = sessionStorage.getSavedModeId() ?? 'arcade';
+      gameSettings.modeId = savedModeId;
+      page.setSessionUIState('inGame');
+      new GameRunner(renderer, gameSettings, prefs, settingsPresenter, page, { skipSessionRestore: false });
+    };
+
+    page.addResumeClickListener(() => {
+      resumeGame();
     });
 
-    page.addChangeModeClickListener(() => {
+    page.addModeSelectListener((modeId: string) => {
+      if (modeId === 'sandbox') {
+        page.setSessionUIState('sandboxSetup');
+      } else {
+        startNewGame(modeId);
+      }
+    });
+
+    page.addSandboxStartListener((config) => {
+      gameSettings.numRows = config.numRows;
+      gameSettings.numColumns = config.numColumns;
+      gameSettings.numBlockTypes = config.numBlockTypes;
+      gameSettings.clusterStrength = config.clusterStrength;
+      startNewGame('sandbox');
+    });
+
+    page.addSandboxBackListener(() => {
       page.setSessionUIState('modeSelect');
     });
   }
