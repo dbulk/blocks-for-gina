@@ -1,3 +1,5 @@
+import { SANDBOX_MAX_BLOCK_TYPES, SANDBOX_MIN_BLOCK_TYPES } from '@/core/sandboxconstraints';
+
 export interface SandboxConfig {
   numRows: number
   numColumns: number
@@ -66,8 +68,8 @@ class SandboxSetupView {
 
     this.inputBlockTypes = document.createElement('input');
     this.inputBlockTypes.type = 'number';
-    this.inputBlockTypes.min = '2';
-    this.inputBlockTypes.max = '8';
+    this.inputBlockTypes.min = `${SANDBOX_MIN_BLOCK_TYPES}`;
+    this.inputBlockTypes.max = `${SANDBOX_MAX_BLOCK_TYPES}`;
     this.inputBlockTypes.value = '5';
     this.inputBlockTypes.className = 'sandbox-number';
 
@@ -148,7 +150,7 @@ class SandboxSetupView {
     return {
       numRows: clampInt(this.inputRows.valueAsNumber, 5, 40),
       numColumns: clampInt(this.inputColumns.valueAsNumber, 5, 60),
-      numBlockTypes: clampInt(this.inputBlockTypes.valueAsNumber, 2, 8),
+      numBlockTypes: clampInt(this.inputBlockTypes.valueAsNumber, SANDBOX_MIN_BLOCK_TYPES, SANDBOX_MAX_BLOCK_TYPES),
       clusterStrength: clampFloat(this.inputCluster.valueAsNumber, 0, 1)
     };
   }

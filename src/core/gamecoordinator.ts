@@ -103,6 +103,10 @@ class GameCoordinator {
   }
 
   private newGame (): void {
+    this.prefs.ensureBlockColorCapacity(this.settings.numBlockTypes);
+    this.page.ui.setColorInputCount(this.settings.numBlockTypes);
+    this.page.ui.setInputColors(this.prefs.blockColors);
+
     const modeSelectedEvent: ModeSelectedEvent = {
       type: 'modeSelected',
       modeId: this.settings.modeId
@@ -344,6 +348,7 @@ class GameCoordinator {
 
   private startNewGameFromUI (): void {
     this.settingsPresenter.uiToSettings();
+    this.prefs.ensureBlockColorCapacity(this.settings.numBlockTypes);
     this.newGame();
   }
 

@@ -41,6 +41,8 @@ const createCoordinator = (modeId: string, bus: GameEventBus): { coordinator: Ga
   };
 
   const ui = {
+    setColorInputCount: () => {},
+    setInputColors: () => {},
     setUndoEnabled: () => {},
     setRedoEnabled: () => {},
     addNewGameClickListener: () => {},
@@ -87,7 +89,15 @@ const createCoordinator = (modeId: string, bus: GameEventBus): { coordinator: Ga
     attachBeforeUnloadListener: false
   };
 
-  const coordinator = new GameCoordinator(renderer as never, settings, {} as never, settingsPresenter as never, page as never, dependencies as never);
+  const userPreferences = {
+    isMusicEnabled: true,
+    isSoundEnabled: true,
+    blockStyle: 'Classic',
+    blockColors: ['#007B7F', '#FF6F61', '#4F86F7', '#B6D94C', '#8368F2'],
+    ensureBlockColorCapacity: () => {}
+  };
+
+  const coordinator = new GameCoordinator(renderer as never, settings, userPreferences as never, settingsPresenter as never, page as never, dependencies as never);
   return { coordinator, canvas };
 };
 
@@ -204,6 +214,8 @@ describe('GameCoordinator event sequencing', () => {
     };
 
     const ui = {
+      setColorInputCount: () => {},
+      setInputColors: () => {},
       setUndoEnabled: () => {},
       setRedoEnabled: () => {},
       addNewGameClickListener: () => {},
@@ -240,10 +252,18 @@ describe('GameCoordinator event sequencing', () => {
     const settings = new GameSettings();
     settings.modeId = 'sandbox';
 
+    const userPreferences = {
+      isMusicEnabled: true,
+      isSoundEnabled: true,
+      blockStyle: 'Classic',
+      blockColors: ['#007B7F', '#FF6F61', '#4F86F7', '#B6D94C', '#8368F2'],
+      ensureBlockColorCapacity: () => {}
+    };
+
     const coordinator = new GameCoordinator(
       renderer as never,
       settings,
-      {} as never,
+      userPreferences as never,
       settingsPresenter as never,
       page as never,
       {
@@ -303,6 +323,8 @@ describe('GameCoordinator event sequencing', () => {
     };
 
     const ui = {
+      setColorInputCount: () => {},
+      setInputColors: () => {},
       setUndoEnabled: () => {},
       setRedoEnabled: () => {},
       addNewGameClickListener: (callback: () => void) => { onNewGameClick = callback; },
@@ -339,10 +361,18 @@ describe('GameCoordinator event sequencing', () => {
     const settings = new GameSettings();
     settings.modeId = 'sandbox';
 
+    const userPreferences = {
+      isMusicEnabled: true,
+      isSoundEnabled: true,
+      blockStyle: 'Classic',
+      blockColors: ['#007B7F', '#FF6F61', '#4F86F7', '#B6D94C', '#8368F2'],
+      ensureBlockColorCapacity: () => {}
+    };
+
     new GameCoordinator(
       renderer as never,
       settings,
-      {} as never,
+      userPreferences as never,
       settingsPresenter as never,
       page as never,
       {
