@@ -287,4 +287,79 @@ describe('GameCoordinator event sequencing', () => {
       true
     );
   });
+
+  it('routes the toolbar Home button back to mode select', () => {
+    const canvas = document.createElement('canvas');
+    const setSessionUIState = vi.fn();
+    let onNewGameClick: (() => void) | null = null;
+
+    const renderer = {
+      setGameState: () => {},
+      adjustCanvasSize: () => {},
+      renderBlocks: () => {},
+      renderPreview: () => {},
+      showGameOver: () => {},
+      getGridIndicesFromClientPosition: () => ({ row: 0, col: 0 })
+    };
+
+    const ui = {
+      setUndoEnabled: () => {},
+      setRedoEnabled: () => {},
+      addNewGameClickListener: (callback: () => void) => { onNewGameClick = callback; },
+      addApplySettingsListener: () => {},
+      addResetSettingsListener: () => {},
+      addUndoListener: () => {},
+      addRedoListener: () => {},
+      addTogMusicClickListener: () => {},
+      addTogSoundClickListener: () => {},
+      addInputColorsInputListener: () => {},
+      addInputBlockStyleListener: () => {}
+    };
+
+    const page = {
+      canvas,
+      ui,
+      scoreDisplay: { render: () => {} },
+      setSessionUIState,
+      setGameOverSummary: () => {},
+      getCanvasSizeConstraints: () => ({ width: 400, height: 300 }),
+      resize: () => {},
+      addPlayAgainClickListener: () => {}
+    };
+
+    const settingsPresenter = {
+      resetToDefaults: () => {},
+      uiAllToSettings: () => {},
+      syncAudioToSettings: () => {},
+      settingsToUI: () => {},
+      uiColorsToSettings: () => {},
+      uiToSettings: () => {}
+    };
+
+    const settings = new GameSettings();
+    settings.modeId = 'sandbox';
+
+    new GameCoordinator(
+      renderer as never,
+      settings,
+      {} as never,
+      settingsPresenter as never,
+      page as never,
+      {
+        eventBus: new GameEventBus(),
+        gameLoopManager: { start: () => {}, stop: () => {} } as never,
+        sessionStorage: { save: () => {}, load: () => null } as never,
+        audioController: { applySettings: () => {}, playSoundEffect: () => {} } as never,
+        highScores: { record: () => ({ rank: null, topEntries: [] }) } as never,
+        sandboxBest: { record: () => ({ bestEntry: null, isNewBest: false }) } as never,
+        autoStartLoop: false,
+        attachBeforeUnloadListener: false
+      }
+    );
+
+    expect(onNewGameClick).not.toBeNull();
+    onNewGameClick?.();
+
+    expect(setSessionUIState).toHaveBeenCalledWith('modeSelect');
+  });
 });

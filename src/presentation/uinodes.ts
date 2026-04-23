@@ -101,7 +101,7 @@ class UINodes {
 
   createUI (): void {
     this.div.className = 'ui-toolbar';
-    setButtonProperties(this.cmdNewGame, 'New Game', false, this.div);
+    setButtonProperties(this.cmdNewGame, 'Home', false, this.div);
     setButtonProperties(this.cmdUndo, '↩', false, this.div);
     setButtonProperties(this.cmdRedo, '↪', false, this.div);
     setButtonProperties(this.togMusic, '🎵', true, this.div);

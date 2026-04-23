@@ -284,7 +284,7 @@ class GameCoordinator {
 
     this.page.ui.addNewGameClickListener(
       () => {
-        this.startNewGameFromUI();
+        this.page.setSessionUIState('modeSelect');
       }
     );
 
