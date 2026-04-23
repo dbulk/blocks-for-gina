@@ -16,12 +16,6 @@ Competitive leaderboard partitioning
 - Keep per-mode top entries
 - Add migration-safe schema update
 
-## #sandbox-score-policy
-Sandbox non-competitive stats policy
-- Exclude Sandbox from ranked board
-- Optional personal best only
-- Keep competitive lists clean
-
 ## #timed-mode-v1
 Timed mode first playable version
 - 180 second match timer
