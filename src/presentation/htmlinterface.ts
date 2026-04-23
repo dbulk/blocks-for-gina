@@ -103,6 +103,7 @@ class HTMLInterface {
   }
 
   setGameOverSummary (
+    modeId: string,
     score: number,
     time: string,
     blocksPopped: number,
@@ -110,9 +111,11 @@ class HTMLInterface {
     largestCluster: number,
     totalMoves: number,
     highScores: HighScoreEntry[],
-    rank: number | null
+    rank: number | null,
+    sandboxBest: HighScoreEntry | null,
+    isNewSandboxBest: boolean
   ): void {
-    this.gameOverOverlay.setSummary(score, time, blocksPopped, blocksRemaining, largestCluster, totalMoves, highScores, rank);
+    this.gameOverOverlay.setSummary(modeId, score, time, blocksPopped, blocksRemaining, largestCluster, totalMoves, highScores, rank, sandboxBest, isNewSandboxBest);
   }
 
   hideStartButton (): void {

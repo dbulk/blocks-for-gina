@@ -45,4 +45,24 @@ describe('GameOverOverlayView', () => {
     view.setVisible(false);
     expect(view.container.style.display).toBe('none');
   });
+
+  it('renders sandbox personal best summary instead of ranked highscores', () => {
+    const view = new GameOverOverlayView();
+    document.body.appendChild(view.container);
+
+    view.setSummary('sandbox', 120, '01:15', 10, 5, 4, 6, [], null, {
+      score: 140,
+      elapsedSeconds: 70,
+      rows: 8,
+      columns: 12,
+      playedAt: 1
+    }, true);
+
+    expect(view.container.textContent).toContain('Sandbox Personal Best');
+    expect(view.container.textContent).toContain('New personal best');
+    expect(view.container.textContent).toContain('140 pts');
+    expect(view.container.textContent).not.toContain('High Scores');
+
+    document.body.removeChild(view.container);
+  });
 });

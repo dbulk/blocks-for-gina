@@ -38,6 +38,8 @@ const createDefaultModeRegistry = (): ModeRegistry => {
   return registry;
 };
 
+const isCompetitiveMode = (modeId: string): boolean => modeId !== 'sandbox';
+
 export default ModeRegistry;
-export { createDefaultModeRegistry };
+export { createDefaultModeRegistry, isCompetitiveMode };
 export type { GameMode };

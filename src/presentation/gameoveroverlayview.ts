@@ -99,6 +99,7 @@ class GameOverOverlayView {
   }
 
   setSummary (
+    modeId: string,
     score: number,
     time: string,
     blocksPopped: number,
@@ -106,7 +107,9 @@ class GameOverOverlayView {
     largestCluster: number,
     totalMoves: number,
     highScores: HighScoreEntry[],
-    rank: number | null
+    rank: number | null,
+    sandboxBest: HighScoreEntry | null,
+    isNewSandboxBest: boolean
   ): void {
     this.scoreValue.textContent = `${score}`;
     this.timeValue.textContent = time;
@@ -114,6 +117,10 @@ class GameOverOverlayView {
     this.blocksRemainingValue.textContent = `${blocksRemaining}`;
     this.largestClusterValue.textContent = `${largestCluster}`;
     this.movesValue.textContent = `${totalMoves}`;
+    if (modeId === 'sandbox') {
+      this.renderSandboxSummary(sandboxBest, isNewSandboxBest);
+      return;
+    }
     this.renderLeaderboard(highScores, rank);
   }
 
@@ -151,6 +158,7 @@ class GameOverOverlayView {
   }
 
   private renderLeaderboard (highScores: HighScoreEntry[], rank: number | null): void {
+    this.leaderboardTitle.textContent = 'High Scores';
     this.leaderboardList.textContent = '';
 
     if (highScores.length === 0) {
@@ -201,6 +209,36 @@ class GameOverOverlayView {
       note.style.color = '#9dcfdf';
       this.leaderboardList.appendChild(note);
     }
+  }
+
+  private renderSandboxSummary (sandboxBest: HighScoreEntry | null, isNewSandboxBest: boolean): void {
+    this.leaderboardTitle.textContent = 'Sandbox Personal Best';
+    this.leaderboardList.textContent = '';
+
+    const summary = document.createElement('div');
+    summary.style.display = 'grid';
+    summary.style.gap = '4px';
+    summary.style.padding = '6px 8px';
+    summary.style.borderRadius = '6px';
+    summary.style.backgroundColor = 'rgba(0, 0, 0, 0.2)';
+    summary.style.fontSize = '13px';
+
+    const heading = document.createElement('div');
+    heading.textContent = isNewSandboxBest ? 'New personal best' : 'Best sandbox run';
+    heading.style.color = '#d5f4ff';
+    heading.style.fontWeight = '700';
+    summary.appendChild(heading);
+
+    const detail = document.createElement('div');
+    if (sandboxBest === null) {
+      detail.textContent = 'No sandbox best recorded yet.';
+      detail.style.color = '#ccc';
+    } else {
+      detail.textContent = `${sandboxBest.score} pts • ${sandboxBest.rows}x${sandboxBest.columns} • ${this.formatSeconds(sandboxBest.elapsedSeconds)}`;
+      detail.style.color = '#fff';
+    }
+    summary.appendChild(detail);
+    this.leaderboardList.appendChild(summary);
   }
 
   private formatSeconds (totalSeconds: number): string {

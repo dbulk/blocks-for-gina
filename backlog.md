@@ -4,12 +4,6 @@
 
 See [ai-workflow.md](ai-workflow.md) for the full step-by-step execution process.
 
-## #sandbox-setup-flow
-Sandbox setup before game start
-- Rows, columns, clustering inputs
-- Validate and clamp user values
-- Build run config payload
-
 ## #mode-context-plumbing
 Mode and run context propagation
 - Mode ID in start and end payloads
