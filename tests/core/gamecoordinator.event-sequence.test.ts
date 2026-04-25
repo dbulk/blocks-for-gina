@@ -117,7 +117,23 @@ describe('GameCoordinator event sequencing', () => {
     const capture = captureEvents(bus);
 
     bus.emit('modeSelected', { type: 'modeSelected', modeId: 'arcade' });
-    bus.emit('gameStarted', { type: 'gameStarted', rows: 10, columns: 20, blockTypes: 5 });
+    bus.emit('gameStarted', {
+      type: 'gameStarted',
+      rows: 10,
+      columns: 20,
+      blockTypes: 5,
+      modeId: 'arcade',
+      runContext: {
+        modeId: 'arcade',
+        source: 'modeSelect',
+        setup: {
+          numRows: 10,
+          numColumns: 20,
+          numBlockTypes: 5,
+          clusterStrength: 0.2
+        }
+      }
+    });
 
     expect(capture.sequence).toEqual(['modeSelected', 'gameStarted']);
     expect(capture.events).toHaveLength(2);
@@ -188,10 +204,40 @@ describe('GameCoordinator event sequencing', () => {
     const gameEnded = capture.events.find((event) => event.type === 'gameEnded');
 
     expect(modeSelected).toMatchObject({ type: 'modeSelected', modeId: 'timed' });
-    expect(gameStarted).toMatchObject({ type: 'gameStarted', rows: 10, columns: 20, blockTypes: 5 });
-    expect(modeRulesApplied).toMatchObject({ type: 'modeRulesApplied', modeId: 'timed' });
+    expect(gameStarted).toMatchObject({
+      type: 'gameStarted',
+      modeId: 'timed',
+      rows: 10,
+      columns: 20,
+      blockTypes: 5,
+      runContext: {
+        modeId: 'timed',
+        source: 'modeSelect',
+        setup: {
+          numRows: 10,
+          numColumns: 20,
+          numBlockTypes: 5,
+          clusterStrength: 0.2
+        }
+      }
+    });
+    expect(modeRulesApplied).toMatchObject({
+      type: 'modeRulesApplied',
+      modeId: 'timed',
+      runContext: {
+        modeId: 'timed',
+        source: 'modeSelect'
+      }
+    });
     expect(blocksPopped).toMatchObject({ type: 'blocksPopped', clusterSize: 2 });
-    expect(gameEnded).toMatchObject({ type: 'gameEnded' });
+    expect(gameEnded).toMatchObject({
+      type: 'gameEnded',
+      modeId: 'timed',
+      runContext: {
+        modeId: 'timed',
+        source: 'modeSelect'
+      }
+    });
 
     expect((blocksPopped as { totalScore: number }).totalScore).toBeGreaterThan(0);
     expect((blocksPopped as { remainingBlocks: number }).remainingBlocks).toBeGreaterThanOrEqual(0);

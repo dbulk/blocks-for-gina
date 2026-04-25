@@ -8,7 +8,7 @@ import GameEventBus from '@/events/eventbus';
 import ScoreBoard from '@/persistence/scoreboard';
 import SessionStorage from '@/persistence/sessionstorage';
 import LocalHighScores, { LocalSandboxBest } from '@/persistence/highscores';
-import type { BlocksPoppedEvent, GameEndedEvent, GameStartedEvent, ModeRulesAppliedEvent, ModeSelectedEvent } from '@/events/events';
+import type { BlocksPoppedEvent, GameEndedEvent, GameStartedEvent, ModeRulesAppliedEvent, ModeSelectedEvent, RunContext, RunSetup, RunSource } from '@/events/events';
 import type GameSettings from '@/core/gamesettings';
 import type UserPreferences from '@/core/userpreferences';
 import type HTMLInterface from '@/presentation/htmlinterface';
@@ -28,6 +28,7 @@ interface GameCoordinatorDependencies {
   autoStartLoop?: boolean
   attachBeforeUnloadListener?: boolean
   skipSessionRestore?: boolean
+  runSource?: RunSource
 }
 
 class GameCoordinator {
@@ -43,6 +44,8 @@ class GameCoordinator {
   gameOverAnimationState = 0;
   private animationLoopRunning: boolean = false;
   private hasShownGameOverSummary: boolean = false;
+  private activeRunContext: RunContext | null = null;
+  private readonly runSource: RunSource;
   private readonly highScores: LocalHighScores;
   private readonly sandboxBest: LocalSandboxBest;
   private readonly eventBus: GameEventBus;
@@ -63,6 +66,7 @@ class GameCoordinator {
     this.settings = settings;
     this.prefs = userPreferences;
     this.settingsPresenter = settingsPresenter;
+    this.runSource = dependencies.runSource ?? 'modeSelect';
     this.eventBus = dependencies.eventBus ?? new GameEventBus();
     this.gameLoopManager = dependencies.gameLoopManager ?? new GameLoopManager();
     this.sessionStorage = dependencies.sessionStorage ?? new SessionStorage();
@@ -107,22 +111,23 @@ class GameCoordinator {
     this.page.ui.setColorInputCount(this.settings.numBlockTypes);
     this.page.ui.setInputColors(this.prefs.blockColors);
 
+    const runSetup = this.getRunSetup();
+    const runContext: RunContext = {
+      modeId: this.settings.modeId,
+      source: this.runSource,
+      setup: runSetup
+    };
+    this.activeRunContext = runContext;
+
     const modeSelectedEvent: ModeSelectedEvent = {
       type: 'modeSelected',
-      modeId: this.settings.modeId
+      modeId: runContext.modeId
     };
     this.eventBus.emit('modeSelected', modeSelectedEvent);
 
-    const runConfig = this.settings.modeId === 'arcade' ? ARCADE_RUN_CONFIG : {
-      numRows: this.settings.numRows,
-      numColumns: this.settings.numColumns,
-      numBlockTypes: this.settings.numBlockTypes,
-      clusterStrength: this.settings.clusterStrength
-    };
-
     this.page.setSessionUIState('inGame');
     this.renderer.setGameState(this.gameState);
-    this.gameState.initializeGrid(runConfig.numRows, runConfig.numColumns, runConfig.numBlockTypes, runConfig.clusterStrength);
+    this.gameState.initializeGrid(runSetup.numRows, runSetup.numColumns, runSetup.numBlockTypes, runSetup.clusterStrength);
     this.gameState.resetClock();
     this.gameState.resetScore();
     this.gameState.resetRoundStats();
@@ -135,17 +140,33 @@ class GameCoordinator {
 
     const event: GameStartedEvent = {
       type: 'gameStarted',
-      rows: runConfig.numRows,
-      columns: runConfig.numColumns,
-      blockTypes: runConfig.numBlockTypes
+      rows: runSetup.numRows,
+      columns: runSetup.numColumns,
+      blockTypes: runSetup.numBlockTypes,
+      modeId: runContext.modeId,
+      runContext
     };
     this.eventBus.emit('gameStarted', event);
 
     const modeRulesAppliedEvent: ModeRulesAppliedEvent = {
       type: 'modeRulesApplied',
-      modeId: this.settings.modeId
+      modeId: runContext.modeId,
+      runContext
     };
     this.eventBus.emit('modeRulesApplied', modeRulesAppliedEvent);
+  }
+
+  private getRunSetup (): RunSetup {
+    if (this.settings.modeId === 'arcade') {
+      return ARCADE_RUN_CONFIG;
+    }
+
+    return {
+      numRows: this.settings.numRows,
+      numColumns: this.settings.numColumns,
+      numBlockTypes: this.settings.numBlockTypes,
+      clusterStrength: this.settings.clusterStrength
+    };
   }
 
   private gameLoop (): void {
@@ -164,8 +185,9 @@ class GameCoordinator {
       this.gameState.blocksDirty = false;
     }
 
+    const modeId = this.activeRunContext?.modeId ?? this.settings.modeId;
     const hasMoreMoves = this.gameState.hasMoreMoves();
-    const isGameOver = shouldEndGameForMode(this.settings.modeId, this.gameState, hasMoreMoves);
+    const isGameOver = shouldEndGameForMode(modeId, this.gameState, hasMoreMoves);
 
     if (!isGameOver) {
       this.scoreBoard.update();
@@ -187,16 +209,16 @@ class GameCoordinator {
           columns: this.settings.numColumns,
           playedAt: Date.now()
         };
-        const recordResult = isCompetitiveMode(this.settings.modeId)
+        const recordResult = isCompetitiveMode(modeId)
           ? this.highScores.record(entry)
           : { rank: null, topEntries: [] };
-        const sandboxBestResult = isCompetitiveMode(this.settings.modeId)
+        const sandboxBestResult = isCompetitiveMode(modeId)
           ? null
           : this.sandboxBest.record(entry);
 
         this.page.setSessionUIState('gameOverSummary');
         this.page.setGameOverSummary(
-          this.settings.modeId,
+          modeId,
           this.gameState.getScore(),
           this.getClockText(),
           this.gameState.getBlocksPopped(),
@@ -211,10 +233,16 @@ class GameCoordinator {
 
         const gameEndedEvent: GameEndedEvent = {
           type: 'gameEnded',
+          modeId,
           score: this.gameState.getScore(),
           playedSeconds: elapsedSeconds,
           blocksPopped: this.gameState.getBlocksPopped(),
-          largestCluster: this.gameState.getLargestCluster()
+          largestCluster: this.gameState.getLargestCluster(),
+          runContext: this.activeRunContext ?? {
+            modeId,
+            source: this.runSource,
+            setup: this.getRunSetup()
+          }
         };
         this.eventBus.emit('gameEnded', gameEndedEvent);
         this.hasShownGameOverSummary = true;

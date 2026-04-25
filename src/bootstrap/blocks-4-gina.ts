@@ -43,17 +43,17 @@ class Blocks4Gina extends HTMLElement {
 
     page.addModeSelectShownListener(refreshResumeButton);
 
-    const startNewGame = (modeId: string): void => {
+    const startNewGame = (modeId: string, source: 'modeSelect' | 'sandboxSetup' = 'modeSelect'): void => {
       gameSettings.modeId = modeId;
       page.setSessionUIState('inGame');
-      new GameRunner(renderer, gameSettings, prefs, settingsPresenter, page, { skipSessionRestore: true });
+      new GameRunner(renderer, gameSettings, prefs, settingsPresenter, page, { skipSessionRestore: true, runSource: source });
     };
 
     const resumeGame = (): void => {
       const savedModeId = sessionStorage.getSavedModeId() ?? 'arcade';
       gameSettings.modeId = savedModeId;
       page.setSessionUIState('inGame');
-      new GameRunner(renderer, gameSettings, prefs, settingsPresenter, page, { skipSessionRestore: false });
+      new GameRunner(renderer, gameSettings, prefs, settingsPresenter, page, { skipSessionRestore: false, runSource: 'resume' });
     };
 
     page.addResumeClickListener(() => {
@@ -74,7 +74,7 @@ class Blocks4Gina extends HTMLElement {
       gameSettings.numBlockTypes = config.numBlockTypes;
       gameSettings.clusterStrength = config.clusterStrength;
       prefs.ensureBlockColorCapacity(config.numBlockTypes);
-      startNewGame('sandbox');
+      startNewGame('sandbox', 'sandboxSetup');
     });
 
     page.addSandboxBackListener(() => {

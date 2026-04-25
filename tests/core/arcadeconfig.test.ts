@@ -108,6 +108,12 @@ describe('#arcade-default-config', () => {
     expect(captured!.rows).toBe(ARCADE_RUN_CONFIG.numRows);
     expect(captured!.columns).toBe(ARCADE_RUN_CONFIG.numColumns);
     expect(captured!.blockTypes).toBe(ARCADE_RUN_CONFIG.numBlockTypes);
+    expect(captured!.modeId).toBe('arcade');
+    expect(captured!.runContext).toMatchObject({
+      modeId: 'arcade',
+      source: 'modeSelect',
+      setup: ARCADE_RUN_CONFIG
+    });
   });
 
   it('non-arcade start emits gameStarted with settings values, not arcade config', () => {
@@ -127,6 +133,17 @@ describe('#arcade-default-config', () => {
     expect(captured!.rows).toBe(7);
     expect(captured!.columns).toBe(15);
     expect(captured!.blockTypes).toBe(3);
+    expect(captured!.modeId).toBe('sandbox');
+    expect(captured!.runContext).toMatchObject({
+      modeId: 'sandbox',
+      source: 'modeSelect',
+      setup: {
+        numRows: 7,
+        numColumns: 15,
+        numBlockTypes: 3,
+        clusterStrength: settings.clusterStrength
+      }
+    });
     // Verify it did NOT use arcade config (values differ from ARCADE_RUN_CONFIG)
     expect(captured!.rows).not.toBe(ARCADE_RUN_CONFIG.numRows);
     expect(captured!.columns).not.toBe(ARCADE_RUN_CONFIG.numColumns);

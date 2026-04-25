@@ -11,7 +11,18 @@ describe('GameEventBus', () => {
       type: 'gameStarted',
       rows: 10,
       columns: 20,
-      blockTypes: 5
+      blockTypes: 5,
+      modeId: 'arcade',
+      runContext: {
+        modeId: 'arcade',
+        source: 'modeSelect',
+        setup: {
+          numRows: 10,
+          numColumns: 20,
+          numBlockTypes: 5,
+          clusterStrength: 0.2
+        }
+      }
     });
 
     expect(listener).toHaveBeenCalledTimes(1);
@@ -26,10 +37,21 @@ describe('GameEventBus', () => {
 
     bus.emit('gameEnded', {
       type: 'gameEnded',
+      modeId: 'arcade',
       score: 120,
       playedSeconds: 77,
       blocksPopped: 10,
-      largestCluster: 4
+      largestCluster: 4,
+      runContext: {
+        modeId: 'arcade',
+        source: 'modeSelect',
+        setup: {
+          numRows: 10,
+          numColumns: 20,
+          numBlockTypes: 5,
+          clusterStrength: 0.2
+        }
+      }
     });
 
     expect(listener).not.toHaveBeenCalled();
