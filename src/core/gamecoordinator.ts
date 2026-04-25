@@ -103,6 +103,10 @@ class GameCoordinator {
   }
 
   private newGame (): void {
+    this.prefs.ensureBlockColorCapacity(this.settings.numBlockTypes);
+    this.page.ui.setColorInputCount(this.settings.numBlockTypes);
+    this.page.ui.setInputColors(this.prefs.blockColors);
+
     const modeSelectedEvent: ModeSelectedEvent = {
       type: 'modeSelected',
       modeId: this.settings.modeId
@@ -284,7 +288,7 @@ class GameCoordinator {
 
     this.page.ui.addNewGameClickListener(
       () => {
-        this.page.setSessionUIState('modeSelect');
+        this.returnToModeSelect();
       }
     );
 
@@ -299,7 +303,7 @@ class GameCoordinator {
     });
 
     this.page.addPlayAgainClickListener(() => {
-      this.page.setSessionUIState('modeSelect');
+      this.returnToModeSelect();
     });
 
     this.page.ui.addUndoListener(
@@ -344,7 +348,13 @@ class GameCoordinator {
 
   private startNewGameFromUI (): void {
     this.settingsPresenter.uiToSettings();
+    this.prefs.ensureBlockColorCapacity(this.settings.numBlockTypes);
     this.newGame();
+  }
+
+  private returnToModeSelect (): void {
+    this.serialize();
+    this.page.setSessionUIState('modeSelect');
   }
 
   private setAudioState (): void {

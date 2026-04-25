@@ -1,5 +1,6 @@
 import { BLOCK_STYLES, DEFAULT_BLOCK_STYLE, type BlockStyle } from '@/rendering/blockstyle';
 import type { GameMode } from '@/core/moderegistry';
+import { SANDBOX_MAX_BLOCK_TYPES } from '@/core/sandboxconstraints';
 
 function setButtonProperties (button: HTMLButtonElement, text: string, isToggle: boolean, div: HTMLDivElement): HTMLButtonElement {
   button.textContent = text;
@@ -73,6 +74,7 @@ class UINodes {
   private readonly inputMode: HTMLSelectElement;
   private readonly inputBlockStyle: HTMLSelectElement;
   private readonly inputColors: HTMLInputElement[];
+  private colorInputCount: number;
   private modeOptions: GameMode[];
 
   constructor () {
@@ -93,6 +95,7 @@ class UINodes {
     this.inputMode = document.createElement('select');
     this.inputBlockStyle = document.createElement('select');
     this.inputColors = [];
+    this.colorInputCount = 5;
     this.modeOptions = [
       { id: 'timed', name: 'Timed', description: 'Score as much as possible before time runs out.' },
       { id: 'sprint', name: 'Sprint', description: 'Maximize score within a fixed move budget.' }
@@ -207,7 +210,7 @@ class UINodes {
     {
       const d = this.createSettingsRow(appearanceSection);
       d.classList.add('settings-row-colors');
-      makeColorInputs(this.inputColors, 5);
+      makeColorInputs(this.inputColors, SANDBOX_MAX_BLOCK_TYPES);
 
       const div = document.createElement('div');
       div.className = 'settings-colors';
@@ -222,6 +225,8 @@ class UINodes {
       d.appendChild(label);
       d.appendChild(div);
     }
+
+    this.setColorInputCount(5);
 
     this.expandButton.addEventListener('click', () => {
       this.setSettingsVisibility(getToggleState(this.expandButton));
@@ -347,13 +352,20 @@ class UINodes {
   }
 
   setInputColors (vals: string[]): void {
-    for (let i = 0; i < vals.length; ++i) {
+    for (let i = 0; i < vals.length && i < this.inputColors.length; ++i) {
       this.inputColors[i].value = vals[i];
     }
   }
 
+  setColorInputCount (count: number): void {
+    this.colorInputCount = this.clampInt(count, 1, this.inputColors.length);
+    for (let i = 0; i < this.inputColors.length; i++) {
+      this.inputColors[i].style.display = i < this.colorInputCount ? 'inline-block' : 'none';
+    }
+  }
+
   getInputColors (output: string[]): void {
-    for (let i = 0; i < this.inputColors.length; ++i) {
+    for (let i = 0; i < this.colorInputCount; ++i) {
       output[i] = this.inputColors[i].value;
     }
   };

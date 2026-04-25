@@ -31,13 +31,7 @@ class Renderer {
     this.gameSettings = gameSettings;
     this.prefs = userPreferences;
 
-    // create an offscreen canvas for each block type:
-    for (let i = 0; i < userPreferences.blockColors.length; i++) {
-      const canvas = document.createElement('canvas');
-      canvas.width = MAXBLOCKSIZE;
-      canvas.height = MAXBLOCKSIZE;
-      this.blockCanvases.push(canvas);
-    }
+    this.ensureBlockCanvasCapacity(Math.max(this.gameSettings.numBlockTypes, userPreferences.blockColors.length));
 
     this.adjustCanvasSize();
   }
@@ -118,9 +112,12 @@ class Renderer {
   }
 
   private createOffscrenCanvases (lightStrength: number): void {
-    for (let i = 0; i < this.blockCanvases.length; i++) {
+    this.prefs.ensureBlockColorCapacity(this.gameSettings.numBlockTypes);
+    this.ensureBlockCanvasCapacity(this.gameSettings.numBlockTypes);
+
+    for (let i = 0; i < this.gameSettings.numBlockTypes; i++) {
       const canvas = this.blockCanvases[i];
-      const color = this.prefs.blockColors[i];
+      const color = this.prefs.blockColors[i] ?? '#888888';
       const ctx = canvas.getContext('2d');
       if (ctx !== null) {
         this.drawBlockStyle(ctx, color, this.prefs.blockStyle, lightStrength);
@@ -253,7 +250,17 @@ class Renderer {
     const offset = this.gameState.getBlockOffset(coord);
     const x = (coord.col + offset.x) * sz;
     const y = (coord.row - offset.y) * sz;
+    this.ensureBlockCanvasCapacity(id + 1);
     this.ctx.drawImage(this.blockCanvases[id], x, y, sz, sz);
+  }
+
+  private ensureBlockCanvasCapacity (requiredCount: number): void {
+    while (this.blockCanvases.length < requiredCount) {
+      const canvas = document.createElement('canvas');
+      canvas.width = MAXBLOCKSIZE;
+      canvas.height = MAXBLOCKSIZE;
+      this.blockCanvases.push(canvas);
+    }
   }
 
   private lightenColor (color: string, percent: number): string {

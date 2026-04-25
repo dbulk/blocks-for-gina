@@ -73,6 +73,7 @@ class Blocks4Gina extends HTMLElement {
       gameSettings.numColumns = config.numColumns;
       gameSettings.numBlockTypes = config.numBlockTypes;
       gameSettings.clusterStrength = config.clusterStrength;
+      prefs.ensureBlockColorCapacity(config.numBlockTypes);
       startNewGame('sandbox');
     });
 

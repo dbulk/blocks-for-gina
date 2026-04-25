@@ -69,9 +69,3 @@ Zen mode first playable version
 - No timer, no move limit, no game over state
 - Infinite play until player exits
 - No competitive scoring or leaderboard entry
-
-## #sandbox-mode-v1
-Sandbox mode first playable version (depends on #sandbox-setup-flow)
-- Board config screen before game start
-- Rows, columns, clustering, block count inputs
-- Non-competitive, no leaderboard entry
