@@ -407,6 +407,16 @@ class GameCoordinator {
   }
 
   serialize (): void {
+    const activeRunContext = this.activeRunContext ?? {
+      modeId: this.settings.modeId,
+      source: this.runSource,
+      setup: this.getRunSetup()
+    };
+    const isRunOver = this.hasShownGameOverSummary || shouldEndGameForMode(activeRunContext.modeId, this.gameState, this.gameState.hasMoreMoves());
+    if (isRunOver) {
+      this.sessionStorage.clear();
+      return;
+    }
     this.sessionStorage.save(this.gameState.serialize(), this.settings.serialize());
   }
 

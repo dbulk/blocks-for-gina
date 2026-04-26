@@ -442,6 +442,103 @@ describe('GameCoordinator event sequencing', () => {
     expect(save).toHaveBeenCalledWith(expect.anything(), expect.objectContaining({ modeId: 'sandbox' }));
   });
 
+  it('clears saved session when serialize is called after game over', () => {
+    const canvas = document.createElement('canvas');
+    const save = vi.fn();
+    const clear = vi.fn();
+
+    const renderer = {
+      setGameState: () => {},
+      adjustCanvasSize: () => {},
+      renderBlocks: () => {},
+      renderPreview: () => {},
+      showGameOver: () => {},
+      getGridIndicesFromClientPosition: () => ({ row: 0, col: 0 })
+    };
+
+    const ui = {
+      setColorInputCount: () => {},
+      setInputColors: () => {},
+      setUndoEnabled: () => {},
+      setRedoEnabled: () => {},
+      addNewGameClickListener: () => {},
+      addApplySettingsListener: () => {},
+      addResetSettingsListener: () => {},
+      addUndoListener: () => {},
+      addRedoListener: () => {},
+      addTogMusicClickListener: () => {},
+      addTogSoundClickListener: () => {},
+      addInputColorsInputListener: () => {},
+      addInputBlockStyleListener: () => {}
+    };
+
+    const page = {
+      canvas,
+      ui,
+      scoreDisplay: { render: () => {} },
+      setSessionUIState: () => {},
+      setGameOverSummary: () => {},
+      getCanvasSizeConstraints: () => ({ width: 400, height: 300 }),
+      resize: () => {},
+      addPlayAgainClickListener: () => {}
+    };
+
+    const settingsPresenter = {
+      resetToDefaults: () => {},
+      uiAllToSettings: () => {},
+      syncAudioToSettings: () => {},
+      settingsToUI: () => {},
+      uiColorsToSettings: () => {},
+      uiToSettings: () => {}
+    };
+
+    const settings = new GameSettings();
+    settings.modeId = 'arcade';
+
+    const userPreferences = {
+      isMusicEnabled: true,
+      isSoundEnabled: true,
+      blockStyle: 'Classic',
+      blockColors: ['#007B7F', '#FF6F61', '#4F86F7', '#B6D94C', '#8368F2'],
+      ensureBlockColorCapacity: () => {}
+    };
+
+    const coordinator = new GameCoordinator(
+      renderer as never,
+      settings,
+      userPreferences as never,
+      settingsPresenter as never,
+      page as never,
+      {
+        eventBus: new GameEventBus(),
+        gameLoopManager: { start: () => {}, stop: () => {} } as never,
+        sessionStorage: { save, load: () => null, clear } as never,
+        audioController: { applySettings: () => {}, playSoundEffect: () => {} } as never,
+        highScores: { record: () => ({ rank: null, topEntries: [] }) } as never,
+        sandboxBest: { record: () => ({ bestEntry: null, isNewBest: false }) } as never,
+        autoStartLoop: false,
+        attachBeforeUnloadListener: false
+      }
+    );
+
+    coordinator.gameState.deserialize({
+      griddata: [
+        [1, 2],
+        [3, 4]
+      ],
+      score: 0,
+      serializedGameDuration: 0,
+      totalMoves: 0,
+      largestCluster: 0,
+      blocksPopped: 0
+    });
+
+    coordinator.serialize();
+
+    expect(clear).toHaveBeenCalledOnce();
+    expect(save).not.toHaveBeenCalled();
+  });
+
   it('renders HUD metrics before measuring canvas constraints on startup', () => {
     const order: string[] = [];
     const canvas = document.createElement('canvas');
