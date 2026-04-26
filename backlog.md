@@ -6,15 +6,15 @@ See [ai-workflow.md](ai-workflow.md) for the full step-by-step execution process
 
 ## #cascade-mode-v1
 Cascade mode first playable version
-- Each pop triggers a chain reaction on neighbours
-- Combo multiplier scoring
-- Chain animation and combo HUD indicator
+- Pops can trigger automatic follow-up waves until the board settles
+- Each wave increases a combo multiplier for that turn
+- HUD shows current chain depth, combo bonus, and best chain
 
 ## #precision-mode-v1
 Precision mode first playable version
-- Define minimum cluster size to score
-- Pops below threshold do not count
-- HUD shows minimum cluster requirement
+- Each turn sets a target cluster size to hit (shown in HUD)
+- Only exact-size pops score; misses add a strike
+- Three strikes ends the run, while streaks of exact hits boost score
 
 ## #antigravity-mode-v1
 Antigravity mode first playable version
