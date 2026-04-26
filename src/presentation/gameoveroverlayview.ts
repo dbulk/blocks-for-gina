@@ -15,6 +15,8 @@ class GameOverOverlayView {
   private readonly leaderboardList: HTMLDivElement;
   private readonly playAgainButton: HTMLButtonElement;
 
+  private readonly blocksRemainingCard: HTMLDivElement;
+
   constructor () {
     this.container = document.createElement('div');
     this.container.style.display = 'none';
@@ -47,7 +49,9 @@ class GameOverOverlayView {
     this.scoreValue = this.createMetricCell('Score');
     this.timeValue = this.createMetricCell('Time');
     this.blocksPoppedValue = this.createMetricCell('Blocks Popped');
-    this.blocksRemainingValue = this.createMetricCell('Blocks Remaining');
+    const { value: blocksRemainingValue, card: blocksRemainingCard } = this.createMetricCell2('Blocks Remaining');
+    this.blocksRemainingValue = blocksRemainingValue;
+    this.blocksRemainingCard = blocksRemainingCard;
     this.largestClusterValue = this.createMetricCell('Largest Cluster');
     this.movesValue = this.createMetricCell('Moves');
 
@@ -111,10 +115,12 @@ class GameOverOverlayView {
     sandboxBest: HighScoreEntry | null,
     isNewSandboxBest: boolean
   ): void {
+    this.title.textContent = modeId === 'timed' ? "Time's Up!" : 'Game Over';
     this.scoreValue.textContent = `${score}`;
     this.timeValue.textContent = time;
     this.blocksPoppedValue.textContent = `${blocksPopped}`;
     this.blocksRemainingValue.textContent = `${blocksRemaining}`;
+    this.blocksRemainingCard.style.display = modeId === 'timed' ? 'none' : '';
     this.largestClusterValue.textContent = `${largestCluster}`;
     this.movesValue.textContent = `${totalMoves}`;
     if (modeId === 'sandbox') {
@@ -129,6 +135,10 @@ class GameOverOverlayView {
   }
 
   private createMetricCell (labelText: string): HTMLSpanElement {
+    return this.createMetricCell2(labelText).value;
+  }
+
+  private createMetricCell2 (labelText: string): { value: HTMLSpanElement, card: HTMLDivElement } {
     const card = document.createElement('div');
     card.style.border = '1px solid #0089b3';
     card.style.borderRadius = '8px';
@@ -154,7 +164,7 @@ class GameOverOverlayView {
     card.appendChild(label);
     card.appendChild(value);
     this.metricsGrid.appendChild(card);
-    return value;
+    return { value, card };
   }
 
   private renderLeaderboard (highScores: HighScoreEntry[], rank: number | null): void {

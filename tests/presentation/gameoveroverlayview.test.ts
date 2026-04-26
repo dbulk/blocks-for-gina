@@ -65,4 +65,41 @@ describe('GameOverOverlayView', () => {
 
     document.body.removeChild(view.container);
   });
+
+  it('shows Time\'s Up title for timed mode', () => {
+    const view = new GameOverOverlayView();
+    document.body.appendChild(view.container);
+
+    view.setSummary('timed', 500, '01:00', 40, 10, 8, 20, [], null, null, false);
+
+    expect(view.container.textContent).toContain("Time's Up!");
+    expect(view.container.textContent).not.toContain('Game Over');
+
+    document.body.removeChild(view.container);
+  });
+
+  it('shows Game Over title for arcade mode', () => {
+    const view = new GameOverOverlayView();
+    document.body.appendChild(view.container);
+
+    view.setSummary('arcade', 200, '00:45', 20, 0, 5, 10, [], null, null, false);
+
+    expect(view.container.textContent).toContain('Game Over');
+    expect(view.container.textContent).not.toContain("Time's Up!");
+
+    document.body.removeChild(view.container);
+  });
+
+  it('hides blocks remaining card for timed mode', () => {
+    const view = new GameOverOverlayView();
+    document.body.appendChild(view.container);
+
+    view.setSummary('timed', 300, '01:00', 35, 15, 6, 18, [], null, null, false);
+    const cards = Array.from(view.container.querySelectorAll('div[style*="border"]'));
+    const remainingCard = cards.find(c => c.textContent?.includes('Blocks Remaining'));
+
+    expect((remainingCard as HTMLElement | undefined)?.style.display).toBe('none');
+
+    document.body.removeChild(view.container);
+  });
 });

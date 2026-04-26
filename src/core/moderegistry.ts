@@ -29,7 +29,7 @@ const createDefaultModeRegistry = (): ModeRegistry => {
   const registry = new ModeRegistry();
   registry.register({ id: 'arcade', name: 'Arcade', description: 'Play until there are no valid moves. Compare your best runs.', implemented: true });
   registry.register({ id: 'sandbox', name: 'Sandbox', description: 'Custom board size and generation. Explore freely.', implemented: true });
-  registry.register({ id: 'timed', name: 'Timed', description: 'Score as much as possible before time runs out.', implemented: false });
+  registry.register({ id: 'timed', name: 'Timed', description: 'Score as much as possible before time runs out.', implemented: true });
   registry.register({ id: 'sprint', name: 'Sprint', description: 'Maximize score within a fixed move budget.', implemented: false });
   registry.register({ id: 'antigravity', name: 'Antigravity', description: 'Blocks float upward instead of falling. Clear from the top down.', implemented: false });
   registry.register({ id: 'cascade', name: 'Cascade', description: 'Every pop triggers a chain reaction. Combos are everything.', implemented: false });

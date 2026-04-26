@@ -1,21 +1,45 @@
 import type GameState from '@/core/gamestate';
 import type { HudMetric } from '@/presentation/hudmetric';
+import { TIMED_MODE_DURATION_SECONDS, SPRINT_MODE_MAX_MOVES } from '@/core/moderules';
+
+const MODE_LABELS: Record<string, string> = {
+  arcade: 'Arcade',
+  sandbox: 'Sandbox',
+  timed: 'Timed',
+  sprint: 'Sprint',
+  cascade: 'Cascade',
+  precision: 'Precision',
+  antigravity: 'Antigravity',
+  zen: 'Zen'
+};
 
 class HudPresenter {
-  getMetrics (gameState: GameState): HudMetric[] {
+  getMetrics (gameState: GameState, modeId: string = 'arcade'): HudMetric[] {
     const blocksSelected = gameState.getNumBlocksToPop();
     const score = gameState.getScore();
     const selectedScore = gameState.getPopListScore();
     const remainingBlocks = gameState.getNumBlocksRemaining();
-    const availableMoves = gameState.getAvailableMoves();
 
     const t = gameState.getPlayedDuration();
-    const h = t.hours > 0 ? `${t.hours}:` : '';
-    const m = t.minutes.toString().padStart(2, '0');
-    const s = t.seconds.toString().padStart(2, '0');
-    const clock = `${h}${m}:${s}`;
+    const elapsedSeconds = t.hours * 3600 + t.minutes * 60 + t.seconds;
 
-    return [
+    const formatTime = (totalSeconds: number): string => {
+      const h = Math.floor(totalSeconds / 3600);
+      const m = Math.floor((totalSeconds % 3600) / 60);
+      const s = totalSeconds % 60;
+      return (h > 0 ? `${h}:` : '') + m.toString().padStart(2, '0') + ':' + s.toString().padStart(2, '0');
+    };
+
+    const modeLabel = MODE_LABELS[modeId] ?? modeId;
+
+    const metrics: HudMetric[] = [
+      {
+        key: 'mode',
+        label: 'Mode',
+        value: modeLabel,
+        order: 5,
+        visible: true
+      },
       {
         key: 'blocks',
         label: 'Blocks',
@@ -27,18 +51,21 @@ class HudPresenter {
       },
       {
         key: 'time',
-        label: 'Time',
-        value: clock,
-        order: 20,
-        visible: true
+        label: modeId === 'timed' ? 'Time Left' : 'Time',
+        value: modeId === 'timed'
+          ? formatTime(Math.max(0, TIMED_MODE_DURATION_SECONDS - elapsedSeconds))
+          : formatTime(elapsedSeconds),
+        tone: modeId === 'timed' && (TIMED_MODE_DURATION_SECONDS - elapsedSeconds) <= 30 ? 'warning' : 'default',
+        order: modeId === 'timed' ? 8 : 20,
+        visible: modeId !== 'sprint'
       },
       {
         key: 'moves',
-        label: 'Moves',
-        value: availableMoves.toString(),
-        tone: availableMoves === 0 ? 'accent' : 'default',
-        order: 25,
-        visible: true
+        label: 'Moves Left',
+        value: Math.max(0, SPRINT_MODE_MAX_MOVES - gameState.getTotalMoves()).toString(),
+        tone: (SPRINT_MODE_MAX_MOVES - gameState.getTotalMoves()) <= 5 ? 'warning' : 'default',
+        order: 8,
+        visible: modeId === 'sprint'
       },
       {
         key: 'score',
@@ -50,6 +77,8 @@ class HudPresenter {
         visible: true
       }
     ];
+
+    return metrics;
   }
 }
 

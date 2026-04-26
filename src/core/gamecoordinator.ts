@@ -112,6 +112,9 @@ class GameCoordinator {
     this.page.ui.setInputColors(this.prefs.blockColors);
 
     const runSetup = this.getRunSetup();
+    this.settings.numRows = runSetup.numRows;
+    this.settings.numColumns = runSetup.numColumns;
+    this.settings.numBlockTypes = runSetup.numBlockTypes;
     const runContext: RunContext = {
       modeId: this.settings.modeId,
       source: this.runSource,
@@ -132,7 +135,7 @@ class GameCoordinator {
     this.gameState.resetScore();
     this.gameState.resetRoundStats();
     this.gameState.resetUndo();
-    this.scoreBoard.update();
+    this.scoreBoard.update(runContext.modeId);
     this.renderer.adjustCanvasSize(this.page.getCanvasSizeConstraints());
     this.page.resize();
     this.gameOverAnimationState = 0;
@@ -196,12 +199,16 @@ class GameCoordinator {
     const isGameOver = shouldEndGameForMode(modeId, this.gameState, hasMoreMoves);
 
     if (!isGameOver) {
-      this.scoreBoard.update();
+      this.scoreBoard.update(modeId);
       if (this.hasShownGameOverSummary) {
         this.page.setSessionUIState('inGame');
         this.hasShownGameOverSummary = false;
       }
     } else {
+      if (!this.hasShownGameOverSummary) {
+        // Refresh HUD once at game end so timed countdown lands on 00:00.
+        this.scoreBoard.update(modeId);
+      }
       // show game over screen (todo: break out of the loop, but need a way to know whether it's running and start it again)
       this.gameOverAnimationState = Math.min(this.gameOverAnimationState + GAME_OVER_FADE_STEP, 90);
       this.renderer.showGameOver(this.gameOverAnimationState / 100);
@@ -222,6 +229,7 @@ class GameCoordinator {
           ? null
           : this.sandboxBest.record(entry);
 
+        this.sessionStorage.clear();
         this.page.setSessionUIState('gameOverSummary');
         this.page.setGameOverSummary(
           modeId,
@@ -269,7 +277,7 @@ class GameCoordinator {
     }
 
     this.renderer.renderBlocks();
-    this.scoreBoard.update();
+    this.scoreBoard.update(this.activeRunContext?.modeId ?? this.settings.modeId);
     if (turnItOff) {
       this.gameState.animating = false;
       this.gameState.blocksDirty = true;
@@ -383,7 +391,10 @@ class GameCoordinator {
   }
 
   private returnToModeSelect (): void {
-    this.serialize();
+    if (!this.hasShownGameOverSummary) {
+      this.serialize();
+    }
+    this.gameLoopManager.stop();
     this.page.setSessionUIState('modeSelect');
   }
 
@@ -400,6 +411,16 @@ class GameCoordinator {
   }
 
   serialize (): void {
+    const activeRunContext = this.activeRunContext ?? {
+      modeId: this.settings.modeId,
+      source: this.runSource,
+      setup: this.getRunSetup()
+    };
+    const isRunOver = this.hasShownGameOverSummary || shouldEndGameForMode(activeRunContext.modeId, this.gameState, this.gameState.hasMoreMoves());
+    if (isRunOver) {
+      this.sessionStorage.clear();
+      return;
+    }
     this.sessionStorage.save(this.gameState.serialize(), this.settings.serialize());
   }
 
@@ -412,7 +433,7 @@ class GameCoordinator {
     this.settings.deserialize(snapshot.settings as Parameters<typeof this.settings.deserialize>[0]);
     this.settingsPresenter.settingsToUI();
     this.gameState.deserialize(snapshot.state as Parameters<typeof this.gameState.deserialize>[0]);
-    this.scoreBoard.update();
+    this.scoreBoard.update(this.settings.modeId);
     this.setAudioState();
     this.renderer.adjustCanvasSize(this.page.getCanvasSizeConstraints());
     this.page.resize();

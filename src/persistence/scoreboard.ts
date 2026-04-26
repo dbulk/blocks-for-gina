@@ -13,8 +13,8 @@ class ScoreBoard {
     this.hudPresenter = new HudPresenter();
   }
 
-  update (): void {
-    const metrics = this.hudPresenter.getMetrics(this.gameState);
+  update (modeId: string = 'arcade'): void {
+    const metrics = this.hudPresenter.getMetrics(this.gameState, modeId);
     this.scoreDisplay.render(metrics);
   }
 }

@@ -49,8 +49,8 @@ class HudView {
       nodes.delta.style.visibility = metric.delta === undefined ? 'hidden' : 'visible';
 
       const tone = metric.tone ?? 'default';
-      nodes.value.style.color = tone === 'accent' ? '#0089b3' : '#fff';
-      nodes.delta.style.color = tone === 'accent' ? '#0089b3' : '#ccc';
+      nodes.value.style.color = tone === 'accent' ? '#0089b3' : tone === 'warning' ? '#e8a020' : '#fff';
+      nodes.delta.style.color = tone === 'accent' ? '#0089b3' : tone === 'warning' ? '#e8a020' : '#ccc';
 
       this.div.appendChild(nodes.card);
     }
