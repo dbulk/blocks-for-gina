@@ -1,6 +1,7 @@
 // @vitest-environment jsdom
 
 import { beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
+import { createSessionSnapshot } from '@/persistence/sessionsnapshot';
 
 type SandboxConfig = {
   numRows: number
@@ -17,12 +18,53 @@ const state = vi.hoisted(() => ({
   modeSelectShownListener: null as (() => void) | null,
   setSessionUIState: vi.fn<(value: string) => void>(),
   setResumeVisible: vi.fn<(visible: boolean, modeId?: string) => void>(),
-  gameRunnerCtor: vi.fn<(...args: unknown[]) => void>(),
-  session: {
-    hasSave: false,
-    savedModeId: null as string | null
-  }
+  gameRunnerCtor: vi.fn<(...args: unknown[]) => void>()
 }));
+
+class LocalStorageMock implements Storage {
+  private store = new Map<string, string>();
+
+  get length (): number {
+    return this.store.size;
+  }
+
+  clear (): void {
+    this.store.clear();
+  }
+
+  getItem (key: string): string | null {
+    return this.store.get(key) ?? null;
+  }
+
+  key (index: number): string | null {
+    return Array.from(this.store.keys())[index] ?? null;
+  }
+
+  removeItem (key: string): void {
+    this.store.delete(key);
+  }
+
+  setItem (key: string, value: string): void {
+    this.store.set(key, value);
+  }
+}
+
+const storeSnapshot = (modeId: string): void => {
+  localStorage.setItem('b4g', JSON.stringify(createSessionSnapshot(
+    {
+      griddata: [[1, 1], [2, 3]],
+      score: 10,
+      serializedGameDuration: 1000
+    },
+    {
+      numColumns: 20,
+      numRows: 10,
+      numBlockTypes: 5,
+      clusterStrength: 0.2,
+      modeId
+    }
+  )));
+};
 
 vi.mock('@/core/gamerunner', () => ({
   default: class MockGameRunner {
@@ -53,18 +95,6 @@ vi.mock('@/rendering/renderer', () => ({
     constructor () {}
     setGameState (): void {}
     adjustCanvasSize (): void {}
-  }
-}));
-
-vi.mock('@/persistence/sessionstorage', () => ({
-  default: class MockSessionStorage {
-    hasSavedGame (): boolean {
-      return state.session.hasSave;
-    }
-
-    getSavedModeId (): string | null {
-      return state.session.savedModeId;
-    }
   }
 }));
 
@@ -135,8 +165,11 @@ describe('Blocks4Gina mode flow integration', () => {
     state.setSessionUIState.mockReset();
     state.setResumeVisible.mockReset();
     state.gameRunnerCtor.mockReset();
-    state.session.hasSave = false;
-    state.session.savedModeId = null;
+    Object.defineProperty(globalThis, 'localStorage', {
+      value: new LocalStorageMock(),
+      configurable: true,
+      writable: true
+    });
   });
 
   it('starts selected non-sandbox mode from mode select', () => {
@@ -177,8 +210,7 @@ describe('Blocks4Gina mode flow integration', () => {
   });
 
   it('resumes saved run using saved mode and resume source', () => {
-    state.session.hasSave = true;
-    state.session.savedModeId = 'sprint';
+    storeSnapshot('sprint');
 
     const element = document.createElement('blocks-4-gina');
     document.body.appendChild(element);
@@ -201,10 +233,18 @@ describe('Blocks4Gina mode flow integration', () => {
 
     expect(state.setResumeVisible).toHaveBeenCalledWith(false, undefined);
 
-    state.session.hasSave = true;
-    state.session.savedModeId = 'timed';
+    storeSnapshot('timed');
     state.modeSelectShownListener?.();
 
     expect(state.setResumeVisible).toHaveBeenLastCalledWith(true, 'timed');
+  });
+
+  it('shows resume for legacy mode ids using the real session snapshot shape', () => {
+    storeSnapshot('zen');
+
+    const element = document.createElement('blocks-4-gina');
+    document.body.appendChild(element);
+
+    expect(state.setResumeVisible).toHaveBeenCalledWith(true, 'infinite');
   });
 });
