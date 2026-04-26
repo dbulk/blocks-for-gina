@@ -4,11 +4,11 @@
 
 See [ai-workflow.md](ai-workflow.md) for the full step-by-step execution process.
 
-## #leaderboard-per-mode
-Competitive leaderboard partitioning
-- Track scores by competitive mode
-- Keep per-mode top entries
-- Add migration-safe schema update
+## #mode-aware-hud
+HUD variants by active mode
+- Timer prominence for timed mode
+- Remaining moves for move-limited
+- Mode label and compact state
 
 ## #timed-mode-v1
 Timed mode first playable version
@@ -16,17 +16,17 @@ Timed mode first playable version
 - End condition on timer expiry
 - Mode-specific game-over summary
 
+## #leaderboard-per-mode
+Competitive leaderboard partitioning
+- Track scores by competitive mode
+- Keep per-mode top entries
+- Add migration-safe schema update
+
 ## #sprint-mode-v1
 Sprint mode first playable version
 - Fixed move budget (30 moves)
 - End condition on budget exhaustion
 - Mode-specific summary details
-
-## #mode-aware-hud
-HUD variants by active mode
-- Timer prominence for timed mode
-- Remaining moves for move-limited
-- Mode label and compact state
 
 ## #mode-flow-integration-tests
 Mode lifecycle integration coverage
@@ -40,11 +40,11 @@ New mode authoring contract
 - Rule hooks and summary hooks
 - Test template for new mode PRs
 
-## #antigravity-mode-v1
-Antigravity mode first playable version
-- Blocks float upward instead of falling down
-- Clear from the top of the board
-- New gravity direction rendering pass
+## #zen-mode-v1
+Zen mode first playable version
+- No timer, no move limit, no game over state
+- Infinite play until player exits, blocks reappear after popping
+- No competitive scoring or leaderboard entry
 
 ## #cascade-mode-v1
 Cascade mode first playable version
@@ -58,8 +58,8 @@ Precision mode first playable version
 - Pops below threshold do not count
 - HUD shows minimum cluster requirement
 
-## #zen-mode-v1
-Zen mode first playable version
-- No timer, no move limit, no game over state
-- Infinite play until player exits
-- No competitive scoring or leaderboard entry
+## #antigravity-mode-v1
+Antigravity mode first playable version
+- Blocks float upward instead of falling down
+- Clear from the top of the board
+- New gravity direction rendering pass

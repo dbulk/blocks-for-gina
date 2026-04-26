@@ -19,18 +19,17 @@ const getByKey = (metrics: ReturnType<HudPresenter['getMetrics']>, key: string) 
 };
 
 describe('HudPresenter', () => {
-  it('returns expected metrics in stable order', () => {
+  it('returns expected metrics in stable order for arcade mode', () => {
     const state = makeStateFromGrid([
       [1, 2],
       [3, 4]
     ]);
     const presenter = new HudPresenter();
 
-    const metrics = presenter.getMetrics(state);
+    const metrics = presenter.getMetrics(state, 'arcade');
+    const visibleKeys = metrics.filter((m) => m.visible).sort((a, b) => a.order - b.order).map((m) => m.key);
 
-    expect(metrics.map((m) => m.key)).toEqual(['blocks', 'time', 'moves', 'score']);
-    expect(metrics.map((m) => m.order)).toEqual([10, 20, 25, 30]);
-    expect(metrics.every((m) => m.visible)).toBe(true);
+    expect(visibleKeys).toEqual(['mode', 'blocks', 'time', 'score']);
   });
 
   it('shows baseline values with no preview deltas when nothing is selected', () => {
@@ -40,11 +39,11 @@ describe('HudPresenter', () => {
     ], 123);
     const presenter = new HudPresenter();
 
-    const metrics = presenter.getMetrics(state);
+    const metrics = presenter.getMetrics(state, 'arcade');
     const blocks = getByKey(metrics, 'blocks');
     const score = getByKey(metrics, 'score');
     const time = getByKey(metrics, 'time');
-    const moves = getByKey(metrics, 'moves');
+    const mode = getByKey(metrics, 'mode');
 
     expect(blocks?.label).toBe('Blocks');
     expect(blocks?.value).toBe('4');
@@ -59,9 +58,8 @@ describe('HudPresenter', () => {
     expect(time?.label).toBe('Time');
     expect(time?.value).toMatch(/^(\d+:)?\d{2}:\d{2}$/);
 
-    expect(moves?.label).toBe('Moves');
-    expect(moves?.value).toBe('0');
-    expect(moves?.tone).toBe('accent');
+    expect(mode?.value).toBe('Arcade');
+    expect(mode?.visible).toBe(true);
   });
 
   it('shows preview deltas and accent tone when a valid cluster is selected', () => {
@@ -74,7 +72,7 @@ describe('HudPresenter', () => {
 
     state.updateSelection({ row: 0, col: 0 });
 
-    const metrics = presenter.getMetrics(state);
+    const metrics = presenter.getMetrics(state, 'arcade');
     const blocks = getByKey(metrics, 'blocks');
     const score = getByKey(metrics, 'score');
 
@@ -95,12 +93,67 @@ describe('HudPresenter', () => {
 
     state.updateSelection({ row: 1, col: 1 });
 
-    const metrics = presenter.getMetrics(state);
+    const metrics = presenter.getMetrics(state, 'arcade');
     const blocks = getByKey(metrics, 'blocks');
     const score = getByKey(metrics, 'score');
 
     expect(blocks?.delta).toBeUndefined();
     expect(score?.delta).toBeUndefined();
     expect(score?.value).toBe('77');
+  });
+
+  it('shows sandbox mode label for sandbox mode', () => {
+    const state = makeStateFromGrid([[1, 2], [3, 4]]);
+    const presenter = new HudPresenter();
+
+    const metrics = presenter.getMetrics(state, 'sandbox');
+    const mode = getByKey(metrics, 'mode');
+
+    expect(mode?.value).toBe('Sandbox');
+  });
+
+  it('shows timed mode with countdown and no moves metric', () => {
+    const state = makeStateFromGrid([[1, 2], [3, 4]]);
+    const presenter = new HudPresenter();
+
+    const metrics = presenter.getMetrics(state, 'timed');
+    const time = getByKey(metrics, 'time');
+    const movesMetric = metrics.find((m) => m.key === 'moves');
+    const mode = getByKey(metrics, 'mode');
+
+    expect(mode?.value).toBe('Timed');
+    expect(time?.label).toBe('Time Left');
+    expect(time?.visible).toBe(true);
+    expect(movesMetric?.visible).toBe(false);
+  });
+
+  it('shows sprint mode with remaining moves and hides time', () => {
+    const state = makeStateFromGrid([[1, 2], [3, 4]]);
+    const presenter = new HudPresenter();
+
+    const metrics = presenter.getMetrics(state, 'sprint');
+    const movesMetric = getByKey(metrics, 'moves');
+    const time = metrics.find((m) => m.key === 'time');
+    const mode = getByKey(metrics, 'mode');
+
+    expect(mode?.value).toBe('Sprint');
+    expect(movesMetric?.label).toBe('Moves Left');
+    expect(movesMetric?.visible).toBe(true);
+    expect(time?.visible).toBe(false);
+  });
+
+  it('shows warning tone on sprint moves when budget nearly exhausted', () => {
+    const state = makeStateFromGrid([[1, 2], [3, 4]]);
+    // simulate 26 moves used (4 remaining out of 30 — <= 5 threshold)
+    for (let i = 0; i < 26; i++) {
+      (state as any).totalMoves++;
+    }
+    const presenter = new HudPresenter();
+
+    const metrics = presenter.getMetrics(state, 'sprint');
+    const movesMetric = getByKey(metrics, 'moves');
+
+    expect(movesMetric?.tone).toBe('warning');
+    expect(movesMetric?.value).toBe('4');
   });
 });
