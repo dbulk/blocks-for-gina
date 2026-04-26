@@ -4,12 +4,6 @@
 
 See [ai-workflow.md](ai-workflow.md) for the full step-by-step execution process.
 
-## #mode-context-plumbing
-Mode and run context propagation
-- Mode ID in start and end payloads
-- Setup payload attached to run
-- Coordinator consumes context consistently
-
 ## #leaderboard-per-mode
 Competitive leaderboard partitioning
 - Track scores by competitive mode

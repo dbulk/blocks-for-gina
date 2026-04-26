@@ -186,7 +186,12 @@ class GameCoordinator {
       this.gameState.blocksDirty = false;
     }
 
-    const modeId = this.activeRunContext?.modeId ?? this.settings.modeId;
+    const activeRunContext = this.activeRunContext ?? {
+      modeId: this.settings.modeId,
+      source: this.runSource,
+      setup: this.getRunSetup()
+    };
+    const modeId = activeRunContext.modeId;
     const hasMoreMoves = this.gameState.hasMoreMoves();
     const isGameOver = shouldEndGameForMode(modeId, this.gameState, hasMoreMoves);
 
@@ -206,8 +211,8 @@ class GameCoordinator {
         const entry = {
           score: this.gameState.getScore(),
           elapsedSeconds,
-          rows: this.settings.numRows,
-          columns: this.settings.numColumns,
+          rows: activeRunContext.setup.numRows,
+          columns: activeRunContext.setup.numColumns,
           playedAt: Date.now()
         };
         const recordResult = isCompetitiveMode(modeId)
@@ -239,11 +244,7 @@ class GameCoordinator {
           playedSeconds: elapsedSeconds,
           blocksPopped: this.gameState.getBlocksPopped(),
           largestCluster: this.gameState.getLargestCluster(),
-          runContext: this.activeRunContext ?? {
-            modeId,
-            source: this.runSource,
-            setup: this.getRunSetup()
-          }
+          runContext: activeRunContext
         };
         this.eventBus.emit('gameEnded', gameEndedEvent);
         this.hasShownGameOverSummary = true;

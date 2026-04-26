@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import GameCoordinator from '@/core/gamecoordinator';
 import GameSettings from '@/core/gamesettings';
 import GameEventBus from '@/events/eventbus';
@@ -148,5 +148,101 @@ describe('#arcade-default-config', () => {
     expect(captured!.rows).not.toBe(ARCADE_RUN_CONFIG.numRows);
     expect(captured!.columns).not.toBe(ARCADE_RUN_CONFIG.numColumns);
     expect(captured!.blockTypes).not.toBe(ARCADE_RUN_CONFIG.numBlockTypes);
+  });
+
+  it('arcade game-over persistence uses active run setup rather than mutable settings', () => {
+    const canvas = document.createElement('canvas');
+    const record = vi.fn(() => ({ rank: null, topEntries: [] }));
+
+    const renderer = {
+      setGameState: () => {},
+      adjustCanvasSize: () => {},
+      renderBlocks: () => {},
+      renderPreview: () => {},
+      showGameOver: () => {},
+      getGridIndicesFromClientPosition: () => ({ row: 0, col: 0 })
+    };
+
+    const ui = {
+      setColorInputCount: () => {},
+      setInputColors: () => {},
+      setUndoEnabled: () => {},
+      setRedoEnabled: () => {},
+      addNewGameClickListener: () => {},
+      addApplySettingsListener: () => {},
+      addResetSettingsListener: () => {},
+      addUndoListener: () => {},
+      addRedoListener: () => {},
+      addTogMusicClickListener: () => {},
+      addTogSoundClickListener: () => {},
+      addInputColorsInputListener: () => {},
+      addInputBlockStyleListener: () => {}
+    };
+
+    const page = {
+      canvas,
+      ui,
+      scoreDisplay: { render: () => {} },
+      setSessionUIState: () => {},
+      setGameOverSummary: () => {},
+      getCanvasSizeConstraints: () => ({ width: 400, height: 300 }),
+      resize: () => {},
+      addPlayAgainClickListener: () => {}
+    };
+
+    const settingsPresenter = {
+      resetToDefaults: () => {},
+      uiAllToSettings: () => {},
+      syncAudioToSettings: () => {},
+      settingsToUI: () => {},
+      uiColorsToSettings: () => {},
+      uiToSettings: () => {}
+    };
+
+    const settings = new GameSettings();
+    settings.modeId = 'arcade';
+    settings.numRows = 99;
+    settings.numColumns = 99;
+
+    const userPreferences = {
+      isMusicEnabled: true,
+      isSoundEnabled: true,
+      blockStyle: 'Classic',
+      blockColors: ['#007B7F', '#FF6F61', '#4F86F7', '#B6D94C', '#8368F2'],
+      ensureBlockColorCapacity: () => {}
+    };
+
+    const coordinator = new GameCoordinator(
+      renderer as never,
+      settings,
+      userPreferences as never,
+      settingsPresenter as never,
+      page as never,
+      {
+        eventBus: new GameEventBus(),
+        gameLoopManager: { start: () => {}, stop: () => {} } as never,
+        sessionStorage: { save: () => {}, load: () => null } as never,
+        audioController: { applySettings: () => {}, playSoundEffect: () => {} } as never,
+        highScores: { record } as never,
+        autoStartLoop: false,
+        attachBeforeUnloadListener: false
+      }
+    );
+
+    coordinator.gameState.deserialize({
+      griddata: [[1]],
+      score: 10,
+      serializedGameDuration: 0,
+      totalMoves: 0,
+      largestCluster: 1,
+      blocksPopped: 0
+    });
+
+    (coordinator as unknown as { gameLoop: () => void }).gameLoop();
+
+    expect(record).toHaveBeenCalledWith(expect.objectContaining({
+      rows: ARCADE_RUN_CONFIG.numRows,
+      columns: ARCADE_RUN_CONFIG.numColumns
+    }));
   });
 });
