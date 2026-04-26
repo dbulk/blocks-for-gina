@@ -4,12 +4,6 @@
 
 See [ai-workflow.md](ai-workflow.md) for the full step-by-step execution process.
 
-## #precision-mode-v1
-Precision mode first playable version
-- Each turn sets a target cluster size to hit (shown in HUD)
-- Only exact-size pops score; misses add a strike
-- Three strikes ends the run, while streaks of exact hits boost score
-
 ## #antigravity-mode-v1
 Antigravity mode first playable version
 - Blocks float upward instead of falling down
