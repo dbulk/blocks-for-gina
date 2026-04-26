@@ -46,6 +46,7 @@ class GameCoordinator {
   private hasShownGameOverSummary: boolean = false;
   private activeRunContext: RunContext | null = null;
   private readonly runSource: RunSource;
+  private precisionNeedsNewTarget: boolean = false;
   private readonly highScores: LocalHighScores;
   private readonly sandboxBest: LocalSandboxBest;
   private readonly eventBus: GameEventBus;
@@ -136,6 +137,12 @@ class GameCoordinator {
     this.gameState.resetRoundStats();
     this.gameState.resetModeRuntimeStats();
     this.gameState.resetUndo();
+    if (runContext.modeId === 'precision') {
+      this.assignNextPrecisionTarget();
+      this.precisionNeedsNewTarget = false;
+    } else {
+      this.precisionNeedsNewTarget = false;
+    }
     this.scoreBoard.update(runContext.modeId);
     this.renderer.adjustCanvasSize(this.page.getCanvasSizeConstraints());
     this.page.resize();
@@ -210,6 +217,11 @@ class GameCoordinator {
         };
         this.eventBus.emit('blocksPopped', poppedEvent);
       }
+    }
+
+    if (modeId === 'precision' && !this.gameState.animating && this.precisionNeedsNewTarget) {
+      this.assignNextPrecisionTarget();
+      this.precisionNeedsNewTarget = false;
     }
 
     if (modeId === 'infinite') {
@@ -322,7 +334,22 @@ class GameCoordinator {
       this.gameState.updateSelection(coord);
 
       const activeModeId = this.activeRunContext?.modeId ?? this.settings.modeId;
-      if (activeModeId === 'cascade') {
+      if (activeModeId === 'precision') {
+        const selectedClusterSize = this.gameState.getNumBlocksToPop();
+        if (selectedClusterSize === this.gameState.getPrecisionTargetSize()) {
+          const multiplier = this.gameState.getPrecisionHitMultiplier();
+          const popped = this.gameState.doPop({ scoreMultiplier: multiplier });
+          if (popped > 0) {
+            this.gameState.recordPrecisionExactHit();
+          }
+        } else {
+          this.gameState.recordPrecisionMiss();
+          this.gameState.updateSelection({ row: -1, col: -1 });
+          this.gameState.clearSelectionTarget();
+          this.gameState.blocksDirty = true;
+        }
+        this.precisionNeedsNewTarget = true;
+      } else if (activeModeId === 'cascade') {
         this.gameState.startCascadeTurn();
         const popped = this.gameState.doPop();
         if (popped > 0) {
@@ -440,6 +467,17 @@ class GameCoordinator {
     return `${h}${m}:${s}`;
   }
 
+  private assignNextPrecisionTarget (): void {
+    const availableSizes = this.gameState.getAvailableClusterSizes();
+    if (availableSizes.length === 0) {
+      this.gameState.setPrecisionTargetSize(2);
+      return;
+    }
+
+    const nextIndex = (this.gameState.getTotalMoves() + this.gameState.getPrecisionStrikes() + this.gameState.getPrecisionStreak()) % availableSizes.length;
+    this.gameState.setPrecisionTargetSize(availableSizes[nextIndex]);
+  }
+
   serialize (): void {
     const activeRunContext = this.activeRunContext ?? {
       modeId: this.settings.modeId,
@@ -463,6 +501,9 @@ class GameCoordinator {
     this.settings.deserialize(snapshot.settings as Parameters<typeof this.settings.deserialize>[0]);
     this.settingsPresenter.settingsToUI();
     this.gameState.deserialize(snapshot.state as Parameters<typeof this.gameState.deserialize>[0]);
+    if (this.settings.modeId === 'precision' && this.gameState.getPrecisionTargetSize() < 2) {
+      this.assignNextPrecisionTarget();
+    }
     this.scoreBoard.update(this.settings.modeId);
     this.setAudioState();
     this.renderer.adjustCanvasSize(this.page.getCanvasSizeConstraints());
