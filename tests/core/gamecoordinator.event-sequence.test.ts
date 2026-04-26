@@ -687,6 +687,31 @@ describe('GameCoordinator event sequencing', () => {
     expect(coordinator.gameState.getBlocksPopped()).toBe(4);
   });
 
+  it('records a precision strike on non-target pops', () => {
+    const bus = new GameEventBus();
+    const { coordinator, canvas } = createCoordinator('precision', bus);
+
+    coordinator.gameState.deserialize({
+      griddata: [
+        [1, 1],
+        [2, 2]
+      ],
+      score: 0,
+      serializedGameDuration: 0,
+      totalMoves: 0,
+      largestCluster: 0,
+      blocksPopped: 0
+    });
+    coordinator.gameState.setPrecisionTargetSize(3);
+
+    dispatchPointerUp(canvas);
+    (coordinator as unknown as { gameLoop: () => void }).gameLoop();
+
+    expect(coordinator.gameState.getPrecisionStrikes()).toBe(1);
+    expect(coordinator.gameState.getScore()).toBe(0);
+    expect(coordinator.gameState.getBlocksPopped()).toBe(0);
+  });
+
   it('renders HUD metrics before measuring canvas constraints on startup', () => {
     const order: string[] = [];
     const canvas = document.createElement('canvas');

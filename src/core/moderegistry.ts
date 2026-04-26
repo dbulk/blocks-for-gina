@@ -59,7 +59,7 @@ const registerDefaultModes = (registry: ModeRegistry): void => {
   registry.register({ id: 'sprint', name: 'Sprint', description: 'Maximize score within a fixed move budget.', implemented: true, competitive: true });
   registry.register({ id: 'antigravity', name: 'Antigravity', description: 'Blocks float upward instead of falling. Clear from the top down.', implemented: false });
   registry.register({ id: 'cascade', name: 'Cascade', description: 'Trigger chain reactions and stack wave multipliers in a single turn.', implemented: true, competitive: true });
-  registry.register({ id: 'precision', name: 'Precision', description: 'Hit exact cluster-size targets. Misses add strikes; streaks boost points.', implemented: false, competitive: true });
+  registry.register({ id: 'precision', name: 'Precision', description: 'Hit exact cluster-size targets. Misses add strikes; streaks boost points.', implemented: true, competitive: true });
   registry.register({ id: 'infinite', name: 'Infinite', description: 'No timer or move cap. Keep playing as new blocks fall in.', implemented: true, competitive: false });
 };
 

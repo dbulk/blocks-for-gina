@@ -2,6 +2,7 @@ import type GameState from '@/core/gamestate';
 
 const TIMED_MODE_DURATION_SECONDS = 60;
 const SPRINT_MODE_MAX_MOVES = 10;
+const PRECISION_MAX_STRIKES = 3;
 
 type ModeEndRuleHook = (gameState: GameState, hasMoreMoves: boolean) => boolean;
 
@@ -12,6 +13,7 @@ const modeEndRuleHooks = new Map<string, ModeEndRuleHook>([
     return elapsedSeconds >= TIMED_MODE_DURATION_SECONDS;
   }],
   ['sprint', (gameState: GameState, hasMoreMoves: boolean) => gameState.getTotalMoves() >= SPRINT_MODE_MAX_MOVES || !hasMoreMoves],
+  ['precision', (gameState: GameState, hasMoreMoves: boolean) => gameState.getPrecisionStrikes() >= PRECISION_MAX_STRIKES || !hasMoreMoves],
   ['infinite', () => false]
 ]);
 
@@ -38,5 +40,6 @@ export {
   shouldEndGameForMode,
   registerModeEndRuleHook,
   TIMED_MODE_DURATION_SECONDS,
-  SPRINT_MODE_MAX_MOVES
+  SPRINT_MODE_MAX_MOVES,
+  PRECISION_MAX_STRIKES
 };
