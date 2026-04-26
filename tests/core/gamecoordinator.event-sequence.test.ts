@@ -5,6 +5,7 @@ import GameCoordinator from '@/core/gamecoordinator';
 import GameSettings from '@/core/gamesettings';
 import GameEventBus from '@/events/eventbus';
 import type { GameEvent, GameEventType } from '@/events/events';
+import { createRunContext } from '../fixtures/runcontext';
 
 const ALL_EVENT_TYPES: GameEventType[] = [
   'modeSelected',
@@ -123,16 +124,7 @@ describe('GameCoordinator event sequencing', () => {
       columns: 20,
       blockTypes: 5,
       modeId: 'classic',
-      runContext: {
-        modeId: 'classic',
-        source: 'modeSelect',
-        setup: {
-          numRows: 10,
-          numColumns: 20,
-          numBlockTypes: 5,
-          clusterStrength: 0.2
-        }
-      }
+      runContext: createRunContext('classic')
     });
 
     expect(capture.sequence).toEqual(['modeSelected', 'gameStarted']);
@@ -210,33 +202,18 @@ describe('GameCoordinator event sequencing', () => {
       rows: 10,
       columns: 20,
       blockTypes: 5,
-      runContext: {
-        modeId: 'timed',
-        source: 'modeSelect',
-        setup: {
-          numRows: 10,
-          numColumns: 20,
-          numBlockTypes: 5,
-          clusterStrength: 0.2
-        }
-      }
+      runContext: createRunContext('timed')
     });
     expect(modeRulesApplied).toMatchObject({
       type: 'modeRulesApplied',
       modeId: 'timed',
-      runContext: {
-        modeId: 'timed',
-        source: 'modeSelect'
-      }
+      runContext: createRunContext('timed')
     });
     expect(blocksPopped).toMatchObject({ type: 'blocksPopped', clusterSize: 2 });
     expect(gameEnded).toMatchObject({
       type: 'gameEnded',
       modeId: 'timed',
-      runContext: {
-        modeId: 'timed',
-        source: 'modeSelect'
-      }
+      runContext: createRunContext('timed')
     });
 
     expect((blocksPopped as { totalScore: number }).totalScore).toBeGreaterThan(0);
