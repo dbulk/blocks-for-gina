@@ -4,7 +4,7 @@ import { TIMED_MODE_DURATION_SECONDS, SPRINT_MODE_MAX_MOVES, PRECISION_MAX_STRIK
 import { getModeMetadata } from '@/core/moderegistry';
 
 class HudPresenter {
-  getMetrics (gameState: GameState, modeId: string = 'arcade'): HudMetric[] {
+  getMetrics (gameState: GameState, modeId: string = 'classic'): HudMetric[] {
     const blocksSelected = gameState.getNumBlocksToPop();
     const score = gameState.getScore();
     const selectedScore = gameState.getPopListScore();

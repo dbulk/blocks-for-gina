@@ -52,7 +52,7 @@ class Blocks4Gina extends HTMLElement {
     };
 
     const resumeGame = (): void => {
-      const savedModeId = sessionStorage.getSavedModeId() ?? 'arcade';
+      const savedModeId = sessionStorage.getSavedModeId() ?? 'classic';
       gameSettings.modeId = savedModeId;
       page.setSessionUIState('inGame');
       new GameRunner(renderer, gameSettings, prefs, settingsPresenter, page, { skipSessionRestore: false, runSource: 'resume' });

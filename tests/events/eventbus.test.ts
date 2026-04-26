@@ -12,9 +12,9 @@ describe('GameEventBus', () => {
       rows: 10,
       columns: 20,
       blockTypes: 5,
-      modeId: 'arcade',
+      modeId: 'classic',
       runContext: {
-        modeId: 'arcade',
+        modeId: 'classic',
         source: 'modeSelect',
         setup: {
           numRows: 10,
@@ -37,13 +37,13 @@ describe('GameEventBus', () => {
 
     bus.emit('gameEnded', {
       type: 'gameEnded',
-      modeId: 'arcade',
+      modeId: 'classic',
       score: 120,
       playedSeconds: 77,
       blocksPopped: 10,
       largestCluster: 4,
       runContext: {
-        modeId: 'arcade',
+        modeId: 'classic',
         source: 'modeSelect',
         setup: {
           numRows: 10,

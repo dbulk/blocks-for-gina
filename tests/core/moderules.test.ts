@@ -20,10 +20,10 @@ describe('mode rules', () => {
     resetModeEndRuleHooks();
   });
 
-  it('uses no-more-moves for arcade mode', () => {
+  it('uses no-more-moves for classic mode', () => {
     const state = makeState(0, 0);
-    expect(shouldEndGameForMode('arcade', state as never, false)).toBe(true);
-    expect(shouldEndGameForMode('arcade', state as never, true)).toBe(false);
+    expect(shouldEndGameForMode('classic', state as never, false)).toBe(true);
+    expect(shouldEndGameForMode('classic', state as never, true)).toBe(false);
   });
 
   it('ends timed mode at or after time limit', () => {

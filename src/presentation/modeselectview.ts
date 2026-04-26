@@ -4,7 +4,7 @@ type ModeSelectListener = (modeId: string) => void;
 
 class ModeSelectView {
   readonly container: HTMLDivElement;
-  private selectedModeId: string = 'arcade';
+  private selectedModeId: string = 'classic';
   private readonly toggleButtons: HTMLButtonElement[] = [];
   private readonly toggleRow: HTMLDivElement;
   private listener: ModeSelectListener | null = null;
@@ -79,7 +79,7 @@ class ModeSelectView {
       this.toggleRow.appendChild(btn);
     }
     if (!this.toggleButtons.some(b => b.dataset.modeId === this.selectedModeId)) {
-      this.selectedModeId = this.toggleButtons[0]?.dataset.modeId ?? 'arcade';
+      this.selectedModeId = this.toggleButtons[0]?.dataset.modeId ?? 'classic';
     }
     this.updateSelection();
   }

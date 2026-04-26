@@ -7,7 +7,7 @@ const makeUiStub = () => {
     rows: 10,
     columns: 20,
     clusterStrength: 0.2,
-    modeId: 'arcade',
+    modeId: 'classic',
     blockStyle: 'Classic',
     colors: ['#111111', '#222222'],
     music: true,

@@ -57,9 +57,15 @@ const isSameEntry = (a: HighScoreEntry, b: HighScoreEntry): boolean => (
   a.playedAt === b.playedAt
 );
 
-const DEFAULT_MODE_ID = 'arcade';
+const DEFAULT_MODE_ID = 'classic';
 
-const sanitizeModeId = (modeId: string): string => modeId.trim() === '' ? DEFAULT_MODE_ID : modeId;
+const sanitizeModeId = (modeId: string): string => {
+  const normalized = modeId.trim();
+  if (normalized === '') {
+    return DEFAULT_MODE_ID;
+  }
+  return normalized === 'arcade' ? DEFAULT_MODE_ID : normalized;
+};
 
 const normalizeEntries = (entries: unknown, maxEntries: number): HighScoreEntry[] => {
   if (!Array.isArray(entries)) {
@@ -124,6 +130,13 @@ class LocalHighScores {
       const buckets: HighScoreBuckets = {};
       for (const [modeId, modeEntries] of Object.entries(parsed as Record<string, unknown>)) {
         buckets[sanitizeModeId(modeId)] = normalizeEntries(modeEntries, this.maxEntries);
+      }
+      if (Array.isArray(buckets.arcade)) {
+        const combined = [...(buckets[DEFAULT_MODE_ID] ?? []), ...buckets.arcade]
+          .sort((a, b) => compareEntries(a, b))
+          .slice(0, this.maxEntries);
+        buckets[DEFAULT_MODE_ID] = combined;
+        delete buckets.arcade;
       }
       return buckets;
     } catch {

@@ -270,6 +270,21 @@ class GameState {
     return { hours, minutes, seconds };
   }
 
+  getPlayedDurationSeconds (): number {
+    const t = this.getPlayedDuration();
+    return t.hours * 3600 + t.minutes * 60 + t.seconds;
+  }
+
+  setPlayedDurationSeconds (seconds: number): void {
+    const clampedSeconds = Math.max(0, Math.floor(seconds));
+    this.serializedGameDuration = clampedSeconds * 1000;
+    this.gameStartTime = performance.now();
+  }
+
+  addScore (points: number): void {
+    this.score += Math.max(0, Math.floor(points));
+  }
+
   initializeGrid (numRows: number, numColumns: number, numBlockTypes: number, clusterStrength: number): void {
     this.numRows = numRows;
     this.numColumns = numColumns;

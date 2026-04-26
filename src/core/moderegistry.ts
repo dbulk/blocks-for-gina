@@ -16,6 +16,11 @@ interface ModeRegistration {
 
 const normalizeModeId = (modeId: string): string => modeId.trim();
 
+const normalizeModeLookupId = (modeId: string): string => {
+  const normalized = normalizeModeId(modeId);
+  return normalized === 'arcade' ? 'classic' : normalized;
+};
+
 const describeValue = (value: unknown): string => {
   const serialized = JSON.stringify(value);
   return serialized ?? String(value);
@@ -74,7 +79,7 @@ class ModeRegistry {
   }
 
   get (id: string): GameMode | null {
-    return this.modes.get(id) ?? null;
+    return this.modes.get(normalizeModeLookupId(id)) ?? null;
   }
 
   list (): GameMode[] {
@@ -83,14 +88,14 @@ class ModeRegistry {
 }
 
 const registerDefaultModes = (registry: ModeRegistry): void => {
-  registry.register({ id: 'arcade', name: 'Arcade', description: 'Play until there are no valid moves. Compare your best runs.', implemented: true, competitive: true });
-  registry.register({ id: 'sandbox', name: 'Sandbox', description: 'Custom board size and generation. Explore freely.', implemented: true, competitive: false });
+  registry.register({ id: 'classic', name: 'Classic', description: 'Play until there are no valid moves. Compare your best runs.', implemented: true, competitive: true });
   registry.register({ id: 'timed', name: 'Timed', description: 'Score as much as possible before time runs out.', implemented: true, competitive: true });
   registry.register({ id: 'sprint', name: 'Sprint', description: 'Maximize score within a fixed move budget.', implemented: true, competitive: true });
   registry.register({ id: 'antigravity', name: 'Antigravity', description: 'Blocks float upward instead of falling. Clear from the top down.', implemented: true, competitive: true });
   registry.register({ id: 'cascade', name: 'Cascade', description: 'Set up one tactical follow-up wave per move. Bigger openings unlock bigger chain bonuses.', implemented: true, competitive: true });
   registry.register({ id: 'precision', name: 'Precision', description: 'Hit exact cluster-size targets. Misses add strikes; streaks boost points.', implemented: true, competitive: true });
   registry.register({ id: 'infinite', name: 'Infinite', description: 'No timer or move cap. Keep playing as new blocks fall in.', implemented: true, competitive: false });
+  registry.register({ id: 'sandbox', name: 'Sandbox', description: 'Custom board size and generation. Explore freely.', implemented: true, competitive: false });
 };
 
 const createDefaultModeRegistry = (): ModeRegistry => {
