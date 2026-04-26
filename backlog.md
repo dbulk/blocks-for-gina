@@ -4,12 +4,6 @@
 
 See [ai-workflow.md](ai-workflow.md) for the full step-by-step execution process.
 
-## #cascade-mode-v1
-Cascade mode first playable version
-- Pops can trigger automatic follow-up waves until the board settles
-- Each wave increases a combo multiplier for that turn
-- HUD shows current chain depth, combo bonus, and best chain
-
 ## #precision-mode-v1
 Precision mode first playable version
 - Each turn sets a target cluster size to hit (shown in HUD)
