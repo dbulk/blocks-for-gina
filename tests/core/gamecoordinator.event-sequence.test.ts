@@ -381,7 +381,7 @@ describe('GameCoordinator event sequencing', () => {
     const canvas = document.createElement('canvas');
     const setSessionUIState = vi.fn();
     const save = vi.fn();
-    let onNewGameClick: (() => void) | null = null;
+    let onNewGameClick: null | (() => void) = null;
 
     const renderer = {
       setGameState: () => {},
@@ -458,7 +458,9 @@ describe('GameCoordinator event sequencing', () => {
     );
 
     expect(onNewGameClick).not.toBeNull();
-    onNewGameClick?.();
+    if (onNewGameClick !== null) {
+      (onNewGameClick as () => void)();
+    }
 
     expect(setSessionUIState).toHaveBeenCalledWith('modeSelect');
     expect(save).toHaveBeenCalledOnce();

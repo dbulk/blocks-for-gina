@@ -99,8 +99,8 @@ class UINodes {
     this.colorInputCount = 5;
     this.layoutChangeListeners = [];
     this.modeOptions = [
-      { id: 'timed', name: 'Timed', description: 'Score as much as possible before time runs out.' },
-      { id: 'sprint', name: 'Sprint', description: 'Maximize score within a fixed move budget.' }
+      { id: 'timed', name: 'Timed', description: 'Score as much as possible before time runs out.', implemented: true, competitive: true },
+      { id: 'sprint', name: 'Sprint', description: 'Maximize score within a fixed move budget.', implemented: true, competitive: true }
     ];
   }
 
