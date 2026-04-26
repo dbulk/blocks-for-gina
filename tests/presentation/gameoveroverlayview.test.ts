@@ -102,4 +102,16 @@ describe('GameOverOverlayView', () => {
 
     document.body.removeChild(view.container);
   });
+
+  it('shows sprint title and move budget usage in summary', () => {
+    const view = new GameOverOverlayView();
+    document.body.appendChild(view.container);
+
+    view.setSummary('sprint', 240, '00:30', 22, 8, 5, 9, [], null, null, false);
+
+    expect(view.container.textContent).toContain('Sprint Complete!');
+    expect(view.container.textContent).toContain('9/10');
+
+    document.body.removeChild(view.container);
+  });
 });

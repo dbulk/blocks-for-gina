@@ -1,4 +1,5 @@
 import type { HighScoreEntry } from '@/persistence/highscores';
+import { SPRINT_MODE_MAX_MOVES } from '@/core/moderules';
 
 class GameOverOverlayView {
   private readonly fadeDurationMs = 4000;
@@ -115,14 +116,18 @@ class GameOverOverlayView {
     sandboxBest: HighScoreEntry | null,
     isNewSandboxBest: boolean
   ): void {
-    this.title.textContent = modeId === 'timed' ? "Time's Up!" : 'Game Over';
+    this.title.textContent = modeId === 'timed'
+      ? "Time's Up!"
+      : modeId === 'sprint'
+        ? 'Sprint Complete!'
+        : 'Game Over';
     this.scoreValue.textContent = `${score}`;
     this.timeValue.textContent = time;
     this.blocksPoppedValue.textContent = `${blocksPopped}`;
     this.blocksRemainingValue.textContent = `${blocksRemaining}`;
     this.blocksRemainingCard.style.display = modeId === 'timed' ? 'none' : '';
     this.largestClusterValue.textContent = `${largestCluster}`;
-    this.movesValue.textContent = `${totalMoves}`;
+    this.movesValue.textContent = modeId === 'sprint' ? `${totalMoves}/${SPRINT_MODE_MAX_MOVES}` : `${totalMoves}`;
     if (modeId === 'sandbox') {
       this.renderSandboxSummary(sandboxBest, isNewSandboxBest);
       return;

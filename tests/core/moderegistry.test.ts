@@ -24,6 +24,7 @@ describe('ModeRegistry', () => {
     expect(registry.get('arcade')).not.toBeNull();
     expect(registry.get('timed')).not.toBeNull();
     expect(registry.get('sprint')).not.toBeNull();
+    expect(registry.get('sprint')?.implemented).toBe(true);
     expect(registry.get('antigravity')).not.toBeNull();
   });
 });

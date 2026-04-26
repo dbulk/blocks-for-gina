@@ -26,7 +26,7 @@ describe('mode rules', () => {
   });
 
   it('ends sprint mode when move budget is exhausted', () => {
-    expect(shouldEndGameForMode('sprint', makeState(0, 29) as never, true)).toBe(false);
-    expect(shouldEndGameForMode('sprint', makeState(0, 30) as never, true)).toBe(true);
+    expect(shouldEndGameForMode('sprint', makeState(0, 9) as never, true)).toBe(false);
+    expect(shouldEndGameForMode('sprint', makeState(0, 10) as never, true)).toBe(true);
   });
 });
