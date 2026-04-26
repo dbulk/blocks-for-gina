@@ -9,7 +9,7 @@ const ALL_MODES = [
   { id: 'timed', name: 'Timed', description: 'Beat the clock.', implemented: true },
   { id: 'sprint', name: 'Sprint', description: 'Fixed move budget.', implemented: true },
   { id: 'antigravity', name: 'Antigravity', description: 'Blocks float upward.', implemented: false },
-  { id: 'cascade', name: 'Cascade', description: 'Chain reactions.', implemented: false },
+  { id: 'cascade', name: 'Cascade', description: 'Chain reactions.', implemented: true },
   { id: 'precision', name: 'Precision', description: 'Min cluster size required.', implemented: false },
   { id: 'infinite', name: 'Infinite', description: 'No pressure.', implemented: true }
 ];

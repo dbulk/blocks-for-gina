@@ -134,6 +134,7 @@ class GameCoordinator {
     this.gameState.resetClock();
     this.gameState.resetScore();
     this.gameState.resetRoundStats();
+    this.gameState.resetModeRuntimeStats();
     this.gameState.resetUndo();
     this.scoreBoard.update(runContext.modeId);
     this.renderer.adjustCanvasSize(this.page.getCanvasSizeConstraints());
@@ -195,6 +196,22 @@ class GameCoordinator {
       setup: this.getRunSetup()
     };
     const modeId = activeRunContext.modeId;
+
+    if (modeId === 'cascade' && !this.gameState.animating && this.gameState.getCascadeCurrentChainDepth() > 0) {
+      const nextMultiplier = this.gameState.getCascadeCurrentChainDepth() + 1;
+      const popped = this.gameState.popLargestCluster({ countMove: false, scoreMultiplier: nextMultiplier });
+      if (popped > 0) {
+        this.gameState.recordCascadeWave(popped, nextMultiplier);
+        const poppedEvent: BlocksPoppedEvent = {
+          type: 'blocksPopped',
+          clusterSize: popped,
+          totalScore: this.gameState.getScore(),
+          remainingBlocks: this.gameState.getNumBlocksRemaining()
+        };
+        this.eventBus.emit('blocksPopped', poppedEvent);
+      }
+    }
+
     if (modeId === 'infinite') {
       this.gameState.refillNullBlocksFromTop(activeRunContext.setup.numBlockTypes);
     }
@@ -303,7 +320,17 @@ class GameCoordinator {
       const previousBlocksPopped = this.gameState.getBlocksPopped();
       const coord = this.renderer.getGridIndicesFromClientPosition(event.clientX, event.clientY);
       this.gameState.updateSelection(coord);
-      this.gameState.doPop();
+
+      const activeModeId = this.activeRunContext?.modeId ?? this.settings.modeId;
+      if (activeModeId === 'cascade') {
+        this.gameState.startCascadeTurn();
+        const popped = this.gameState.doPop();
+        if (popped > 0) {
+          this.gameState.recordCascadeWave(popped, 1);
+        }
+      } else {
+        this.gameState.doPop();
+      }
 
       if (this.gameState.getTotalMoves() > previousMoves) {
         const poppedDelta = this.gameState.getBlocksPopped() - previousBlocksPopped;

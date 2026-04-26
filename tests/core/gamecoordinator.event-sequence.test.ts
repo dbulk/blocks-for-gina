@@ -661,6 +661,32 @@ describe('GameCoordinator event sequencing', () => {
     expect(timeMetric?.value).toBe('00:00');
   });
 
+  it('auto-triggers cascade follow-up waves with combo bonus', () => {
+    const bus = new GameEventBus();
+    const { coordinator, canvas } = createCoordinator('cascade', bus);
+
+    coordinator.gameState.deserialize({
+      griddata: [
+        [1, 1],
+        [2, 2]
+      ],
+      score: 0,
+      serializedGameDuration: 0,
+      totalMoves: 0,
+      largestCluster: 0,
+      blocksPopped: 0
+    });
+
+    dispatchPointerUp(canvas);
+    (coordinator as unknown as { gameLoop: () => void }).gameLoop();
+    (coordinator as unknown as { gameLoop: () => void }).gameLoop();
+
+    expect(coordinator.gameState.getCascadeCurrentChainDepth()).toBeGreaterThanOrEqual(2);
+    expect(coordinator.gameState.getCascadeBestChainDepth()).toBeGreaterThanOrEqual(2);
+    expect(coordinator.gameState.getCascadeComboBonus()).toBeGreaterThan(0);
+    expect(coordinator.gameState.getBlocksPopped()).toBe(4);
+  });
+
   it('renders HUD metrics before measuring canvas constraints on startup', () => {
     const order: string[] = [];
     const canvas = document.createElement('canvas');

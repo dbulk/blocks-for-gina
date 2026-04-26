@@ -58,6 +58,28 @@ class HudPresenter {
         visible: modeId === 'sprint'
       },
       {
+        key: 'cascade-chain',
+        label: 'Chain Depth',
+        value: `${gameState.getCascadeCurrentChainDepth()}`,
+        order: 8,
+        visible: modeId === 'cascade'
+      },
+      {
+        key: 'cascade-bonus',
+        label: 'Combo Bonus',
+        value: `+${gameState.getCascadeComboBonus()}`,
+        tone: gameState.getCascadeComboBonus() > 0 ? 'accent' : 'default',
+        order: 9,
+        visible: modeId === 'cascade'
+      },
+      {
+        key: 'cascade-best',
+        label: 'Best Chain',
+        value: `${gameState.getCascadeBestChainDepth()}`,
+        order: 11,
+        visible: modeId === 'cascade'
+      },
+      {
         key: 'score',
         label: 'Score',
         value: score.toString(),

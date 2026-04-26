@@ -170,4 +170,22 @@ describe('HudPresenter', () => {
     expect(time?.visible).toBe(false);
     expect(moves?.visible).toBe(false);
   });
+
+  it('shows cascade chain metrics', () => {
+    const state = makeStateFromGrid([[1, 2], [3, 4]]);
+    state.recordCascadeWave(3, 2);
+    const presenter = new HudPresenter();
+
+    const metrics = presenter.getMetrics(state, 'cascade');
+    const chain = getByKey(metrics, 'cascade-chain');
+    const bonus = getByKey(metrics, 'cascade-bonus');
+    const best = getByKey(metrics, 'cascade-best');
+
+    expect(chain?.visible).toBe(true);
+    expect(chain?.value).toBe('1');
+    expect(bonus?.visible).toBe(true);
+    expect(bonus?.value).toMatch(/^\+/);
+    expect(best?.visible).toBe(true);
+    expect(best?.value).toBe('1');
+  });
 });
