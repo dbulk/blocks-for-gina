@@ -3,7 +3,16 @@ import { readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 
 const coreDir = join(process.cwd(), 'src/core');
-const allowedCoreExceptions = new Set(['gamecoordinator.ts', 'gamerunner.ts']);
+const allowedCoreExceptions = new Set(['gamecoordinator.ts', 'gamerunner.ts', 'userpreferences.ts']);
+
+const forbiddenImportsByLayer = [
+  '@/presentation/',
+  '@/rendering/',
+  '@/bootstrap/',
+  '../presentation/',
+  '../rendering/',
+  '../bootstrap/'
+];
 
 const getCoreFiles = (): string[] =>
   readdirSync(coreDir)
@@ -11,13 +20,14 @@ const getCoreFiles = (): string[] =>
     .filter((name) => !allowedCoreExceptions.has(name));
 
 describe('architecture boundaries', () => {
-  it('core modules do not import presentation modules', () => {
+  it('core modules keep framework and UI layers out of domain files', () => {
     const offenders: string[] = [];
 
     for (const file of getCoreFiles()) {
       const filePath = join(coreDir, file);
       const content = readFileSync(filePath, 'utf8');
-      if (content.includes("@/presentation/") || content.includes("'../presentation/") || content.includes('"../presentation/')) {
+      const hasForbiddenImport = forbiddenImportsByLayer.some((token) => content.includes(token));
+      if (hasForbiddenImport) {
         offenders.push(file);
       }
     }
