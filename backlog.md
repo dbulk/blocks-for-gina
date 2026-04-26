@@ -4,11 +4,6 @@
 
 See [ai-workflow.md](ai-workflow.md) for the full step-by-step execution process.
 
-## #mode-extension-doc-consolidation
-Consolidate mode extension docs entry points
-- Make one canonical mode-extension guide
-- Add cross-links from other docs to avoid drift
-
 ## #mode-registration-error-ergonomics
 Improve mode registration validation diagnostics
 - Include field and value context consistently in validation errors
