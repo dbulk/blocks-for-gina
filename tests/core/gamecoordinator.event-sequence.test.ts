@@ -151,7 +151,7 @@ describe('GameCoordinator event sequencing', () => {
         [2, 3]
       ],
       score: 0,
-      serializedGameDuration: 180000,
+      serializedGameDuration: 60000,
       totalMoves: 0,
       largestCluster: 0,
       blocksPopped: 0
@@ -188,7 +188,7 @@ describe('GameCoordinator event sequencing', () => {
         [2, 3]
       ],
       score: 0,
-      serializedGameDuration: 180000,
+      serializedGameDuration: 60000,
       totalMoves: 0,
       largestCluster: 0,
       blocksPopped: 0
@@ -242,7 +242,30 @@ describe('GameCoordinator event sequencing', () => {
     expect((blocksPopped as { totalScore: number }).totalScore).toBeGreaterThan(0);
     expect((blocksPopped as { remainingBlocks: number }).remainingBlocks).toBeGreaterThanOrEqual(0);
     expect((gameEnded as { score: number }).score).toBeGreaterThanOrEqual(0);
-    expect((gameEnded as { playedSeconds: number }).playedSeconds).toBeGreaterThanOrEqual(180);
+    expect((gameEnded as { playedSeconds: number }).playedSeconds).toBeGreaterThanOrEqual(60);
+  });
+
+  it('ends sprint mode when move budget reaches 10 moves', () => {
+    const bus = new GameEventBus();
+    const capture = captureEvents(bus);
+    const { coordinator } = createCoordinator('sprint', bus);
+
+    coordinator.gameState.deserialize({
+      griddata: [
+        [1, 2],
+        [3, 4]
+      ],
+      score: 0,
+      serializedGameDuration: 0,
+      totalMoves: 10,
+      largestCluster: 0,
+      blocksPopped: 0
+    });
+
+    (coordinator as unknown as { gameLoop: () => void }).gameLoop();
+
+    const gameEnded = capture.events.find((event) => event.type === 'gameEnded');
+    expect(gameEnded).toMatchObject({ type: 'gameEnded', modeId: 'sprint' });
   });
 
   it('does not record ranked highscores for sandbox runs', () => {

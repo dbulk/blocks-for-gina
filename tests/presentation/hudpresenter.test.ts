@@ -144,8 +144,8 @@ describe('HudPresenter', () => {
 
   it('shows warning tone on sprint moves when budget nearly exhausted', () => {
     const state = makeStateFromGrid([[1, 2], [3, 4]]);
-    // simulate 26 moves used (4 remaining out of 30 — <= 5 threshold)
-    for (let i = 0; i < 26; i++) {
+    // simulate 6 moves used (4 remaining out of 10 — <= 5 threshold)
+    for (let i = 0; i < 6; i++) {
       (state as any).totalMoves++;
     }
     const presenter = new HudPresenter();
