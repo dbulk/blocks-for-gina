@@ -21,8 +21,8 @@ describe('mode rules', () => {
   });
 
   it('ends timed mode at or after time limit', () => {
-    expect(shouldEndGameForMode('timed', makeState(179, 0) as never, true)).toBe(false);
-    expect(shouldEndGameForMode('timed', makeState(180, 0) as never, true)).toBe(true);
+    expect(shouldEndGameForMode('timed', makeState(59, 0) as never, true)).toBe(false);
+    expect(shouldEndGameForMode('timed', makeState(60, 0) as never, true)).toBe(true);
   });
 
   it('ends sprint mode when move budget is exhausted', () => {

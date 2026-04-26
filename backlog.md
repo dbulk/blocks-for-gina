@@ -4,15 +4,9 @@
 
 See [ai-workflow.md](ai-workflow.md) for the full step-by-step execution process.
 
-## #mode-aware-hud
-HUD variants by active mode
-- Timer prominence for timed mode
-- Remaining moves for move-limited
-- Mode label and compact state
-
 ## #timed-mode-v1
 Timed mode first playable version
-- 180 second match timer
+- 60 second match timer
 - End condition on timer expiry
 - Mode-specific game-over summary
 
