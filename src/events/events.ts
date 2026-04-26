@@ -1,8 +1,25 @@
+type RunSource = 'modeSelect' | 'sandboxSetup' | 'resume';
+
+interface RunSetup {
+  numRows: number
+  numColumns: number
+  numBlockTypes: number
+  clusterStrength: number
+}
+
+interface RunContext {
+  modeId: string
+  source: RunSource
+  setup: RunSetup
+}
+
 interface GameStartedEvent {
   type: 'gameStarted'
   rows: number
   columns: number
   blockTypes: number
+  modeId: string
+  runContext: RunContext
 }
 
 interface BlocksPoppedEvent {
@@ -14,10 +31,12 @@ interface BlocksPoppedEvent {
 
 interface GameEndedEvent {
   type: 'gameEnded'
+  modeId: string
   score: number
   playedSeconds: number
   blocksPopped: number
   largestCluster: number
+  runContext: RunContext
 }
 
 interface ModeSelectedEvent {
@@ -28,6 +47,7 @@ interface ModeSelectedEvent {
 interface ModeRulesAppliedEvent {
   type: 'modeRulesApplied'
   modeId: string
+  runContext: RunContext
 }
 
 type GameEvent = GameStartedEvent | BlocksPoppedEvent | GameEndedEvent | ModeSelectedEvent | ModeRulesAppliedEvent;
@@ -48,6 +68,9 @@ export type {
   GameEndedEvent,
   ModeSelectedEvent,
   ModeRulesAppliedEvent,
+  RunSource,
+  RunSetup,
+  RunContext,
   GameEvent,
   GameEventByType,
   GameEventType

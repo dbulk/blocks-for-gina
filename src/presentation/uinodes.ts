@@ -76,6 +76,7 @@ class UINodes {
   private readonly inputColors: HTMLInputElement[];
   private colorInputCount: number;
   private modeOptions: GameMode[];
+  private readonly layoutChangeListeners: Array<() => void>;
 
   constructor () {
     this.div = document.createElement('div');
@@ -96,6 +97,7 @@ class UINodes {
     this.inputBlockStyle = document.createElement('select');
     this.inputColors = [];
     this.colorInputCount = 5;
+    this.layoutChangeListeners = [];
     this.modeOptions = [
       { id: 'timed', name: 'Timed', description: 'Score as much as possible before time runs out.' },
       { id: 'sprint', name: 'Sprint', description: 'Maximize score within a fixed move budget.' }
@@ -238,14 +240,24 @@ class UINodes {
 
   private setSettingsVisibility (onoff: boolean): void {
     this.divSettings.style.display = onoff ? 'flex' : 'none';
+    this.emitLayoutChange();
   }
 
   setVisibility (onoff: boolean): void {
     this.div.style.display = onoff ? 'block' : 'none';
+    this.emitLayoutChange();
   }
 
   setParent (div: HTMLDivElement): void {
     div.appendChild(this.div);
+  }
+
+  addLayoutChangeListener (listener: () => void): void {
+    this.layoutChangeListeners.push(listener);
+  }
+
+  getLayoutHeight (): number {
+    return this.div.getBoundingClientRect().height;
   }
 
   addNewGameClickListener (func: () => void): void {
@@ -362,6 +374,7 @@ class UINodes {
     for (let i = 0; i < this.inputColors.length; i++) {
       this.inputColors[i].style.display = i < this.colorInputCount ? 'inline-block' : 'none';
     }
+    this.emitLayoutChange();
   }
 
   getInputColors (output: string[]): void {
@@ -430,6 +443,12 @@ class UINodes {
       option.value = mode.id;
       option.textContent = mode.name;
       this.inputMode.appendChild(option);
+    }
+  }
+
+  private emitLayoutChange (): void {
+    for (const listener of this.layoutChangeListeners) {
+      listener();
     }
   }
 }
