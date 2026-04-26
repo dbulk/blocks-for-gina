@@ -31,14 +31,18 @@ describe('UINodes color count handling', () => {
     expect(toolbar.querySelector('#game-mode')).toBeNull();
   });
 
-  it('renders appearance controls directly in the gameplay toolbar', () => {
+  it('renders appearance controls inline in the gameplay toolbar without an appearance panel', () => {
     const ui = new UINodes();
     ui.createUI();
 
     const toolbar = ui['div'];
+    const toolbarText = toolbar.textContent ?? '';
 
     expect(toolbar.querySelector('#block-style')).not.toBeNull();
     expect(toolbar.querySelector('#colors')).not.toBeNull();
+    expect(toolbarText).not.toContain('Appearance');
+    expect(toolbarText).not.toContain('Block style');
+    expect(toolbarText).not.toContain('Colors');
   });
 
   it('returns only active color inputs when color input count is increased', () => {

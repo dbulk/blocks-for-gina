@@ -108,8 +108,7 @@ class UINodes {
     setButtonProperties(this.togMusic, '🎵', true, this.div);
     setButtonProperties(this.togSound, '🔊', true, this.div);
 
-    const appearanceSection = this.createToolbarSection('Appearance');
-    this.buildAppearanceSection(appearanceSection);
+    this.buildAppearanceSection();
 
     this.setColorInputCount(5);
     this.updateClusterValue();
@@ -331,17 +330,10 @@ class UINodes {
     modeRow.appendChild(this.inputMode);
   }
 
-  private buildAppearanceSection (appearanceSection: HTMLDivElement): void {
-    const styleRow = this.createSettingsRow(appearanceSection);
-    styleRow.classList.add('settings-row-style');
-
-    const styleLabel = document.createElement('label');
-    styleLabel.setAttribute('for', 'block-style');
-    styleLabel.textContent = 'Block style:';
-    styleRow.appendChild(styleLabel);
-
+  private buildAppearanceSection (): void {
     this.inputBlockStyle.id = 'block-style';
-    this.inputBlockStyle.className = 'settings-select';
+    this.inputBlockStyle.className = 'settings-select toolbar-inline-select';
+    this.inputBlockStyle.setAttribute('aria-label', 'Block style');
     for (const style of BLOCK_STYLES) {
       const option = document.createElement('option');
       option.value = style;
@@ -349,24 +341,20 @@ class UINodes {
       this.inputBlockStyle.appendChild(option);
     }
     this.inputBlockStyle.value = DEFAULT_BLOCK_STYLE;
-    styleRow.appendChild(this.inputBlockStyle);
+    this.div.appendChild(this.inputBlockStyle);
 
-    const colorsRow = this.createSettingsRow(appearanceSection);
-    colorsRow.classList.add('settings-row-colors');
     makeColorInputs(this.inputColors, SANDBOX_MAX_BLOCK_TYPES);
 
     const colorsContainer = document.createElement('div');
-    colorsContainer.className = 'settings-colors';
+    colorsContainer.className = 'toolbar-inline-colors';
     colorsContainer.id = 'colors';
 
-    const colorsLabel = document.createElement('label');
-    colorsLabel.setAttribute('for', colorsContainer.id);
-    colorsLabel.textContent = 'Colors:';
-    for (const input of this.inputColors) {
+    for (const [index, input] of this.inputColors.entries()) {
+      input.setAttribute('aria-label', `Block color ${index + 1}`);
       colorsContainer.appendChild(input);
     }
-    colorsRow.appendChild(colorsLabel);
-    colorsRow.appendChild(colorsContainer);
+
+    this.div.appendChild(colorsContainer);
   }
 
   private buildActionsSection (actionsSection: HTMLDivElement): void {
