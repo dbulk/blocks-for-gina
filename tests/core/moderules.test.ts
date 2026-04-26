@@ -36,4 +36,9 @@ describe('mode rules', () => {
     expect(shouldEndGameForMode('custom', makeState(0, 1) as never, true)).toBe(false);
     expect(shouldEndGameForMode('custom', makeState(0, 2) as never, true)).toBe(true);
   });
+
+  it('never ends infinite mode by timer or move exhaustion', () => {
+    expect(shouldEndGameForMode('infinite', makeState(0, 999) as never, false)).toBe(false);
+    expect(shouldEndGameForMode('infinite', makeState(9999, 999) as never, true)).toBe(false);
+  });
 });

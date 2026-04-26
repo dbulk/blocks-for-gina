@@ -238,4 +238,20 @@ describe('GameState', () => {
 
     expect(stillAnimating).toBe(false);
   });
+
+  it('refills null cells from top and restores full board occupancy', () => {
+    const state = makeStateFromGrid([
+      [1, null, 3],
+      [null, 2, null],
+      [4, 5, null]
+    ]);
+
+    state.refillNullBlocksFromTop(3);
+
+    expect(state.getNumBlocksRemaining()).toBe(9);
+    expect(state.getBlockID({ row: 0, col: 1 })).not.toBeNull();
+    expect(state.getBlockID({ row: 1, col: 0 })).not.toBeNull();
+    expect(state.getBlockID({ row: 2, col: 2 })).not.toBeNull();
+    expect(state.getBlockOffset({ row: 2, col: 2 }).y).toBeGreaterThan(0);
+  });
 });

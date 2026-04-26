@@ -75,7 +75,10 @@ class SessionStorage {
     const snapshot = this.load();
     if (snapshot === null) return null;
     const settings = snapshot.settings as Record<string, unknown>;
-    return typeof settings?.modeId === 'string' ? settings.modeId : null;
+    if (typeof settings?.modeId !== 'string') {
+      return null;
+    }
+    return settings.modeId === 'zen' ? 'infinite' : settings.modeId;
   }
 }
 

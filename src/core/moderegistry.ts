@@ -60,7 +60,7 @@ const registerDefaultModes = (registry: ModeRegistry): void => {
   registry.register({ id: 'antigravity', name: 'Antigravity', description: 'Blocks float upward instead of falling. Clear from the top down.', implemented: false });
   registry.register({ id: 'cascade', name: 'Cascade', description: 'Every pop triggers a chain reaction. Combos are everything.', implemented: false });
   registry.register({ id: 'precision', name: 'Precision', description: 'Only pops of a minimum cluster size score. Think before you click.', implemented: false });
-  registry.register({ id: 'zen', name: 'Zen', description: 'No pressure, no timer, no game over. Just pop blocks.', implemented: false });
+    registry.register({ id: 'infinite', name: 'Infinite', description: 'No timer or move cap. Keep playing as new blocks fall in.', implemented: true, competitive: false });
 };
 
 const createDefaultModeRegistry = (): ModeRegistry => {

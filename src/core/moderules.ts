@@ -11,7 +11,8 @@ const modeEndRuleHooks = new Map<string, ModeEndRuleHook>([
     const elapsedSeconds = t.hours * 3600 + t.minutes * 60 + t.seconds;
     return elapsedSeconds >= TIMED_MODE_DURATION_SECONDS;
   }],
-  ['sprint', (gameState: GameState, hasMoreMoves: boolean) => gameState.getTotalMoves() >= SPRINT_MODE_MAX_MOVES || !hasMoreMoves]
+  ['sprint', (gameState: GameState, hasMoreMoves: boolean) => gameState.getTotalMoves() >= SPRINT_MODE_MAX_MOVES || !hasMoreMoves],
+  ['infinite', () => false]
 ]);
 
 const normalizeModeId = (modeId: string): string => modeId.trim();

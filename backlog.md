@@ -4,12 +4,6 @@
 
 See [ai-workflow.md](ai-workflow.md) for the full step-by-step execution process.
 
-## #zen-mode-v1
-Zen mode first playable version
-- No timer, no move limit, no game over state
-- Infinite play until player exits, blocks reappear after popping
-- No competitive scoring or leaderboard entry
-
 ## #cascade-mode-v1
 Cascade mode first playable version
 - Each pop triggers a chain reaction on neighbours
@@ -46,7 +40,6 @@ Improve mode registration validation diagnostics
 ## #tweaks
 - rename arcade to classic, make sure to do it in refs in source as well as in player-facing behavior
 - timed games should end when out of moves, even if there's time remaining, ideally we could show the timer really quickly count down to zero as a cool visual effect when this happens
-- zen mode should be called infinite not zen
 - fade animations are a little janky, making these nicer and maybe eliminating the animation from game over screen to new game screen might be nice. Should look pro
 
 

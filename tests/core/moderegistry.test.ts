@@ -24,6 +24,7 @@ describe('ModeRegistry', () => {
     expect(registry.get('arcade')).not.toBeNull();
     expect(registry.get('timed')).not.toBeNull();
     expect(registry.get('sprint')).not.toBeNull();
+    expect(registry.get('infinite')).not.toBeNull();
     expect(registry.get('sprint')?.implemented).toBe(true);
     expect(registry.get('antigravity')).not.toBeNull();
   });
@@ -44,6 +45,7 @@ describe('ModeRegistry', () => {
 
   it('uses mode metadata for competitiveness checks', () => {
     expect(isCompetitiveMode('sandbox')).toBe(false);
+    expect(isCompetitiveMode('infinite')).toBe(false);
     expect(isCompetitiveMode('arcade')).toBe(true);
   });
 });

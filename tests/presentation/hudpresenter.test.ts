@@ -156,4 +156,18 @@ describe('HudPresenter', () => {
     expect(movesMetric?.tone).toBe('warning');
     expect(movesMetric?.value).toBe('4');
   });
+
+  it('shows infinite mode with no timer and no move budget metrics', () => {
+    const state = makeStateFromGrid([[1, 2], [3, 4]]);
+    const presenter = new HudPresenter();
+
+    const metrics = presenter.getMetrics(state, 'infinite');
+    const mode = getByKey(metrics, 'mode');
+    const time = metrics.find((m) => m.key === 'time');
+    const moves = metrics.find((m) => m.key === 'moves');
+
+    expect(mode?.value).toBe('Infinite');
+    expect(time?.visible).toBe(false);
+    expect(moves?.visible).toBe(false);
+  });
 });
