@@ -2,7 +2,7 @@ import type { HighScoreEntry } from '@/persistence/highscores';
 import { getModeSummaryHooks } from '@/core/modesummaryhooks';
 
 class GameOverOverlayView {
-  private readonly fadeDurationMs = 4000;
+  private readonly fadeDurationMs = 180;
   readonly container: HTMLDivElement;
   private readonly title: HTMLDivElement;
   private readonly metricsGrid: HTMLDivElement;
@@ -96,11 +96,7 @@ class GameOverOverlayView {
 
     this.container.style.opacity = '0';
     this.container.style.transform = 'translate(-50%, -46%) scale(0.98)';
-    window.setTimeout(() => {
-      if (this.container.style.opacity === '0') {
-        this.container.style.display = 'none';
-      }
-    }, this.fadeDurationMs);
+    this.container.style.display = 'none';
   }
 
   setSummary (

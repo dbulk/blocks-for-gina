@@ -116,15 +116,15 @@ describe('GameCoordinator event sequencing', () => {
     const bus = new GameEventBus();
     const capture = captureEvents(bus);
 
-    bus.emit('modeSelected', { type: 'modeSelected', modeId: 'arcade' });
+    bus.emit('modeSelected', { type: 'modeSelected', modeId: 'classic' });
     bus.emit('gameStarted', {
       type: 'gameStarted',
       rows: 10,
       columns: 20,
       blockTypes: 5,
-      modeId: 'arcade',
+      modeId: 'classic',
       runContext: {
-        modeId: 'arcade',
+        modeId: 'classic',
         source: 'modeSelect',
         setup: {
           numRows: 10,
@@ -163,16 +163,16 @@ describe('GameCoordinator event sequencing', () => {
     expect(capture.sequence).toEqual(['modeSelected', 'gameStarted', 'modeRulesApplied', 'blocksPopped', 'gameEnded']);
   });
 
-  it('keeps startup event ordering stable across arcade and sandbox branches', () => {
-    const arcadeBus = new GameEventBus();
-    const arcadeCapture = captureEvents(arcadeBus);
-    createCoordinator('arcade', arcadeBus);
+  it('keeps startup event ordering stable across classic and sandbox branches', () => {
+    const classicBus = new GameEventBus();
+    const classicCapture = captureEvents(classicBus);
+    createCoordinator('classic', classicBus);
 
     const sandboxBus = new GameEventBus();
     const sandboxCapture = captureEvents(sandboxBus);
     createCoordinator('sandbox', sandboxBus);
 
-    expect(arcadeCapture.sequence.slice(0, 3)).toEqual(['modeSelected', 'gameStarted', 'modeRulesApplied']);
+    expect(classicCapture.sequence.slice(0, 3)).toEqual(['modeSelected', 'gameStarted', 'modeRulesApplied']);
     expect(sandboxCapture.sequence.slice(0, 3)).toEqual(['modeSelected', 'gameStarted', 'modeRulesApplied']);
   });
 
@@ -516,7 +516,7 @@ describe('GameCoordinator event sequencing', () => {
     };
 
     const settings = new GameSettings();
-    settings.modeId = 'arcade';
+    settings.modeId = 'classic';
 
     const userPreferences = {
       isMusicEnabled: true,

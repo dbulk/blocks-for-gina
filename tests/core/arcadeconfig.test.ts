@@ -77,7 +77,7 @@ const createCoordinator = (settings: GameSettings, bus: GameEventBus): { coordin
   return { coordinator, canvas };
 };
 
-describe('#arcade-default-config', () => {
+describe('#classic-default-config', () => {
   it('ARCADE_RUN_CONFIG values are within valid board bounds', () => {
     expect(ARCADE_RUN_CONFIG.numRows).toBeGreaterThanOrEqual(5);
     expect(ARCADE_RUN_CONFIG.numRows).toBeLessThanOrEqual(100);
@@ -89,10 +89,10 @@ describe('#arcade-default-config', () => {
     expect(ARCADE_RUN_CONFIG.clusterStrength).toBeLessThanOrEqual(1);
   });
 
-  it('arcade start emits gameStarted with ARCADE_RUN_CONFIG values regardless of settings', () => {
+  it('classic start emits gameStarted with ARCADE_RUN_CONFIG values regardless of settings', () => {
     const bus = new GameEventBus();
     const settings = new GameSettings();
-    settings.modeId = 'arcade';
+    settings.modeId = 'classic';
     // Mutate settings to unusual values to verify they are ignored
     settings.numRows = 99;
     settings.numColumns = 99;
@@ -108,15 +108,15 @@ describe('#arcade-default-config', () => {
     expect(captured!.rows).toBe(ARCADE_RUN_CONFIG.numRows);
     expect(captured!.columns).toBe(ARCADE_RUN_CONFIG.numColumns);
     expect(captured!.blockTypes).toBe(ARCADE_RUN_CONFIG.numBlockTypes);
-    expect(captured!.modeId).toBe('arcade');
+    expect(captured!.modeId).toBe('classic');
     expect(captured!.runContext).toMatchObject({
-      modeId: 'arcade',
+      modeId: 'classic',
       source: 'modeSelect',
       setup: ARCADE_RUN_CONFIG
     });
   });
 
-  it('non-arcade start emits gameStarted with settings values, not arcade config', () => {
+  it('non-classic start emits gameStarted with settings values, not classic config', () => {
     const bus = new GameEventBus();
     const settings = new GameSettings();
     settings.modeId = 'sandbox';
@@ -144,13 +144,13 @@ describe('#arcade-default-config', () => {
         clusterStrength: settings.clusterStrength
       }
     });
-    // Verify it did NOT use arcade config (values differ from ARCADE_RUN_CONFIG)
+    // Verify it did NOT use classic config (values differ from ARCADE_RUN_CONFIG)
     expect(captured!.rows).not.toBe(ARCADE_RUN_CONFIG.numRows);
     expect(captured!.columns).not.toBe(ARCADE_RUN_CONFIG.numColumns);
     expect(captured!.blockTypes).not.toBe(ARCADE_RUN_CONFIG.numBlockTypes);
   });
 
-  it('arcade game-over persistence uses active run setup rather than mutable settings', () => {
+  it('classic game-over persistence uses active run setup rather than mutable settings', () => {
     const canvas = document.createElement('canvas');
     const record = vi.fn(() => ({ rank: null, topEntries: [] }));
 
@@ -200,7 +200,7 @@ describe('#arcade-default-config', () => {
     };
 
     const settings = new GameSettings();
-    settings.modeId = 'arcade';
+    settings.modeId = 'classic';
     settings.numRows = 99;
     settings.numColumns = 99;
 
@@ -243,6 +243,6 @@ describe('#arcade-default-config', () => {
     expect(record).toHaveBeenCalledWith(expect.objectContaining({
       rows: ARCADE_RUN_CONFIG.numRows,
       columns: ARCADE_RUN_CONFIG.numColumns
-    }), 'arcade');
+    }), 'classic');
   });
 });

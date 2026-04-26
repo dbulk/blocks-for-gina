@@ -19,14 +19,14 @@ const getByKey = (metrics: ReturnType<HudPresenter['getMetrics']>, key: string) 
 };
 
 describe('HudPresenter', () => {
-  it('returns expected metrics in stable order for arcade mode', () => {
+  it('returns expected metrics in stable order for classic mode', () => {
     const state = makeStateFromGrid([
       [1, 2],
       [3, 4]
     ]);
     const presenter = new HudPresenter();
 
-    const metrics = presenter.getMetrics(state, 'arcade');
+    const metrics = presenter.getMetrics(state, 'classic');
     const visibleKeys = metrics.filter((m) => m.visible).sort((a, b) => a.order - b.order).map((m) => m.key);
 
     expect(visibleKeys).toEqual(['mode', 'blocks', 'time', 'score']);
@@ -39,7 +39,7 @@ describe('HudPresenter', () => {
     ], 123);
     const presenter = new HudPresenter();
 
-    const metrics = presenter.getMetrics(state, 'arcade');
+    const metrics = presenter.getMetrics(state, 'classic');
     const blocks = getByKey(metrics, 'blocks');
     const score = getByKey(metrics, 'score');
     const time = getByKey(metrics, 'time');
@@ -58,7 +58,7 @@ describe('HudPresenter', () => {
     expect(time?.label).toBe('Time');
     expect(time?.value).toMatch(/^(\d+:)?\d{2}:\d{2}$/);
 
-    expect(mode?.value).toBe('Arcade');
+    expect(mode?.value).toBe('Classic');
     expect(mode?.visible).toBe(true);
   });
 
@@ -72,7 +72,7 @@ describe('HudPresenter', () => {
 
     state.updateSelection({ row: 0, col: 0 });
 
-    const metrics = presenter.getMetrics(state, 'arcade');
+    const metrics = presenter.getMetrics(state, 'classic');
     const blocks = getByKey(metrics, 'blocks');
     const score = getByKey(metrics, 'score');
 
@@ -93,7 +93,7 @@ describe('HudPresenter', () => {
 
     state.updateSelection({ row: 1, col: 1 });
 
-    const metrics = presenter.getMetrics(state, 'arcade');
+    const metrics = presenter.getMetrics(state, 'classic');
     const blocks = getByKey(metrics, 'blocks');
     const score = getByKey(metrics, 'score');
 

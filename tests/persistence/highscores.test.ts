@@ -47,14 +47,14 @@ describe('high score persistence', () => {
 
   it('stores competitive entries independently per mode', () => {
     const scores = new LocalHighScores('ranked-mode-test', 10);
-    scores.record({ score: 140, elapsedSeconds: 70, rows: 10, columns: 20, playedAt: 1 }, 'arcade');
+    scores.record({ score: 140, elapsedSeconds: 70, rows: 10, columns: 20, playedAt: 1 }, 'classic');
     scores.record({ score: 220, elapsedSeconds: 55, rows: 10, columns: 20, playedAt: 2 }, 'timed');
 
-    expect(scores.getTopEntries('arcade').map((entry) => entry.score)).toEqual([140]);
+    expect(scores.getTopEntries('classic').map((entry) => entry.score)).toEqual([140]);
     expect(scores.getTopEntries('timed').map((entry) => entry.score)).toEqual([220]);
   });
 
-  it('migrates legacy global list storage into arcade bucket', () => {
+  it('migrates legacy global list storage into classic bucket', () => {
     const legacyEntries = [
       { score: 150, elapsedSeconds: 90, rows: 10, columns: 20, playedAt: 1 },
       { score: 120, elapsedSeconds: 80, rows: 10, columns: 20, playedAt: 2 }
@@ -63,11 +63,11 @@ describe('high score persistence', () => {
 
     const scores = new LocalHighScores('legacy-migrate-test', 10);
 
-    expect(scores.getTopEntries('arcade').map((entry) => entry.score)).toEqual([150, 120]);
+    expect(scores.getTopEntries('classic').map((entry) => entry.score)).toEqual([150, 120]);
     expect(scores.getTopEntries('timed')).toEqual([]);
 
     const persisted = JSON.parse(globalThis.localStorage?.getItem('legacy-migrate-test') ?? '{}') as Record<string, unknown>;
-    expect(Array.isArray(persisted.arcade)).toBe(true);
+    expect(Array.isArray(persisted.classic)).toBe(true);
   });
 
   it('stores sandbox personal best separately and only replaces it with a better run', () => {

@@ -78,7 +78,13 @@ class SessionStorage {
     if (typeof settings?.modeId !== 'string') {
       return null;
     }
-    return settings.modeId === 'zen' ? 'infinite' : settings.modeId;
+    if (settings.modeId === 'zen') {
+      return 'infinite';
+    }
+    if (settings.modeId === 'arcade') {
+      return 'classic';
+    }
+    return settings.modeId;
   }
 }
 

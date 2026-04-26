@@ -21,7 +21,7 @@ describe('ModeRegistry', () => {
 
   it('provides a default mode catalog', () => {
     const registry = createDefaultModeRegistry();
-    expect(registry.get('arcade')).not.toBeNull();
+    expect(registry.get('classic')).not.toBeNull();
     expect(registry.get('timed')).not.toBeNull();
     expect(registry.get('sprint')).not.toBeNull();
     expect(registry.get('cascade')).not.toBeNull();
@@ -69,6 +69,6 @@ describe('ModeRegistry', () => {
   it('uses mode metadata for competitiveness checks', () => {
     expect(isCompetitiveMode('sandbox')).toBe(false);
     expect(isCompetitiveMode('infinite')).toBe(false);
-    expect(isCompetitiveMode('arcade')).toBe(true);
+    expect(isCompetitiveMode('classic')).toBe(true);
   });
 });

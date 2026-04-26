@@ -78,11 +78,11 @@ describe('GameOverOverlayView', () => {
     document.body.removeChild(view.container);
   });
 
-  it('shows Game Over title for arcade mode', () => {
+  it('shows Game Over title for classic mode', () => {
     const view = new GameOverOverlayView();
     document.body.appendChild(view.container);
 
-    view.setSummary('arcade', 200, '00:45', 20, 0, 5, 10, [], null, null, false);
+    view.setSummary('classic', 200, '00:45', 20, 0, 5, 10, [], null, null, false);
 
     expect(view.container.textContent).toContain('Game Over');
     expect(view.container.textContent).not.toContain("Time's Up!");

@@ -4,7 +4,7 @@ import { describe, expect, it, vi } from 'vitest';
 import ModeSelectView from '@/presentation/modeselectview';
 
 const ALL_MODES = [
-  { id: 'arcade', name: 'Arcade', description: 'Play until there are no valid moves.', implemented: true },
+  { id: 'classic', name: 'Classic', description: 'Play until there are no valid moves.', implemented: true },
   { id: 'sandbox', name: 'Sandbox', description: 'Custom board.', implemented: true },
   { id: 'timed', name: 'Timed', description: 'Beat the clock.', implemented: true },
   { id: 'sprint', name: 'Sprint', description: 'Fixed move budget.', implemented: true },
@@ -24,7 +24,7 @@ describe('ModeSelectView', () => {
     expect(toggles.length).toBe(8);
 
     const modeIds = Array.from(toggles).map((btn) => (btn as HTMLButtonElement).dataset.modeId);
-    expect(modeIds).toContain('arcade');
+    expect(modeIds).toContain('classic');
     expect(modeIds).toContain('sandbox');
     expect(modeIds).toContain('timed');
     expect(modeIds).toContain('sprint');
@@ -33,30 +33,30 @@ describe('ModeSelectView', () => {
     document.body.removeChild(view.container);
   });
 
-  it('arcade toggle is selected by default', () => {
+  it('classic toggle is selected by default', () => {
     const view = new ModeSelectView();
     view.setModes(ALL_MODES);
     document.body.appendChild(view.container);
 
-    const arcadeToggle = view.container.querySelector('button.mode-toggle[data-mode-id="arcade"]') as HTMLButtonElement;
+    const classicToggle = view.container.querySelector('button.mode-toggle[data-mode-id="classic"]') as HTMLButtonElement;
     const sandboxToggle = view.container.querySelector('button.mode-toggle[data-mode-id="sandbox"]') as HTMLButtonElement;
-    expect(arcadeToggle.classList.contains('selected')).toBe(true);
+    expect(classicToggle.classList.contains('selected')).toBe(true);
     expect(sandboxToggle.classList.contains('selected')).toBe(false);
 
     document.body.removeChild(view.container);
   });
 
-  it('clicking sandbox toggle selects it and deselects arcade', () => {
+  it('clicking sandbox toggle selects it and deselects classic', () => {
     const view = new ModeSelectView();
     view.setModes(ALL_MODES);
     document.body.appendChild(view.container);
 
-    const arcadeToggle = view.container.querySelector('button.mode-toggle[data-mode-id="arcade"]') as HTMLButtonElement;
+    const classicToggle = view.container.querySelector('button.mode-toggle[data-mode-id="classic"]') as HTMLButtonElement;
     const sandboxToggle = view.container.querySelector('button.mode-toggle[data-mode-id="sandbox"]') as HTMLButtonElement;
     sandboxToggle.click();
 
     expect(sandboxToggle.classList.contains('selected')).toBe(true);
-    expect(arcadeToggle.classList.contains('selected')).toBe(false);
+    expect(classicToggle.classList.contains('selected')).toBe(false);
 
     document.body.removeChild(view.container);
   });
@@ -79,7 +79,7 @@ describe('ModeSelectView', () => {
     document.body.removeChild(view.container);
   });
 
-  it('Play defaults to arcade without selecting a toggle', () => {
+  it('Play defaults to classic without selecting a toggle', () => {
     const view = new ModeSelectView();
     view.setModes(ALL_MODES);
     document.body.appendChild(view.container);
@@ -89,14 +89,14 @@ describe('ModeSelectView', () => {
     const playBtn = view.container.querySelector('button.mode-play-btn') as HTMLButtonElement;
     playBtn.click();
 
-    expect(callback).toHaveBeenCalledWith('arcade');
+    expect(callback).toHaveBeenCalledWith('classic');
 
     document.body.removeChild(view.container);
   });
 
   it('setModes replaces existing toggles', () => {
     const view = new ModeSelectView();
-    view.setModes([{ id: 'arcade', name: 'Arcade', description: '', implemented: true }]);
+    view.setModes([{ id: 'classic', name: 'Classic', description: '', implemented: true }]);
     view.setModes(ALL_MODES);
     document.body.appendChild(view.container);
 
