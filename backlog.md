@@ -4,12 +4,6 @@
 
 See [ai-workflow.md](ai-workflow.md) for the full step-by-step execution process.
 
-## #mode-extension-api
-New mode authoring contract
-- Mode registration checklist
-- Rule hooks and summary hooks
-- Test template for new mode PRs
-
 ## #zen-mode-v1
 Zen mode first playable version
 - No timer, no move limit, no game over state
@@ -33,6 +27,21 @@ Antigravity mode first playable version
 - Blocks float upward instead of falling down
 - Clear from the top of the board
 - New gravity direction rendering pass
+
+## #mode-hook-test-isolation
+Add reset helpers for mode hook state in tests
+- Add deterministic reset helpers for mode rule and summary hook registries
+- Use reset hooks in tests to avoid cross-test contamination
+
+## #mode-extension-doc-consolidation
+Consolidate mode extension docs entry points
+- Make one canonical mode-extension guide
+- Add cross-links from other docs to avoid drift
+
+## #mode-registration-error-ergonomics
+Improve mode registration validation diagnostics
+- Include field and value context consistently in validation errors
+- Keep errors actionable for mode authoring
 
 ## #tweaks
 - rename arcade to classic, make sure to do it in refs in source as well as in player-facing behavior
