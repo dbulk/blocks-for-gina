@@ -16,7 +16,7 @@ describe('ModeRegistry', () => {
 
     expect(() => {
       registry.register({ id: 'classic', name: 'Classic Again', description: 'Duplicate' });
-    }).toThrowError('Mode already registered: classic');
+    }).toThrowError('Invalid mode registration (id): must be unique (mode already registered); received="classic"; modeId="classic"');
   });
 
   it('provides a default mode catalog', () => {
@@ -43,9 +43,27 @@ describe('ModeRegistry', () => {
 
   it('rejects blank registration fields', () => {
     const registry = new ModeRegistry();
-    expect(() => registry.register({ id: '   ', name: 'Bad', description: 'Bad mode' })).toThrowError('Mode id is required');
-    expect(() => registry.register({ id: 'bad1', name: '   ', description: 'Bad mode' })).toThrowError('Mode name is required: bad1');
-    expect(() => registry.register({ id: 'bad2', name: 'Bad', description: '   ' })).toThrowError('Mode description is required: bad2');
+    expect(() => registry.register({ id: '   ', name: 'Bad', description: 'Bad mode' })).toThrowError('Invalid mode registration (id): must be a non-empty string; received="   "');
+    expect(() => registry.register({ id: 'bad1', name: '   ', description: 'Bad mode' })).toThrowError('Invalid mode registration (name): must be a non-empty string; received="   "; modeId="bad1"');
+    expect(() => registry.register({ id: 'bad2', name: 'Bad', description: '   ' })).toThrowError('Invalid mode registration (description): must be a non-empty string; received="   "; modeId="bad2"');
+  });
+
+  it('rejects non-boolean optional flags with field context', () => {
+    const registry = new ModeRegistry();
+
+    expect(() => registry.register({
+      id: 'bad3',
+      name: 'Bad',
+      description: 'Bad mode',
+      implemented: 'yes' as unknown as boolean
+    })).toThrowError('Invalid mode registration (implemented): must be a boolean when provided; received="yes"; modeId="bad3"');
+
+    expect(() => registry.register({
+      id: 'bad4',
+      name: 'Bad',
+      description: 'Bad mode',
+      competitive: 1 as unknown as boolean
+    })).toThrowError('Invalid mode registration (competitive): must be a boolean when provided; received=1; modeId="bad4"');
   });
 
   it('uses mode metadata for competitiveness checks', () => {
