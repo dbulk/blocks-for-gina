@@ -1,6 +1,6 @@
 import type GameState from '@/core/gamestate';
 
-const TIMED_MODE_DURATION_SECONDS = 180;
+const TIMED_MODE_DURATION_SECONDS = 60;
 const SPRINT_MODE_MAX_MOVES = 30;
 
 const shouldEndGameForMode = (modeId: string, gameState: GameState, hasMoreMoves: boolean): boolean => {
