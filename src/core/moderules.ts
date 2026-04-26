@@ -17,7 +17,14 @@ const modeEndRuleHooks = new Map<string, ModeEndRuleHook>([
   ['infinite', () => false]
 ]);
 
+const builtInModeEndRuleHooks = new Map(modeEndRuleHooks);
+
 const normalizeModeId = (modeId: string): string => modeId.trim();
+
+const resetModeEndRuleHooks = (): void => {
+  modeEndRuleHooks.clear();
+  builtInModeEndRuleHooks.forEach((hook, id) => modeEndRuleHooks.set(id, hook));
+};
 
 const registerModeEndRuleHook = (modeId: string, hook: ModeEndRuleHook): void => {
   const normalizedId = normalizeModeId(modeId);
@@ -39,6 +46,7 @@ const shouldEndGameForMode = (modeId: string, gameState: GameState, hasMoreMoves
 export {
   shouldEndGameForMode,
   registerModeEndRuleHook,
+  resetModeEndRuleHooks,
   TIMED_MODE_DURATION_SECONDS,
   SPRINT_MODE_MAX_MOVES,
   PRECISION_MAX_STRIKES

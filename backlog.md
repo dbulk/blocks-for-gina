@@ -4,12 +4,6 @@
 
 See [ai-workflow.md](ai-workflow.md) for the full step-by-step execution process.
 
-## #antigravity-mode-v1
-Antigravity mode first playable version
-- Blocks float upward instead of falling down
-- Clear from the top of the board
-- New gravity direction rendering pass
-
 ## #mode-hook-test-isolation
 Add reset helpers for mode hook state in tests
 - Add deterministic reset helpers for mode rule and summary hook registries
