@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { shouldEndGameForMode } from '@/core/moderules';
+import { registerModeEndRuleHook, shouldEndGameForMode } from '@/core/moderules';
 
 type PlayedDuration = { hours: number, minutes: number, seconds: number };
 
@@ -28,5 +28,12 @@ describe('mode rules', () => {
   it('ends sprint mode when move budget is exhausted', () => {
     expect(shouldEndGameForMode('sprint', makeState(0, 9) as never, true)).toBe(false);
     expect(shouldEndGameForMode('sprint', makeState(0, 10) as never, true)).toBe(true);
+  });
+
+  it('supports custom mode end-rule hooks', () => {
+    registerModeEndRuleHook('custom', (gameState) => gameState.getTotalMoves() >= 2);
+
+    expect(shouldEndGameForMode('custom', makeState(0, 1) as never, true)).toBe(false);
+    expect(shouldEndGameForMode('custom', makeState(0, 2) as never, true)).toBe(true);
   });
 });
