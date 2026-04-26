@@ -63,11 +63,9 @@ class UINodes {
   private readonly cmdRedo: HTMLButtonElement;
   private readonly togMusic: HTMLButtonElement;
   private readonly togSound: HTMLButtonElement;
-  private readonly expandButton: HTMLButtonElement;
   private readonly cmdApplySettings: HTMLButtonElement;
   private readonly cmdResetSettings: HTMLButtonElement;
   private readonly clusterValue: HTMLSpanElement;
-  private readonly divSettings: HTMLDivElement;
   private readonly inputRows: HTMLInputElement;
   private readonly inputColumns: HTMLInputElement;
   private readonly inputClusterStrength: HTMLInputElement;
@@ -85,11 +83,9 @@ class UINodes {
     this.cmdRedo = document.createElement('button');
     this.togMusic = document.createElement('button');
     this.togSound = document.createElement('button');
-    this.expandButton = document.createElement('button');
     this.cmdApplySettings = document.createElement('button');
     this.cmdResetSettings = document.createElement('button');
     this.clusterValue = document.createElement('span');
-    this.divSettings = document.createElement('div');
     this.inputRows = document.createElement('input');
     this.inputColumns = document.createElement('input');
     this.inputClusterStrength = document.createElement('input');
@@ -111,38 +107,12 @@ class UINodes {
     setButtonProperties(this.cmdRedo, '↪', false, this.div);
     setButtonProperties(this.togMusic, '🎵', true, this.div);
     setButtonProperties(this.togSound, '🔊', true, this.div);
-    setButtonProperties(this.expandButton, 'Settings', true, this.div);
-    setToggleState(this.expandButton, false);
 
-    this.divSettings.className = 'settings-expandy settings-panel';
-    this.divSettings.style.display = 'flex';
-    this.divSettings.style.flexFlow = 'row wrap';
-
-    this.div.appendChild(this.divSettings);
-
-    const boardSection = this.createSettingsSection('Board');
-    const generationSection = this.createSettingsSection('Generation');
-    const appearanceSection = this.createSettingsSection('Appearance');
-    const actionsSection = this.createSettingsSection('Actions');
-
-    this.buildBoardSection(boardSection);
-    this.buildGenerationSection(generationSection);
+    const appearanceSection = this.createToolbarSection('Appearance');
     this.buildAppearanceSection(appearanceSection);
-    this.buildActionsSection(actionsSection);
 
     this.setColorInputCount(5);
-
-    this.expandButton.addEventListener('click', () => {
-      this.setSettingsVisibility(getToggleState(this.expandButton));
-    });
-
-    this.setSettingsVisibility(false);
     this.updateClusterValue();
-  }
-
-  private setSettingsVisibility (onoff: boolean): void {
-    this.divSettings.style.display = onoff ? 'flex' : 'none';
-    this.emitLayoutChange();
   }
 
   setVisibility (onoff: boolean): void {
@@ -411,7 +381,7 @@ class UINodes {
     row.appendChild(this.cmdResetSettings);
   }
 
-  private createSettingsSection (title: string): HTMLDivElement {
+  private createToolbarSection (title: string): HTMLDivElement {
     const section = document.createElement('div');
     const sectionSlug = title.toLowerCase().replace(/\s+/g, '-');
     section.className = `settings-section settings-section-${sectionSlug}`;
@@ -425,7 +395,7 @@ class UINodes {
     body.className = 'settings-section-body';
     section.appendChild(body);
 
-    this.divSettings.appendChild(section);
+    this.div.appendChild(section);
     return body;
   }
 

@@ -4,6 +4,43 @@ import { describe, expect, it, vi } from 'vitest';
 import UINodes from '@/presentation/uinodes';
 
 describe('UINodes color count handling', () => {
+  it('does not render a settings expand button or settings panel in the gameplay toolbar', () => {
+    const ui = new UINodes();
+    ui.createUI();
+
+    const toolbar = ui['div'];
+    const buttonLabels = Array.from(toolbar.querySelectorAll('button')).map((button) => button.textContent);
+
+    expect(buttonLabels).not.toContain('Settings');
+    expect(toolbar.querySelector('.settings-expandy')).toBeNull();
+  });
+
+  it('does not render board or generation controls in the gameplay toolbar', () => {
+    const ui = new UINodes();
+    ui.createUI();
+
+    const toolbar = ui['div'];
+    const toolbarText = ui['div'].textContent ?? '';
+
+    expect(toolbarText).not.toContain('Board');
+    expect(toolbarText).not.toContain('Generation');
+    expect(toolbarText).not.toContain('Actions');
+    expect(toolbar.querySelector('#rows')).toBeNull();
+    expect(toolbar.querySelector('#columns')).toBeNull();
+    expect(toolbar.querySelector('#clusterstrength')).toBeNull();
+    expect(toolbar.querySelector('#game-mode')).toBeNull();
+  });
+
+  it('renders appearance controls directly in the gameplay toolbar', () => {
+    const ui = new UINodes();
+    ui.createUI();
+
+    const toolbar = ui['div'];
+
+    expect(toolbar.querySelector('#block-style')).not.toBeNull();
+    expect(toolbar.querySelector('#colors')).not.toBeNull();
+  });
+
   it('returns only active color inputs when color input count is increased', () => {
     const ui = new UINodes();
     ui.createUI();
@@ -32,19 +69,6 @@ describe('UINodes color count handling', () => {
     ui.getInputColors(output);
 
     expect(output.length).toBe(10);
-  });
-
-  it('emits a layout change when settings visibility changes', () => {
-    const ui = new UINodes();
-    ui.createUI();
-
-    const onLayoutChange = vi.fn();
-    ui.addLayoutChangeListener(onLayoutChange);
-
-    const settingsButton = Array.from(ui['div'].querySelectorAll('button')).find((button) => button.textContent === 'Settings') as HTMLButtonElement;
-    settingsButton.click();
-
-    expect(onLayoutChange).toHaveBeenCalledOnce();
   });
 
   it('emits a layout change when visible color input count changes', () => {
