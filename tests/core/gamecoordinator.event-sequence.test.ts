@@ -667,6 +667,33 @@ describe('GameCoordinator event sequencing', () => {
 
     coordinator.gameState.deserialize({
       griddata: [
+        [1, 2, 3],
+        [1, 3, 3]
+      ],
+      score: 0,
+      serializedGameDuration: 0,
+      totalMoves: 0,
+      largestCluster: 0,
+      blocksPopped: 0
+    });
+
+    dispatchPointerUp(canvas);
+    (coordinator as unknown as { gameLoop: () => void }).gameLoop();
+    coordinator.gameState.animating = false;
+    (coordinator as unknown as { gameLoop: () => void }).gameLoop();
+
+    expect(coordinator.gameState.getCascadeCurrentChainDepth()).toBeGreaterThanOrEqual(2);
+    expect(coordinator.gameState.getCascadeBestChainDepth()).toBeGreaterThanOrEqual(2);
+    expect(coordinator.gameState.getCascadeComboBonus()).toBeGreaterThan(0);
+    expect(coordinator.gameState.getBlocksPopped()).toBe(5);
+  });
+
+  it('does not auto-pop size-2 follow-up clusters in cascade mode', () => {
+    const bus = new GameEventBus();
+    const { coordinator, canvas } = createCoordinator('cascade', bus);
+
+    coordinator.gameState.deserialize({
+      griddata: [
         [1, 1],
         [2, 2]
       ],
@@ -681,10 +708,34 @@ describe('GameCoordinator event sequencing', () => {
     (coordinator as unknown as { gameLoop: () => void }).gameLoop();
     (coordinator as unknown as { gameLoop: () => void }).gameLoop();
 
-    expect(coordinator.gameState.getCascadeCurrentChainDepth()).toBeGreaterThanOrEqual(2);
-    expect(coordinator.gameState.getCascadeBestChainDepth()).toBeGreaterThanOrEqual(2);
-    expect(coordinator.gameState.getCascadeComboBonus()).toBeGreaterThan(0);
-    expect(coordinator.gameState.getBlocksPopped()).toBe(4);
+    expect(coordinator.gameState.getCascadeCurrentChainDepth()).toBe(1);
+    expect(coordinator.gameState.getBlocksPopped()).toBe(2);
+  });
+
+  it('requires follow-up wave to meet opening pop size threshold in cascade mode', () => {
+    const bus = new GameEventBus();
+    const { coordinator, canvas } = createCoordinator('cascade', bus);
+
+    coordinator.gameState.deserialize({
+      griddata: [
+        [1, 2, 3],
+        [1, 2, 3],
+        [1, 4, 5]
+      ],
+      score: 0,
+      serializedGameDuration: 0,
+      totalMoves: 0,
+      largestCluster: 0,
+      blocksPopped: 0
+    });
+
+    dispatchPointerUp(canvas);
+    (coordinator as unknown as { gameLoop: () => void }).gameLoop();
+    coordinator.gameState.animating = false;
+    (coordinator as unknown as { gameLoop: () => void }).gameLoop();
+
+    expect(coordinator.gameState.getCascadeCurrentChainDepth()).toBe(1);
+    expect(coordinator.gameState.getBlocksPopped()).toBe(3);
   });
 
   it('records a precision strike on non-target pops', () => {
@@ -710,6 +761,29 @@ describe('GameCoordinator event sequencing', () => {
     expect(coordinator.gameState.getPrecisionStrikes()).toBe(1);
     expect(coordinator.gameState.getScore()).toBe(0);
     expect(coordinator.gameState.getBlocksPopped()).toBe(0);
+  });
+
+  it('reselects precision target when current target is not available', () => {
+    const bus = new GameEventBus();
+    const { coordinator } = createCoordinator('precision', bus);
+
+    coordinator.gameState.deserialize({
+      griddata: [
+        [1, 1],
+        [2, 3]
+      ],
+      score: 0,
+      serializedGameDuration: 0,
+      totalMoves: 0,
+      largestCluster: 0,
+      blocksPopped: 0,
+      precisionTargetSize: 9
+    });
+
+    (coordinator as unknown as { gameLoop: () => void }).gameLoop();
+    const availableSizes = coordinator.gameState.getAvailableClusterSizes();
+
+    expect(availableSizes).toContain(coordinator.gameState.getPrecisionTargetSize());
   });
 
   it('renders HUD metrics before measuring canvas constraints on startup', () => {

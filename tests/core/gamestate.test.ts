@@ -254,4 +254,22 @@ describe('GameState', () => {
     expect(state.getBlockID({ row: 2, col: 2 })).not.toBeNull();
     expect(state.getBlockOffset({ row: 2, col: 2 }).y).toBeGreaterThan(0);
   });
+
+  it('applies antigravity settle upward after a pop', () => {
+    const state = makeStateFromGrid([
+      [1, 9],
+      [1, 8],
+      [2, 7]
+    ]);
+
+    state.setGravityDirection('up');
+    state.updateSelection({ row: 0, col: 0 });
+    state.doPop();
+    state.updateBlocks();
+
+    expect(state.getBlockID({ row: 0, col: 0 })).toBe(2);
+    expect(state.getBlockID({ row: 1, col: 0 })).toBeNull();
+    expect(state.getBlockID({ row: 2, col: 0 })).toBeNull();
+    expect(state.getBlockOffset({ row: 0, col: 0 }).y).toBeLessThan(0);
+  });
 });
