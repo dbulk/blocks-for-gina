@@ -11,6 +11,8 @@ interface HighScoreRecordResult {
   topEntries: HighScoreEntry[]
 }
 
+type HighScoreBuckets = Record<string, HighScoreEntry[]>;
+
 interface SandboxBestRecordResult {
   bestEntry: HighScoreEntry | null
   isNewBest: boolean
@@ -55,6 +57,20 @@ const isSameEntry = (a: HighScoreEntry, b: HighScoreEntry): boolean => (
   a.playedAt === b.playedAt
 );
 
+const DEFAULT_MODE_ID = 'arcade';
+
+const sanitizeModeId = (modeId: string): string => modeId.trim() === '' ? DEFAULT_MODE_ID : modeId;
+
+const normalizeEntries = (entries: unknown, maxEntries: number): HighScoreEntry[] => {
+  if (!Array.isArray(entries)) {
+    return [];
+  }
+  return entries
+    .map((item) => sanitizeEntry(item))
+    .sort((a, b) => compareEntries(a, b))
+    .slice(0, maxEntries);
+};
+
 class LocalHighScores {
   private readonly storageKey: string;
   private readonly maxEntries: number;
@@ -64,43 +80,59 @@ class LocalHighScores {
     this.maxEntries = maxEntries;
   }
 
-  getTopEntries (): HighScoreEntry[] {
-    return this.readEntries();
+  getTopEntries (modeId: string = DEFAULT_MODE_ID): HighScoreEntry[] {
+    const key = sanitizeModeId(modeId);
+    const buckets = this.readBuckets();
+    return buckets[key] ?? [];
   }
 
-  record (entry: HighScoreEntry): HighScoreRecordResult {
-    const entries = this.readEntries();
-    entries.push(sanitizeEntry(entry));
+  record (entry: HighScoreEntry, modeId: string = DEFAULT_MODE_ID): HighScoreRecordResult {
+    const key = sanitizeModeId(modeId);
+    const buckets = this.readBuckets();
+    const entries = [...(buckets[key] ?? [])];
+    const sanitizedEntry = sanitizeEntry(entry);
+    entries.push(sanitizedEntry);
     entries.sort((a, b) => compareEntries(a, b));
     const topEntries = entries.slice(0, this.maxEntries);
+    buckets[key] = topEntries;
 
-    const rank = topEntries.findIndex((current) => isSameEntry(current, entry));
-    this.writeEntries(topEntries);
+    const rank = topEntries.findIndex((current) => isSameEntry(current, sanitizedEntry));
+    this.writeBuckets(buckets);
     return { rank: rank >= 0 ? rank + 1 : null, topEntries };
   }
 
-  private readEntries (): HighScoreEntry[] {
+  private readBuckets (): HighScoreBuckets {
     const raw = globalThis.localStorage?.getItem(this.storageKey);
     if (raw === null || raw === undefined) {
-      return [];
+      return {};
     }
 
     try {
       const parsed = JSON.parse(raw) as unknown;
-      if (!Array.isArray(parsed)) {
-        return [];
+      if (Array.isArray(parsed)) {
+        const migrated: HighScoreBuckets = {
+          [DEFAULT_MODE_ID]: normalizeEntries(parsed, this.maxEntries)
+        };
+        this.writeBuckets(migrated);
+        return migrated;
       }
-      return parsed
-        .map((item) => sanitizeEntry(item))
-        .sort((a, b) => compareEntries(a, b))
-        .slice(0, this.maxEntries);
+
+      if (typeof parsed !== 'object' || parsed === null) {
+        return {};
+      }
+
+      const buckets: HighScoreBuckets = {};
+      for (const [modeId, modeEntries] of Object.entries(parsed as Record<string, unknown>)) {
+        buckets[sanitizeModeId(modeId)] = normalizeEntries(modeEntries, this.maxEntries);
+      }
+      return buckets;
     } catch {
-      return [];
+      return {};
     }
   }
 
-  private writeEntries (entries: HighScoreEntry[]): void {
-    globalThis.localStorage?.setItem(this.storageKey, JSON.stringify(entries));
+  private writeBuckets (buckets: HighScoreBuckets): void {
+    globalThis.localStorage?.setItem(this.storageKey, JSON.stringify(buckets));
   }
 }
 
