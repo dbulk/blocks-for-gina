@@ -25,7 +25,6 @@ Gina was playing blocks at 1001games, I thought the game was ugly and it would b
 ## Docs
 
 - docs/ARCHITECTURE.md
-- docs/ARCHITECTURAL_ROADMAP.md
 - docs/REFACTOR_GUARD_CHECKLIST.md
 - docs/MODULES.md
 - docs/EXTENDING_GAME.md
