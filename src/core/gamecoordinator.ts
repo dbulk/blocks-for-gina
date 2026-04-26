@@ -387,7 +387,9 @@ class GameCoordinator {
   }
 
   private returnToModeSelect (): void {
-    this.serialize();
+    if (!this.hasShownGameOverSummary) {
+      this.serialize();
+    }
     this.gameLoopManager.stop();
     this.page.setSessionUIState('modeSelect');
   }
