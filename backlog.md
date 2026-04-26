@@ -4,12 +4,6 @@
 
 See [ai-workflow.md](ai-workflow.md) for the full step-by-step execution process.
 
-## #sprint-mode-v1
-Sprint mode first playable version
-- Fixed move budget (10 moves)
-- End condition on budget exhaustion
-- Mode-specific summary details
-
 ## #mode-flow-integration-tests
 Mode lifecycle integration coverage
 - Select mode -> start run flow
@@ -45,3 +39,8 @@ Antigravity mode first playable version
 - Blocks float upward instead of falling down
 - Clear from the top of the board
 - New gravity direction rendering pass
+
+## #tweaks
+- rename arcade to classic, make sure to do it in refs in source as well as in player-facing behavior
+- timed games should end when out of moves, even if there's time remaining, ideally we could show the timer really quickly count down to zero as a cool visual effect when this happens
+- zen mode should be called infinite not zen
