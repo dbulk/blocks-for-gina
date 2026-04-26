@@ -2,18 +2,25 @@
 
 Goal: Cover end-to-end mode lifecycle branches with integration tests.
 
-## Commits
-1. `test: add mode select to start run integration test`
-- Validate selection drives run context creation.
+## Implementation Steps
 
-2. `test: add game-over to mode select integration test`
-- Validate post-run routing behavior.
+### 1. `test: add bootstrap mode-select start integration`
+- Add integration test that mounts `blocks-4-gina` and simulates mode card selection.
+- Assert non-sandbox mode selection starts a run with `runSource: 'modeSelect'`.
 
-3. `test: add replay same mode integration branch`
-- Verify replay keeps mode and setup expectations.
+### 2. `test: add sandbox setup mode flow integration`
+- Assert selecting sandbox routes to `sandboxSetup` UI state first.
+- Assert sandbox setup payload feeds game settings and starts run with `runSource: 'sandboxSetup'`.
 
-4. `test: add sandbox setup integration branch`
-- Validate setup payload usage and reset behavior.
+### 3. `test: add resume/replay mode flow integration`
+- Assert resume button starts run with `skipSessionRestore: false` and `runSource: 'resume'`.
+- Assert saved mode id is reused when resuming.
 
-5. `test: harden async event timing in integration tests`
-- Stabilize RAF/event timing with deterministic helpers.
+### 4. `test: add mode-select reentry refresh integration`
+- Assert mode-select-shown callback refreshes resume visibility from session storage state.
+
+### 5. `test: keep integration deterministic`
+- Use focused module mocks at bootstrap seam (`HTMLInterface`, `SessionStorage`, `GameRunner`) so no RAF/event-loop flakes.
+
+## Notes
+- These tests validate lifecycle wiring in bootstrap without duplicating lower-level coordinator unit tests.
