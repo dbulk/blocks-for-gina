@@ -1,14 +1,15 @@
 import GameState from '@/core/gamestate';
+import TimedEndHandler from '@/core/timedendhandler';
 import GameLoopManager from '@/core/gameloopmanager';
-import { ARCADE_RUN_CONFIG } from '@/core/arcadeconfig';
-import { isCompetitiveMode } from '@/core/moderegistry';
-import { shouldEndGameForMode, TIMED_MODE_DURATION_SECONDS, TIMED_NO_MOVES_BONUS_POINTS_PER_SECOND } from '@/core/moderules';
+import { CLASSIC_RUN_CONFIG } from '@/core/classicconfig';
+import EndOfRunFinalizer from '@/core/endofrunfinalizer';
+import { shouldEndGameForMode } from '@/core/moderules';
 import AudioController from '@/audio/audiocontroller';
 import GameEventBus from '@/events/eventbus';
 import ScoreBoard from '@/persistence/scoreboard';
 import SessionStorage from '@/persistence/sessionstorage';
 import LocalHighScores, { LocalSandboxBest } from '@/persistence/highscores';
-import type { BlocksPoppedEvent, GameEndedEvent, GameStartedEvent, ModeRulesAppliedEvent, ModeSelectedEvent, RunContext, RunSetup, RunSource } from '@/events/events';
+import type { BlocksPoppedEvent, GameStartedEvent, ModeRulesAppliedEvent, ModeSelectedEvent, RunContext, RunSetup, RunSource } from '@/events/events';
 import type GameSettings from '@/core/gamesettings';
 import type UserPreferences from '@/core/userpreferences';
 import type HTMLInterface from '@/presentation/htmlinterface';
@@ -18,7 +19,6 @@ import type Renderer from '@/rendering/renderer';
 const MOVERATE = 0.15;
 const GAME_OVER_FADE_STEP = 3;
 const CASCADE_AUTO_WAVE_MIN_CLUSTER_SIZE = 3;
-const TIMED_NO_MOVES_FAST_FORWARD_DURATION_MS = 650;
 
 interface GameCoordinatorDependencies {
   eventBus?: GameEventBus
@@ -51,14 +51,13 @@ class GameCoordinator {
   private precisionNeedsNewTarget: boolean = false;
   private cascadeAutoWavePending: boolean = false;
   private cascadeAutoWaveMinClusterSize: number = CASCADE_AUTO_WAVE_MIN_CLUSTER_SIZE;
-  private timedNoMovesFastForwardStartTime: number | null = null;
-  private timedNoMovesFastForwardStartElapsedSeconds: number = 0;
-  private timedNoMovesBonusAwarded: boolean = false;
   private readonly highScores: LocalHighScores;
   private readonly sandboxBest: LocalSandboxBest;
   private readonly eventBus: GameEventBus;
   private readonly gameLoopManager: GameLoopManager;
   private readonly sessionStorage: SessionStorage;
+  private readonly endOfRunFinalizer: EndOfRunFinalizer;
+  private readonly timedEndHandler: TimedEndHandler;
   private readonly soundEffectSrc = new URL('../assets/audio/pop.wav', import.meta.url).href;
   private readonly musicSrc = new URL('../assets/audio/music.mp3', import.meta.url).href;
 
@@ -81,8 +80,16 @@ class GameCoordinator {
     this.audioController = dependencies.audioController ?? new AudioController(this.soundEffectSrc, this.musicSrc);
     this.gameState = new GameState(() => {});
     this.scoreBoard = new ScoreBoard(this.gameState, page.scoreDisplay);
+    this.timedEndHandler = new TimedEndHandler(this.scoreBoard);
     this.highScores = dependencies.highScores ?? new LocalHighScores();
     this.sandboxBest = dependencies.sandboxBest ?? new LocalSandboxBest();
+    this.endOfRunFinalizer = new EndOfRunFinalizer({
+      eventBus: this.eventBus,
+      highScores: this.highScores,
+      sandboxBest: this.sandboxBest,
+      sessionStorage: this.sessionStorage,
+      page
+    });
     this.registerEventListeners();
 
     this.page = page;
@@ -153,7 +160,7 @@ class GameCoordinator {
     }
     this.cascadeAutoWavePending = false;
     this.cascadeAutoWaveMinClusterSize = CASCADE_AUTO_WAVE_MIN_CLUSTER_SIZE;
-    this.resetTimedNoMovesFastForward();
+    this.timedEndHandler.reset();
     this.scoreBoard.update(runContext.modeId);
     this.renderer.adjustCanvasSize(this.page.getCanvasSizeConstraints());
     this.page.resize();
@@ -181,7 +188,7 @@ class GameCoordinator {
 
   private getRunSetup (): RunSetup {
     if (this.settings.modeId === 'classic') {
-      return ARCADE_RUN_CONFIG;
+      return CLASSIC_RUN_CONFIG;
     }
 
     return {
@@ -253,10 +260,15 @@ class GameCoordinator {
     }
     const hasMoreMoves = this.gameState.hasMoreMoves();
     const isGameOver = shouldEndGameForMode(modeId, this.gameState, hasMoreMoves);
-    const shouldDelayTimedGameOverSummary = this.advanceTimedNoMovesFastForward(modeId, hasMoreMoves, isGameOver);
+    const shouldDelayTimedGameOverSummary = this.timedEndHandler.advance({
+      modeId,
+      hasMoreMoves,
+      isGameOver,
+      gameState: this.gameState
+    });
 
     if (!isGameOver) {
-      this.resetTimedNoMovesFastForward();
+      this.timedEndHandler.reset();
       this.scoreBoard.update(modeId);
       if (this.hasShownGameOverSummary) {
         this.page.setSessionUIState('inGame');
@@ -274,48 +286,12 @@ class GameCoordinator {
         return;
       }
       if (!this.hasShownGameOverSummary) {
-        const playedTime = this.gameState.getPlayedDuration();
-        const elapsedSeconds = playedTime.hours * 3600 + playedTime.minutes * 60 + playedTime.seconds;
-        const entry = {
-          score: this.gameState.getScore(),
-          elapsedSeconds,
-          rows: activeRunContext.setup.numRows,
-          columns: activeRunContext.setup.numColumns,
-          playedAt: Date.now()
-        };
-        const recordResult = isCompetitiveMode(modeId)
-          ? this.highScores.record(entry, modeId)
-          : { rank: null, topEntries: [] };
-        const sandboxBestResult = isCompetitiveMode(modeId)
-          ? null
-          : this.sandboxBest.record(entry);
-
-        this.sessionStorage.clear();
-        this.page.setSessionUIState('gameOverSummary');
-        this.page.setGameOverSummary(
+        this.endOfRunFinalizer.finalize({
           modeId,
-          this.gameState.getScore(),
-          this.getClockText(),
-          this.gameState.getBlocksPopped(),
-          this.gameState.getNumBlocksRemaining(),
-          this.gameState.getLargestCluster(),
-          this.gameState.getTotalMoves(),
-          recordResult.topEntries,
-          recordResult.rank,
-          sandboxBestResult?.bestEntry ?? null,
-          sandboxBestResult?.isNewBest ?? false
-        );
-
-        const gameEndedEvent: GameEndedEvent = {
-          type: 'gameEnded',
-          modeId,
-          score: this.gameState.getScore(),
-          playedSeconds: elapsedSeconds,
-          blocksPopped: this.gameState.getBlocksPopped(),
-          largestCluster: this.gameState.getLargestCluster(),
-          runContext: activeRunContext
-        };
-        this.eventBus.emit('gameEnded', gameEndedEvent);
+          runContext: activeRunContext,
+          gameState: this.gameState,
+          clockText: this.getClockText()
+        });
         this.hasShownGameOverSummary = true;
       }
     }
@@ -421,16 +397,6 @@ class GameCoordinator {
       }
     );
 
-    this.page.ui.addApplySettingsListener(() => {
-      this.startNewGameFromUI();
-    });
-
-    this.page.ui.addResetSettingsListener(() => {
-      this.settingsPresenter.resetToDefaults();
-      this.setAudioState();
-      this.gameState.blocksDirty = true;
-    });
-
     this.page.addPlayAgainClickListener(() => {
       this.returnToModeSelect();
     });
@@ -475,12 +441,6 @@ class GameCoordinator {
     });
   }
 
-  private startNewGameFromUI (): void {
-    this.settingsPresenter.uiToSettings();
-    this.prefs.ensureBlockColorCapacity(this.settings.numBlockTypes);
-    this.newGame();
-  }
-
   private returnToModeSelect (): void {
     if (!this.hasShownGameOverSummary) {
       this.serialize();
@@ -499,45 +459,6 @@ class GameCoordinator {
     const m = t.minutes.toString().padStart(2, '0');
     const s = t.seconds.toString().padStart(2, '0');
     return `${h}${m}:${s}`;
-  }
-
-  private resetTimedNoMovesFastForward (): void {
-    this.timedNoMovesFastForwardStartTime = null;
-    this.timedNoMovesFastForwardStartElapsedSeconds = 0;
-    this.timedNoMovesBonusAwarded = false;
-  }
-
-  private advanceTimedNoMovesFastForward (modeId: string, hasMoreMoves: boolean, isGameOver: boolean): boolean {
-    if (modeId !== 'timed' || hasMoreMoves || !isGameOver) {
-      return false;
-    }
-
-    const elapsedSeconds = this.gameState.getPlayedDurationSeconds();
-    if (elapsedSeconds >= TIMED_MODE_DURATION_SECONDS) {
-      return false;
-    }
-
-    if (!this.timedNoMovesBonusAwarded) {
-      const remainingSeconds = TIMED_MODE_DURATION_SECONDS - elapsedSeconds;
-      this.gameState.addScore(remainingSeconds * TIMED_NO_MOVES_BONUS_POINTS_PER_SECOND);
-      this.timedNoMovesBonusAwarded = true;
-    }
-
-    if (this.timedNoMovesFastForwardStartTime === null) {
-      this.timedNoMovesFastForwardStartTime = performance.now();
-      this.timedNoMovesFastForwardStartElapsedSeconds = elapsedSeconds;
-    }
-
-    const elapsedMs = performance.now() - this.timedNoMovesFastForwardStartTime;
-    const progress = Math.min(1, elapsedMs / TIMED_NO_MOVES_FAST_FORWARD_DURATION_MS);
-    const remainingAtStart = TIMED_MODE_DURATION_SECONDS - this.timedNoMovesFastForwardStartElapsedSeconds;
-    const advancedSeconds = Math.ceil(remainingAtStart * progress);
-    const fastForwardElapsed = this.timedNoMovesFastForwardStartElapsedSeconds + advancedSeconds;
-    this.gameState.setPlayedDurationSeconds(Math.min(TIMED_MODE_DURATION_SECONDS, fastForwardElapsed));
-
-    // Keep HUD timer responsive while the quick countdown completes.
-    this.scoreBoard.update(modeId);
-    return progress < 1;
   }
 
   private assignNextPrecisionTarget (availableSizes?: number[]): void {
@@ -590,7 +511,7 @@ class GameCoordinator {
     this.settingsPresenter.settingsToUI();
     this.gameState.setGravityDirection(this.getGravityDirectionForMode(this.settings.modeId));
     this.gameState.deserialize(snapshot.state as Parameters<typeof this.gameState.deserialize>[0]);
-    this.resetTimedNoMovesFastForward();
+    this.timedEndHandler.reset();
     if (this.settings.modeId === 'precision') {
       this.ensurePrecisionTargetAvailable(false);
     }

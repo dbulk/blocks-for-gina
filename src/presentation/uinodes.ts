@@ -63,11 +63,9 @@ class UINodes {
   private readonly cmdRedo: HTMLButtonElement;
   private readonly togMusic: HTMLButtonElement;
   private readonly togSound: HTMLButtonElement;
-  private readonly expandButton: HTMLButtonElement;
   private readonly cmdApplySettings: HTMLButtonElement;
   private readonly cmdResetSettings: HTMLButtonElement;
   private readonly clusterValue: HTMLSpanElement;
-  private readonly divSettings: HTMLDivElement;
   private readonly inputRows: HTMLInputElement;
   private readonly inputColumns: HTMLInputElement;
   private readonly inputClusterStrength: HTMLInputElement;
@@ -85,11 +83,9 @@ class UINodes {
     this.cmdRedo = document.createElement('button');
     this.togMusic = document.createElement('button');
     this.togSound = document.createElement('button');
-    this.expandButton = document.createElement('button');
     this.cmdApplySettings = document.createElement('button');
     this.cmdResetSettings = document.createElement('button');
     this.clusterValue = document.createElement('span');
-    this.divSettings = document.createElement('div');
     this.inputRows = document.createElement('input');
     this.inputColumns = document.createElement('input');
     this.inputClusterStrength = document.createElement('input');
@@ -99,8 +95,8 @@ class UINodes {
     this.colorInputCount = 5;
     this.layoutChangeListeners = [];
     this.modeOptions = [
-      { id: 'timed', name: 'Timed', description: 'Score as much as possible before time runs out.' },
-      { id: 'sprint', name: 'Sprint', description: 'Maximize score within a fixed move budget.' }
+      { id: 'timed', name: 'Timed', description: 'Score as much as possible before time runs out.', implemented: true, competitive: true },
+      { id: 'sprint', name: 'Sprint', description: 'Maximize score within a fixed move budget.', implemented: true, competitive: true }
     ];
   }
 
@@ -111,136 +107,11 @@ class UINodes {
     setButtonProperties(this.cmdRedo, '↪', false, this.div);
     setButtonProperties(this.togMusic, '🎵', true, this.div);
     setButtonProperties(this.togSound, '🔊', true, this.div);
-    setButtonProperties(this.expandButton, 'Settings', true, this.div);
-    setToggleState(this.expandButton, false);
 
-    this.divSettings.className = 'settings-expandy settings-panel';
-    this.divSettings.style.display = 'flex';
-    this.divSettings.style.flexFlow = 'row wrap';
-
-    this.div.appendChild(this.divSettings);
-
-    const boardSection = this.createSettingsSection('Board');
-    const generationSection = this.createSettingsSection('Generation');
-    const appearanceSection = this.createSettingsSection('Appearance');
-    const actionsSection = this.createSettingsSection('Actions');
-
-    {
-      const d = this.createSettingsRow(boardSection);
-      d.classList.add('settings-row-grid');
-
-      const rowsField = document.createElement('div');
-      rowsField.className = 'settings-field';
-      rowsField.appendChild(setInputProperties(this.inputRows, 'number', 'Rows', 'rows', 5, 100, 10));
-      this.inputRows.className = 'settings-number';
-      rowsField.appendChild(this.inputRows);
-
-      const columnsField = document.createElement('div');
-      columnsField.className = 'settings-field';
-      columnsField.appendChild(setInputProperties(this.inputColumns, 'number', 'Columns', 'columns', 5, 100, 20));
-      this.inputColumns.className = 'settings-number';
-      columnsField.appendChild(this.inputColumns);
-
-      d.appendChild(rowsField);
-      d.appendChild(columnsField);
-    }
-
-    {
-      const d = this.createSettingsRow(generationSection);
-      d.classList.add('settings-row-cluster');
-      d.appendChild(setInputProperties(this.inputClusterStrength, 'range', 'Clustering:', 'clusterstrength', 0, 1, 0.2));
-      this.inputClusterStrength.step = '0.05';
-      this.inputClusterStrength.className = 'settings-range';
-      d.appendChild(this.inputClusterStrength);
-      this.clusterValue.className = 'cluster-value';
-      this.clusterValue.textContent = '20%';
-      d.appendChild(this.clusterValue);
-      this.inputClusterStrength.addEventListener('input', () => {
-        this.updateClusterValue();
-      });
-    }
-
-    {
-      const d = this.createSettingsRow(generationSection);
-      d.classList.add('settings-row-style');
-
-      const label = document.createElement('label');
-      label.setAttribute('for', 'game-mode');
-      label.textContent = 'Mode:';
-      d.appendChild(label);
-
-      this.inputMode.id = 'game-mode';
-      this.inputMode.className = 'settings-select';
-      this.refreshModeOptions();
-
-      d.appendChild(this.inputMode);
-    }
-
-    {
-      const d = this.createSettingsRow(actionsSection, true);
-      d.classList.add('settings-row-inline', 'settings-row-actions');
-
-      this.cmdApplySettings.textContent = 'Apply & New Game';
-      this.cmdResetSettings.textContent = 'Reset Defaults';
-      this.cmdApplySettings.className = 'settings-mini settings-primary';
-      this.cmdResetSettings.className = 'settings-mini';
-      d.appendChild(this.cmdApplySettings);
-      d.appendChild(this.cmdResetSettings);
-    }
-
-    {
-      const d = this.createSettingsRow(appearanceSection);
-      d.classList.add('settings-row-style');
-
-      const label = document.createElement('label');
-      label.setAttribute('for', 'block-style');
-      label.textContent = 'Block style:';
-      d.appendChild(label);
-
-      this.inputBlockStyle.id = 'block-style';
-      this.inputBlockStyle.className = 'settings-select';
-      for (const style of BLOCK_STYLES) {
-        const option = document.createElement('option');
-        option.value = style;
-        option.textContent = style;
-        this.inputBlockStyle.appendChild(option);
-      }
-      this.inputBlockStyle.value = DEFAULT_BLOCK_STYLE;
-      d.appendChild(this.inputBlockStyle);
-    }
-
-    {
-      const d = this.createSettingsRow(appearanceSection);
-      d.classList.add('settings-row-colors');
-      makeColorInputs(this.inputColors, SANDBOX_MAX_BLOCK_TYPES);
-
-      const div = document.createElement('div');
-      div.className = 'settings-colors';
-
-      div.id = 'colors';
-      const label = document.createElement('label');
-      label.setAttribute('for', div.id);
-      label.textContent = 'Colors:';
-      for (const i of this.inputColors) {
-        div.appendChild(i);
-      }
-      d.appendChild(label);
-      d.appendChild(div);
-    }
+    this.buildAppearanceSection();
 
     this.setColorInputCount(5);
-
-    this.expandButton.addEventListener('click', () => {
-      this.setSettingsVisibility(getToggleState(this.expandButton));
-    });
-
-    this.setSettingsVisibility(false);
     this.updateClusterValue();
-  }
-
-  private setSettingsVisibility (onoff: boolean): void {
-    this.divSettings.style.display = onoff ? 'flex' : 'none';
-    this.emitLayoutChange();
   }
 
   setVisibility (onoff: boolean): void {
@@ -411,7 +282,94 @@ class UINodes {
     this.clusterValue.textContent = `${pct}%`;
   }
 
-  private createSettingsSection (title: string): HTMLDivElement {
+  private buildBoardSection (boardSection: HTMLDivElement): void {
+    const row = this.createSettingsRow(boardSection);
+    row.classList.add('settings-row-grid');
+
+    const rowsField = document.createElement('div');
+    rowsField.className = 'settings-field';
+    rowsField.appendChild(setInputProperties(this.inputRows, 'number', 'Rows', 'rows', 5, 100, 10));
+    this.inputRows.className = 'settings-number';
+    rowsField.appendChild(this.inputRows);
+
+    const columnsField = document.createElement('div');
+    columnsField.className = 'settings-field';
+    columnsField.appendChild(setInputProperties(this.inputColumns, 'number', 'Columns', 'columns', 5, 100, 20));
+    this.inputColumns.className = 'settings-number';
+    columnsField.appendChild(this.inputColumns);
+
+    row.appendChild(rowsField);
+    row.appendChild(columnsField);
+  }
+
+  private buildGenerationSection (generationSection: HTMLDivElement): void {
+    const clusterRow = this.createSettingsRow(generationSection);
+    clusterRow.classList.add('settings-row-cluster');
+    clusterRow.appendChild(setInputProperties(this.inputClusterStrength, 'range', 'Clustering:', 'clusterstrength', 0, 1, 0.2));
+    this.inputClusterStrength.step = '0.05';
+    this.inputClusterStrength.className = 'settings-range';
+    clusterRow.appendChild(this.inputClusterStrength);
+    this.clusterValue.className = 'cluster-value';
+    this.clusterValue.textContent = '20%';
+    clusterRow.appendChild(this.clusterValue);
+    this.inputClusterStrength.addEventListener('input', () => {
+      this.updateClusterValue();
+    });
+
+    const modeRow = this.createSettingsRow(generationSection);
+    modeRow.classList.add('settings-row-style');
+
+    const label = document.createElement('label');
+    label.setAttribute('for', 'game-mode');
+    label.textContent = 'Mode:';
+    modeRow.appendChild(label);
+
+    this.inputMode.id = 'game-mode';
+    this.inputMode.className = 'settings-select';
+    this.refreshModeOptions();
+    modeRow.appendChild(this.inputMode);
+  }
+
+  private buildAppearanceSection (): void {
+    this.inputBlockStyle.id = 'block-style';
+    this.inputBlockStyle.className = 'settings-select toolbar-inline-select';
+    this.inputBlockStyle.setAttribute('aria-label', 'Block style');
+    for (const style of BLOCK_STYLES) {
+      const option = document.createElement('option');
+      option.value = style;
+      option.textContent = style;
+      this.inputBlockStyle.appendChild(option);
+    }
+    this.inputBlockStyle.value = DEFAULT_BLOCK_STYLE;
+    this.div.appendChild(this.inputBlockStyle);
+
+    makeColorInputs(this.inputColors, SANDBOX_MAX_BLOCK_TYPES);
+
+    const colorsContainer = document.createElement('div');
+    colorsContainer.className = 'toolbar-inline-colors';
+    colorsContainer.id = 'colors';
+
+    for (const [index, input] of this.inputColors.entries()) {
+      input.setAttribute('aria-label', `Block color ${index + 1}`);
+      colorsContainer.appendChild(input);
+    }
+
+    this.div.appendChild(colorsContainer);
+  }
+
+  private buildActionsSection (actionsSection: HTMLDivElement): void {
+    const row = this.createSettingsRow(actionsSection, true);
+    row.classList.add('settings-row-inline', 'settings-row-actions');
+
+    this.cmdApplySettings.textContent = 'Apply & New Game';
+    this.cmdResetSettings.textContent = 'Reset Defaults';
+    this.cmdApplySettings.className = 'settings-mini settings-primary';
+    this.cmdResetSettings.className = 'settings-mini';
+    row.appendChild(this.cmdApplySettings);
+    row.appendChild(this.cmdResetSettings);
+  }
+
+  private createToolbarSection (title: string): HTMLDivElement {
     const section = document.createElement('div');
     const sectionSlug = title.toLowerCase().replace(/\s+/g, '-');
     section.className = `settings-section settings-section-${sectionSlug}`;
@@ -425,7 +383,7 @@ class UINodes {
     body.className = 'settings-section-body';
     section.appendChild(body);
 
-    this.divSettings.appendChild(section);
+    this.div.appendChild(section);
     return body;
   }
 

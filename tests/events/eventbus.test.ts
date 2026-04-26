@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 import GameEventBus from '@/events/eventbus';
+import { createRunContext } from '../fixtures/runcontext';
 
 describe('GameEventBus', () => {
   it('emits to listeners for a matching event type', () => {
@@ -13,16 +14,7 @@ describe('GameEventBus', () => {
       columns: 20,
       blockTypes: 5,
       modeId: 'classic',
-      runContext: {
-        modeId: 'classic',
-        source: 'modeSelect',
-        setup: {
-          numRows: 10,
-          numColumns: 20,
-          numBlockTypes: 5,
-          clusterStrength: 0.2
-        }
-      }
+      runContext: createRunContext('classic')
     });
 
     expect(listener).toHaveBeenCalledTimes(1);
@@ -42,16 +34,7 @@ describe('GameEventBus', () => {
       playedSeconds: 77,
       blocksPopped: 10,
       largestCluster: 4,
-      runContext: {
-        modeId: 'classic',
-        source: 'modeSelect',
-        setup: {
-          numRows: 10,
-          numColumns: 20,
-          numBlockTypes: 5,
-          clusterStrength: 0.2
-        }
-      }
+      runContext: createRunContext('classic')
     });
 
     expect(listener).not.toHaveBeenCalled();

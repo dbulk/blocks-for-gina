@@ -4,14 +4,14 @@ import { describe, expect, it, vi } from 'vitest';
 import ModeSelectView from '@/presentation/modeselectview';
 
 const ALL_MODES = [
-  { id: 'classic', name: 'Classic', description: 'Play until there are no valid moves.', implemented: true },
-  { id: 'sandbox', name: 'Sandbox', description: 'Custom board.', implemented: true },
-  { id: 'timed', name: 'Timed', description: 'Beat the clock.', implemented: true },
-  { id: 'sprint', name: 'Sprint', description: 'Fixed move budget.', implemented: true },
-  { id: 'antigravity', name: 'Antigravity', description: 'Blocks float upward.', implemented: true },
-  { id: 'cascade', name: 'Cascade', description: 'Chain reactions.', implemented: true },
-  { id: 'precision', name: 'Precision', description: 'Min cluster size required.', implemented: true },
-  { id: 'infinite', name: 'Infinite', description: 'No pressure.', implemented: true }
+  { id: 'classic', name: 'Classic', description: 'Play until there are no valid moves.', implemented: true, competitive: true },
+  { id: 'sandbox', name: 'Sandbox', description: 'Custom board.', implemented: true, competitive: false },
+  { id: 'timed', name: 'Timed', description: 'Beat the clock.', implemented: true, competitive: true },
+  { id: 'sprint', name: 'Sprint', description: 'Fixed move budget.', implemented: true, competitive: true },
+  { id: 'antigravity', name: 'Antigravity', description: 'Blocks float upward.', implemented: true, competitive: true },
+  { id: 'cascade', name: 'Cascade', description: 'Chain reactions.', implemented: true, competitive: true },
+  { id: 'precision', name: 'Precision', description: 'Min cluster size required.', implemented: true, competitive: true },
+  { id: 'infinite', name: 'Infinite', description: 'No pressure.', implemented: true, competitive: false }
 ];
 
 describe('ModeSelectView', () => {
@@ -96,7 +96,7 @@ describe('ModeSelectView', () => {
 
   it('setModes replaces existing toggles', () => {
     const view = new ModeSelectView();
-    view.setModes([{ id: 'classic', name: 'Classic', description: '', implemented: true }]);
+    view.setModes([{ id: 'classic', name: 'Classic', description: '', implemented: true, competitive: true }]);
     view.setModes(ALL_MODES);
     document.body.appendChild(view.container);
 

@@ -41,7 +41,7 @@ const makeUiStub = () => {
 };
 
 describe('SettingsPresenter', () => {
-  it('syncs settings to UI including mode', () => {
+  it('does not project run setup fields into the gameplay toolbar', () => {
     const settings = new GameSettings();
     settings.modeId = 'timed';
     const { uiState, ui } = makeUiStub();
@@ -49,11 +49,11 @@ describe('SettingsPresenter', () => {
 
     presenter.settingsToUI();
 
-    expect(uiState.modeId).toBe('timed');
-    expect(uiState.rows).toBe(settings.numRows);
+    expect(uiState.modeId).toBe('classic');
+    expect(uiState.rows).toBe(10);
   });
 
-  it('syncs UI values back into settings', () => {
+  it('does not pull run setup fields back out of the gameplay toolbar', () => {
     const settings = new GameSettings();
     const { ui, uiState } = makeUiStub();
     uiState.modeId = 'sprint';
@@ -62,7 +62,20 @@ describe('SettingsPresenter', () => {
 
     presenter.uiToSettings();
 
-    expect(settings.modeId).toBe('sprint');
-    expect(settings.numRows).toBe(12);
+    expect(settings.modeId).toBe('classic');
+    expect(settings.numRows).toBe(10);
+  });
+
+  it('still resets the backing settings object to defaults', () => {
+    const settings = new GameSettings();
+    settings.modeId = 'sandbox';
+    settings.numRows = 12;
+    const { ui } = makeUiStub();
+    const presenter = new SettingsPresenter(settings, ui as never);
+
+    presenter.resetToDefaults();
+
+    expect(settings.modeId).toBe('classic');
+    expect(settings.numRows).toBe(10);
   });
 });

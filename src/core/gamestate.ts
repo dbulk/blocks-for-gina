@@ -1,3 +1,16 @@
+import {
+  createModeRuntimeState,
+  getPrecisionHitMultiplier,
+  readModeRuntimeState,
+  recordCascadeWave,
+  recordPrecisionExactHit,
+  recordPrecisionMiss,
+  resetModeRuntimeState,
+  setPrecisionTargetSize,
+  startCascadeTurn,
+  type ModeRuntimeState
+} from '@/core/gamemoderuntime';
+
 interface item {
   id: number | null
   xoffset: number
@@ -7,19 +20,13 @@ interface coordinate {
   row: number
   col: number
 }
-interface serializationPayload {
+interface GameStateSnapshot extends Partial<ModeRuntimeState> {
   griddata: Array<Array<(number | null)>>
   score: number
   serializedGameDuration: number
   totalMoves?: number
   largestCluster?: number
   blocksPopped?: number
-  cascadeCurrentChainDepth?: number
-  cascadeBestChainDepth?: number
-  cascadeComboBonus?: number
-  precisionTargetSize?: number
-  precisionStrikes?: number
-  precisionStreak?: number
 }
 interface xy {
   x: number
@@ -54,20 +61,15 @@ class GameState {
   private availableMovesCache: number = 0;
   private hasMoreMovesDirty: boolean = true;
   private needsPop: boolean = false;
-  private cascadeCurrentChainDepth: number = 0;
-  private cascadeBestChainDepth: number = 0;
-  private cascadeComboBonus: number = 0;
-  private precisionTargetSize: number = 2;
-  private precisionStrikes: number = 0;
-  private precisionStreak: number = 0;
+  private modeRuntime: ModeRuntimeState = createModeRuntimeState();
   private gravityDirection: GravityDirection = 'down';
 
   private numRows: number = 0;
   private numColumns: number = 0;
   private selectionCache: coordinate = { row: -1, col: -1 };
   private readonly soundEffectCallback: () => void;
-  private undostack: serializationPayload[] = [];
-  private redostack: serializationPayload[] = [];
+  private undostack: GameStateSnapshot[] = [];
+  private redostack: GameStateSnapshot[] = [];
 
   constructor (soundEffectCallback: () => void) { this.soundEffectCallback = soundEffectCallback; }
 
@@ -166,27 +168,27 @@ class GameState {
   }
 
   getCascadeCurrentChainDepth (): number {
-    return this.cascadeCurrentChainDepth;
+    return this.modeRuntime.cascadeCurrentChainDepth;
   }
 
   getCascadeBestChainDepth (): number {
-    return this.cascadeBestChainDepth;
+    return this.modeRuntime.cascadeBestChainDepth;
   }
 
   getCascadeComboBonus (): number {
-    return this.cascadeComboBonus;
+    return this.modeRuntime.cascadeComboBonus;
   }
 
   getPrecisionTargetSize (): number {
-    return this.precisionTargetSize;
+    return this.modeRuntime.precisionTargetSize;
   }
 
   getPrecisionStrikes (): number {
-    return this.precisionStrikes;
+    return this.modeRuntime.precisionStrikes;
   }
 
   getPrecisionStreak (): number {
-    return this.precisionStreak;
+    return this.modeRuntime.precisionStreak;
   }
 
   resetScore (): void {
@@ -210,12 +212,7 @@ class GameState {
   }
 
   resetModeRuntimeStats (): void {
-    this.cascadeCurrentChainDepth = 0;
-    this.cascadeBestChainDepth = 0;
-    this.cascadeComboBonus = 0;
-    this.precisionTargetSize = 2;
-    this.precisionStrikes = 0;
-    this.precisionStreak = 0;
+    this.modeRuntime = resetModeRuntimeState();
   }
 
   setGravityDirection (direction: GravityDirection): void {
@@ -223,34 +220,27 @@ class GameState {
   }
 
   startCascadeTurn (): void {
-    this.cascadeCurrentChainDepth = 0;
-    this.cascadeComboBonus = 0;
+    this.modeRuntime = startCascadeTurn(this.modeRuntime);
   }
 
   recordCascadeWave (clusterSize: number, scoreMultiplier: number): void {
-    if (clusterSize <= 0) {
-      return;
-    }
-    this.cascadeCurrentChainDepth++;
-    this.cascadeBestChainDepth = Math.max(this.cascadeBestChainDepth, this.cascadeCurrentChainDepth);
-    this.cascadeComboBonus += Math.floor(this.computeScore(clusterSize) * Math.max(0, scoreMultiplier - 1));
+    this.modeRuntime = recordCascadeWave(this.modeRuntime, clusterSize, scoreMultiplier, this.computeScore.bind(this));
   }
 
   setPrecisionTargetSize (size: number): void {
-    this.precisionTargetSize = Math.max(2, Math.floor(size));
+    this.modeRuntime = setPrecisionTargetSize(this.modeRuntime, size);
   }
 
   recordPrecisionMiss (): void {
-    this.precisionStrikes = Math.min(3, this.precisionStrikes + 1);
-    this.precisionStreak = 0;
+    this.modeRuntime = recordPrecisionMiss(this.modeRuntime);
   }
 
   getPrecisionHitMultiplier (): number {
-    return 1 + Math.min(4, this.precisionStreak) * 0.25;
+    return getPrecisionHitMultiplier(this.modeRuntime);
   }
 
   recordPrecisionExactHit (): void {
-    this.precisionStreak++;
+    this.modeRuntime = recordPrecisionExactHit(this.modeRuntime);
   }
 
   hasUndo (): boolean {
@@ -713,7 +703,7 @@ class GameState {
     return hasOffset;
   }
 
-  serialize (): serializationPayload {
+  serialize (): GameStateSnapshot {
     return {
       griddata: this.grid.map((x) => x.map((y) => y.id)),
       score: this.score,
@@ -721,16 +711,11 @@ class GameState {
       totalMoves: this.totalMoves,
       largestCluster: this.largestCluster,
       blocksPopped: this.blocksPopped,
-      cascadeCurrentChainDepth: this.cascadeCurrentChainDepth,
-      cascadeBestChainDepth: this.cascadeBestChainDepth,
-      cascadeComboBonus: this.cascadeComboBonus,
-      precisionTargetSize: this.precisionTargetSize,
-      precisionStrikes: this.precisionStrikes,
-      precisionStreak: this.precisionStreak
+      ...this.modeRuntime
     };
   }
 
-  deserialize (payload: serializationPayload): void {
+  deserialize (payload: GameStateSnapshot): void {
     const data = payload.griddata;
     this.initializeGrid(data.length, data[0].length, 1, 0);
 
@@ -746,12 +731,7 @@ class GameState {
     this.totalMoves = 'totalMoves' in payload ? payload.totalMoves ?? 0 : 0;
     this.largestCluster = 'largestCluster' in payload ? payload.largestCluster ?? 0 : 0;
     this.blocksPopped = 'blocksPopped' in payload ? payload.blocksPopped ?? 0 : 0;
-    this.cascadeCurrentChainDepth = 'cascadeCurrentChainDepth' in payload ? payload.cascadeCurrentChainDepth ?? 0 : 0;
-    this.cascadeBestChainDepth = 'cascadeBestChainDepth' in payload ? payload.cascadeBestChainDepth ?? 0 : 0;
-    this.cascadeComboBonus = 'cascadeComboBonus' in payload ? payload.cascadeComboBonus ?? 0 : 0;
-    this.precisionTargetSize = 'precisionTargetSize' in payload ? Math.max(2, payload.precisionTargetSize ?? 2) : 2;
-    this.precisionStrikes = 'precisionStrikes' in payload ? Math.max(0, payload.precisionStrikes ?? 0) : 0;
-    this.precisionStreak = 'precisionStreak' in payload ? Math.max(0, payload.precisionStreak ?? 0) : 0;
+    this.modeRuntime = readModeRuntimeState(payload);
     this.blocksDirty = true;
     this.hasMoreMovesDirty = true;
     this.serializedGameDuration = 'serializedGameDuration' in payload ? payload.serializedGameDuration : 0;
@@ -760,3 +740,4 @@ class GameState {
 }
 
 export default GameState;
+export type { GameStateSnapshot };

@@ -1,11 +1,8 @@
-interface SessionSnapshot {
-  version: number
-  state: unknown
-  settings: unknown
-}
-
-const CURRENT_SESSION_VERSION = 2;
 const TIMED_MODE_DURATION_SECONDS = 60;
+
+import type { GameStateSnapshot } from '@/core/gamestate';
+import type { GameSettingsSnapshot } from '@/core/gamesettings';
+import { createSessionSnapshot, normalizePersistedModeId, translateStoredSessionSnapshot, type SessionSnapshot } from '@/persistence/sessionsnapshot';
 
 class SessionStorage {
   private readonly storageKey: string;
@@ -14,13 +11,8 @@ class SessionStorage {
     this.storageKey = storageKey;
   }
 
-  save (state: unknown, settings: unknown): void {
-    const snapshot: SessionSnapshot = {
-      version: CURRENT_SESSION_VERSION,
-      state,
-      settings
-    };
-
+  save (state: GameStateSnapshot, settings: GameSettingsSnapshot): void {
+    const snapshot = createSessionSnapshot(state, settings);
     localStorage.setItem(this.storageKey, JSON.stringify(snapshot));
   }
 
@@ -37,28 +29,7 @@ class SessionStorage {
       return null;
     }
 
-    if (!this.isSessionSnapshot(parsed)) {
-      return null;
-    }
-
-    if (parsed.version !== CURRENT_SESSION_VERSION) {
-      return null;
-    }
-
-    return parsed;
-  }
-
-  private isSessionSnapshot (value: unknown): value is SessionSnapshot {
-    if (value === null || typeof value !== 'object') {
-      return false;
-    }
-
-    const candidate = value as Partial<SessionSnapshot>;
-    return (
-      typeof candidate.version === 'number' &&
-      'state' in candidate &&
-      'settings' in candidate
-    );
+    return translateStoredSessionSnapshot(parsed);
   }
 
   clear (): void {
@@ -82,40 +53,26 @@ class SessionStorage {
   }
 
   private getEligibleModeId (snapshot: SessionSnapshot): string | null {
-    const settings = snapshot.settings as Record<string, unknown>;
-    if (typeof settings?.modeId !== 'string') {
+    if (typeof snapshot.settings.modeId !== 'string') {
       return null;
     }
 
-    const normalizedModeId = this.normalizeModeId(settings.modeId);
+    const normalizedModeId = normalizePersistedModeId(snapshot.settings.modeId);
     if (normalizedModeId !== 'timed') {
       return normalizedModeId;
     }
 
-    const state = snapshot.state as Record<string, unknown>;
-    const serializedDuration = typeof state?.serializedGameDuration === 'number'
-      ? state.serializedGameDuration
-      : 0;
+    const serializedDuration = snapshot.state.serializedGameDuration;
     if (serializedDuration >= TIMED_MODE_DURATION_SECONDS * 1000) {
       return null;
     }
 
-    const hasMoves = this.hasMoreMovesInGrid(state?.griddata);
+    const hasMoves = this.hasMoreMovesInGrid(snapshot.state.griddata);
     if (hasMoves === false) {
       return null;
     }
 
     return normalizedModeId;
-  }
-
-  private normalizeModeId (modeId: string): string {
-    if (modeId === 'zen') {
-      return 'infinite';
-    }
-    if (modeId === 'arcade') {
-      return 'classic';
-    }
-    return modeId;
   }
 
   private hasMoreMovesInGrid (gridData: unknown): boolean | null {
