@@ -1,14 +1,14 @@
 import GameState from '@/core/gamestate';
 import GameLoopManager from '@/core/gameloopmanager';
 import { ARCADE_RUN_CONFIG } from '@/core/arcadeconfig';
-import { isCompetitiveMode } from '@/core/moderegistry';
+import EndOfRunFinalizer from '@/core/endofrunfinalizer';
 import { shouldEndGameForMode, TIMED_MODE_DURATION_SECONDS, TIMED_NO_MOVES_BONUS_POINTS_PER_SECOND } from '@/core/moderules';
 import AudioController from '@/audio/audiocontroller';
 import GameEventBus from '@/events/eventbus';
 import ScoreBoard from '@/persistence/scoreboard';
 import SessionStorage from '@/persistence/sessionstorage';
 import LocalHighScores, { LocalSandboxBest } from '@/persistence/highscores';
-import type { BlocksPoppedEvent, GameEndedEvent, GameStartedEvent, ModeRulesAppliedEvent, ModeSelectedEvent, RunContext, RunSetup, RunSource } from '@/events/events';
+import type { BlocksPoppedEvent, GameStartedEvent, ModeRulesAppliedEvent, ModeSelectedEvent, RunContext, RunSetup, RunSource } from '@/events/events';
 import type GameSettings from '@/core/gamesettings';
 import type UserPreferences from '@/core/userpreferences';
 import type HTMLInterface from '@/presentation/htmlinterface';
@@ -59,6 +59,7 @@ class GameCoordinator {
   private readonly eventBus: GameEventBus;
   private readonly gameLoopManager: GameLoopManager;
   private readonly sessionStorage: SessionStorage;
+  private readonly endOfRunFinalizer: EndOfRunFinalizer;
   private readonly soundEffectSrc = new URL('../assets/audio/pop.wav', import.meta.url).href;
   private readonly musicSrc = new URL('../assets/audio/music.mp3', import.meta.url).href;
 
@@ -83,6 +84,13 @@ class GameCoordinator {
     this.scoreBoard = new ScoreBoard(this.gameState, page.scoreDisplay);
     this.highScores = dependencies.highScores ?? new LocalHighScores();
     this.sandboxBest = dependencies.sandboxBest ?? new LocalSandboxBest();
+    this.endOfRunFinalizer = new EndOfRunFinalizer({
+      eventBus: this.eventBus,
+      highScores: this.highScores,
+      sandboxBest: this.sandboxBest,
+      sessionStorage: this.sessionStorage,
+      page
+    });
     this.registerEventListeners();
 
     this.page = page;
@@ -274,48 +282,12 @@ class GameCoordinator {
         return;
       }
       if (!this.hasShownGameOverSummary) {
-        const playedTime = this.gameState.getPlayedDuration();
-        const elapsedSeconds = playedTime.hours * 3600 + playedTime.minutes * 60 + playedTime.seconds;
-        const entry = {
-          score: this.gameState.getScore(),
-          elapsedSeconds,
-          rows: activeRunContext.setup.numRows,
-          columns: activeRunContext.setup.numColumns,
-          playedAt: Date.now()
-        };
-        const recordResult = isCompetitiveMode(modeId)
-          ? this.highScores.record(entry, modeId)
-          : { rank: null, topEntries: [] };
-        const sandboxBestResult = isCompetitiveMode(modeId)
-          ? null
-          : this.sandboxBest.record(entry);
-
-        this.sessionStorage.clear();
-        this.page.setSessionUIState('gameOverSummary');
-        this.page.setGameOverSummary(
+        this.endOfRunFinalizer.finalize({
           modeId,
-          this.gameState.getScore(),
-          this.getClockText(),
-          this.gameState.getBlocksPopped(),
-          this.gameState.getNumBlocksRemaining(),
-          this.gameState.getLargestCluster(),
-          this.gameState.getTotalMoves(),
-          recordResult.topEntries,
-          recordResult.rank,
-          sandboxBestResult?.bestEntry ?? null,
-          sandboxBestResult?.isNewBest ?? false
-        );
-
-        const gameEndedEvent: GameEndedEvent = {
-          type: 'gameEnded',
-          modeId,
-          score: this.gameState.getScore(),
-          playedSeconds: elapsedSeconds,
-          blocksPopped: this.gameState.getBlocksPopped(),
-          largestCluster: this.gameState.getLargestCluster(),
-          runContext: activeRunContext
-        };
-        this.eventBus.emit('gameEnded', gameEndedEvent);
+          runContext: activeRunContext,
+          gameState: this.gameState,
+          clockText: this.getClockText()
+        });
         this.hasShownGameOverSummary = true;
       }
     }

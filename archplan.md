@@ -1,69 +1,107 @@
-# Architecture Strengthening Plan
+# Unified Architecture and Hygeine Action Plan
 
 Date: 2026-04-26
-Horizon: 3 implementation waves
+Status: Execution-ready ordered sequence
 
-## Objectives
+## Goal
 
-- Lower coordination complexity for new mode development.
-- Keep domain logic testable without UI/persistence dependencies.
-- Reduce regression probability when tuning run-end behavior.
+Provide one prioritized plan that combines architecture strengthening and code hygeine remediation into a single actionable path with minimal refactor risk.
 
-## Wave 1: Safe Decomposition
+Refactor checklist: [docs/REFACTOR_GUARD_CHECKLIST.md](docs/REFACTOR_GUARD_CHECKLIST.md)
 
-1. Extract End-of-Run Service
-- Move game-over summary prep, score persistence, and event emission out of coordinator into a dedicated service.
-- Inputs: mode id, run context, GameState snapshot.
-- Outputs: UI summary payload + persistence writes + gameEnded event payload.
+## Ordered Steps
 
-2. Extract Timed End Handler
-- Isolate timed no-moves fast-forward and bonus behavior into one component.
-- Keep coordinator as caller only.
+### 1) Lock Invariants Before Refactor
 
-3. Keep public APIs stable
-- Preserve GameRunner constructor surface to avoid broad integration churn.
+- Add a refactor guard checklist for each related PR:
+	- GameRunner public API unchanged
+	- Event ordering unchanged
+	- Test/build gates required
+- Keep layer-boundary tests active and updated as seams move.
 
-Success criteria:
-- Coordinator reduced by ~20-30% lines.
-- No behavior changes in existing tests.
+Expected outcome:
+- Safe baseline for structural change with low regression risk.
 
-## Wave 2: Domain Isolation
+### 2) Decompose Coordinator First (Highest Payoff)
 
-1. Split mode runtime stats from GameState core grid operations
-- Move cascade/precision/timed runtime helpers behind dedicated mode state object(s) owned by GameState.
+- Extract EndOfRunFinalizer from GameCoordinator:
+	- game-over summary payload creation
+	- high score/sandbox best persistence
+	- gameEnded event emission
+- Extract TimedEndHandler:
+	- timed no-moves fast-forward
+	- timed bonus scoring logic
+- Keep GameCoordinator as orchestration entry point only.
 
-2. Formalize serialization boundary
-- Introduce explicit snapshot translators to avoid accidental schema coupling.
+Expected outcome:
+- Reduced branching/coupling in the highest-risk file.
 
-Success criteria:
-- GameState mutation paths become easier to reason about.
-- Snapshot compatibility logic is isolated and test-focused.
+### 3) Isolate GameState Mode Runtime Concerns
 
-## Wave 3: Presentation Composition Hygiene
+- Move cascade/precision/timed runtime helpers behind a dedicated mode-runtime module owned by GameState.
+- Keep grid mutation, invariant checks, and core state ownership in GameState.
 
-1. Split UINodes into section modules
-- Board settings section builder
-- Generation section builder
-- Appearance section builder
-- Action row builder
+Expected outcome:
+- Easier reasoning about state transitions and lower chance of cross-mode regressions.
 
-2. Keep HTMLInterface focused on composition
-- Avoid accumulating behavior decisions in view shell.
+### 4) Formalize Serialization Boundary
 
-Success criteria:
-- UI modifications touch fewer lines/files.
-- Existing presentation tests remain stable with less fixture churn.
+- Introduce explicit snapshot translators for persistence/session boundaries.
+- Centralize compatibility mappings (arcade->classic, zen->infinite) in one place.
 
-## Guardrails
+Expected outcome:
+- Fewer accidental schema-coupling bugs and clearer compatibility strategy.
 
-- Maintain strict non-bootstrap layer boundaries.
-- Continue requiring plan-first branch workflow for backlog items.
-- Add a boundary test whenever a new cross-layer seam is introduced.
+### 5) Split Presentation Construction Hotspots
 
-## Risks and Mitigations
+- Break UINodes into section builders:
+	- board
+	- generation
+	- appearance
+	- actions
+- Keep HTMLInterface focused on composition/state routing, not behavior policy.
 
-- Risk: Refactor churn slows feature delivery.
-- Mitigation: wave-by-wave with no API breaks and test-first checkpoints.
+Expected outcome:
+- Smaller UI change blast radius and more maintainable presentation code.
 
-- Risk: Hidden lifecycle coupling during coordinator extraction.
-- Mitigation: preserve behavior via event-sequence tests before/after each extraction.
+### 6) Rebalance the Testbed During Refactor
+
+- Preserve/expand event-sequence integration tests while coordinator changes happen.
+- Add one resume-visibility end-to-end smoke path using real session snapshot shape.
+- Introduce shared test fixtures/constants for common mode ids and run contexts.
+
+Expected outcome:
+- Maintains confidence while lowering test maintenance overhead.
+
+### 7) Naming Harmonization Pass
+
+- Rename remaining technical arcade-era artifacts to classic where safe.
+- Keep backward-compat behavior at persistence/session boundaries.
+
+Expected outcome:
+- Better readability/onboarding and fewer identity mismatch errors.
+
+### 8) Final Documentation Cleanup
+
+- Align architecture docs with new seams and ownership.
+- Normalize terminology/spelling and remove drift between backlog/docs.
+
+Expected outcome:
+- Documentation reflects reality and stays usable as a contributor guide.
+
+## Delivery Guardrails
+
+- Use plan-first branch workflow per backlog item.
+- Keep each step in small, behavior-preserving PRs.
+- Require passing test and build checks for every PR.
+
+## Suggested Execution Cadence
+
+1. Step 1
+2. Step 2
+3. Step 3
+4. Step 4
+5. Step 5
+6. Step 6
+7. Step 7
+8. Step 8
