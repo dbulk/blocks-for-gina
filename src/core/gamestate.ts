@@ -14,6 +14,12 @@ interface serializationPayload {
   totalMoves?: number
   largestCluster?: number
   blocksPopped?: number
+  cascadeCurrentChainDepth?: number
+  cascadeBestChainDepth?: number
+  cascadeComboBonus?: number
+  precisionTargetSize?: number
+  precisionStrikes?: number
+  precisionStreak?: number
 }
 interface xy {
   x: number
@@ -46,6 +52,12 @@ class GameState {
   private availableMovesCache: number = 0;
   private hasMoreMovesDirty: boolean = true;
   private needsPop: boolean = false;
+  private cascadeCurrentChainDepth: number = 0;
+  private cascadeBestChainDepth: number = 0;
+  private cascadeComboBonus: number = 0;
+  private precisionTargetSize: number = 2;
+  private precisionStrikes: number = 0;
+  private precisionStreak: number = 0;
 
   private numRows: number = 0;
   private numColumns: number = 0;
@@ -137,6 +149,39 @@ class GameState {
     return this.availableMovesCache;
   }
 
+  getAvailableClusterSizes (): number[] {
+    const clusters = this.collectRemovableClusters();
+    const sizes = new Set<number>();
+    for (const cluster of clusters) {
+      sizes.add(cluster.length);
+    }
+    return Array.from(sizes).sort((a, b) => a - b);
+  }
+
+  getCascadeCurrentChainDepth (): number {
+    return this.cascadeCurrentChainDepth;
+  }
+
+  getCascadeBestChainDepth (): number {
+    return this.cascadeBestChainDepth;
+  }
+
+  getCascadeComboBonus (): number {
+    return this.cascadeComboBonus;
+  }
+
+  getPrecisionTargetSize (): number {
+    return this.precisionTargetSize;
+  }
+
+  getPrecisionStrikes (): number {
+    return this.precisionStrikes;
+  }
+
+  getPrecisionStreak (): number {
+    return this.precisionStreak;
+  }
+
   resetScore (): void {
     this.score = 0;
   }
@@ -155,6 +200,46 @@ class GameState {
   resetUndo (): void {
     this.undostack = [];
     this.redostack = [];
+  }
+
+  resetModeRuntimeStats (): void {
+    this.cascadeCurrentChainDepth = 0;
+    this.cascadeBestChainDepth = 0;
+    this.cascadeComboBonus = 0;
+    this.precisionTargetSize = 2;
+    this.precisionStrikes = 0;
+    this.precisionStreak = 0;
+  }
+
+  startCascadeTurn (): void {
+    this.cascadeCurrentChainDepth = 0;
+    this.cascadeComboBonus = 0;
+  }
+
+  recordCascadeWave (clusterSize: number, scoreMultiplier: number): void {
+    if (clusterSize <= 0) {
+      return;
+    }
+    this.cascadeCurrentChainDepth++;
+    this.cascadeBestChainDepth = Math.max(this.cascadeBestChainDepth, this.cascadeCurrentChainDepth);
+    this.cascadeComboBonus += Math.floor(this.computeScore(clusterSize) * Math.max(0, scoreMultiplier - 1));
+  }
+
+  setPrecisionTargetSize (size: number): void {
+    this.precisionTargetSize = Math.max(2, Math.floor(size));
+  }
+
+  recordPrecisionMiss (): void {
+    this.precisionStrikes = Math.min(3, this.precisionStrikes + 1);
+    this.precisionStreak = 0;
+  }
+
+  getPrecisionHitMultiplier (): number {
+    return 1 + Math.min(4, this.precisionStreak) * 0.25;
+  }
+
+  recordPrecisionExactHit (): void {
+    this.precisionStreak++;
   }
 
   hasUndo (): boolean {
@@ -201,6 +286,7 @@ class GameState {
     this.numBlocksInColumn = new Array(this.numColumns).fill(this.numRows);
     this.blocksDirty = true;
     this.hasMoreMovesDirty = true;
+    this.resetModeRuntimeStats();
     this.assertInvariants('initializeGrid');
   }
 
@@ -246,14 +332,14 @@ class GameState {
     this.hasMoreMovesDirty = false;
   }
 
-  private computeAvailableMoves (): number {
+  private collectRemovableClusters (): coordinate[][] {
     if (this.numRows === 0 || this.numColumns === 0) {
-      return 0;
+      return [];
     }
 
     const visited = new Uint8Array(this.numRows * this.numColumns);
     const indexFor = (row: number, col: number): number => row * this.numColumns + col;
-    let availableMoves = 0;
+    const clusters: coordinate[][] = [];
 
     for (let row = 0; row < this.numRows; row++) {
       for (let col = 0; col < this.numColumns; col++) {
@@ -269,8 +355,8 @@ class GameState {
         }
 
         const stack = [{ row, col }];
+        const cluster: coordinate[] = [];
         visited[startIndex] = 1;
-        let clusterSize = 0;
 
         while (stack.length > 0) {
           const current = stack.pop();
@@ -278,7 +364,7 @@ class GameState {
             continue;
           }
 
-          clusterSize++;
+          cluster.push(current);
 
           const neighbors = [
             { row: current.row - 1, col: current.col },
@@ -304,13 +390,17 @@ class GameState {
           }
         }
 
-        if (clusterSize > 1) {
-          availableMoves++;
+        if (cluster.length > 1) {
+          clusters.push(cluster);
         }
       }
     }
 
-    return availableMoves;
+    return clusters;
+  }
+
+  private computeAvailableMoves (): number {
+    return this.collectRemovableClusters().length;
   }
 
   private getFloodedCoordinates (coord: coordinate): coordinate[] {
@@ -357,19 +447,44 @@ class GameState {
     );
   }
 
-  doPop (): void {
-    if (this.popList.length > 0) {
-      this.undostack.push(this.serialize());
-      this.redostack = [];
-      this.pendingPopList = [...this.popList];
-      this.needsPop = true;
-      this.totalMoves++;
-      this.largestCluster = Math.max(this.largestCluster, this.pendingPopList.length);
-      this.blocksPopped += this.pendingPopList.length;
-      this.score += this.computeScore(this.pendingPopList.length);
-      this.blocksDirty = true;
-      this.soundEffectCallback();
+  doPop (options: { countMove?: boolean, scoreMultiplier?: number } = {}): number {
+    if (this.popList.length === 0) {
+      return 0;
     }
+
+    const countMove = options.countMove ?? true;
+    const scoreMultiplier = options.scoreMultiplier ?? 1;
+    this.undostack.push(this.serialize());
+    this.redostack = [];
+    this.pendingPopList = [...this.popList];
+    this.needsPop = true;
+    if (countMove) {
+      this.totalMoves++;
+    }
+    this.largestCluster = Math.max(this.largestCluster, this.pendingPopList.length);
+    this.blocksPopped += this.pendingPopList.length;
+    this.score += Math.floor(this.computeScore(this.pendingPopList.length) * scoreMultiplier);
+    this.blocksDirty = true;
+    this.soundEffectCallback();
+    return this.pendingPopList.length;
+  }
+
+  popLargestCluster (options: { countMove?: boolean, scoreMultiplier?: number } = {}): number {
+    const clusters = this.collectRemovableClusters();
+    if (clusters.length === 0) {
+      return 0;
+    }
+
+    let largest = clusters[0];
+    for (let i = 1; i < clusters.length; i++) {
+      if (clusters[i].length > largest.length) {
+        largest = clusters[i];
+      }
+    }
+
+    this.popList = [...largest];
+    this.blocksDirty = true;
+    return this.doPop(options);
   }
 
   private markBlockNull (coord: coordinate): void {
@@ -537,7 +652,13 @@ class GameState {
       serializedGameDuration: this.serializedGameDuration + performance.now() - this.gameStartTime,
       totalMoves: this.totalMoves,
       largestCluster: this.largestCluster,
-      blocksPopped: this.blocksPopped
+      blocksPopped: this.blocksPopped,
+      cascadeCurrentChainDepth: this.cascadeCurrentChainDepth,
+      cascadeBestChainDepth: this.cascadeBestChainDepth,
+      cascadeComboBonus: this.cascadeComboBonus,
+      precisionTargetSize: this.precisionTargetSize,
+      precisionStrikes: this.precisionStrikes,
+      precisionStreak: this.precisionStreak
     };
   }
 
@@ -557,6 +678,12 @@ class GameState {
     this.totalMoves = 'totalMoves' in payload ? payload.totalMoves ?? 0 : 0;
     this.largestCluster = 'largestCluster' in payload ? payload.largestCluster ?? 0 : 0;
     this.blocksPopped = 'blocksPopped' in payload ? payload.blocksPopped ?? 0 : 0;
+    this.cascadeCurrentChainDepth = 'cascadeCurrentChainDepth' in payload ? payload.cascadeCurrentChainDepth ?? 0 : 0;
+    this.cascadeBestChainDepth = 'cascadeBestChainDepth' in payload ? payload.cascadeBestChainDepth ?? 0 : 0;
+    this.cascadeComboBonus = 'cascadeComboBonus' in payload ? payload.cascadeComboBonus ?? 0 : 0;
+    this.precisionTargetSize = 'precisionTargetSize' in payload ? Math.max(2, payload.precisionTargetSize ?? 2) : 2;
+    this.precisionStrikes = 'precisionStrikes' in payload ? Math.max(0, payload.precisionStrikes ?? 0) : 0;
+    this.precisionStreak = 'precisionStreak' in payload ? Math.max(0, payload.precisionStreak ?? 0) : 0;
     this.blocksDirty = true;
     this.hasMoreMovesDirty = true;
     this.serializedGameDuration = 'serializedGameDuration' in payload ? payload.serializedGameDuration : 0;

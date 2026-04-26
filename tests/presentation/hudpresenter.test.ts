@@ -170,4 +170,42 @@ describe('HudPresenter', () => {
     expect(time?.visible).toBe(false);
     expect(moves?.visible).toBe(false);
   });
+
+  it('shows cascade chain metrics', () => {
+    const state = makeStateFromGrid([[1, 2], [3, 4]]);
+    state.recordCascadeWave(3, 2);
+    const presenter = new HudPresenter();
+
+    const metrics = presenter.getMetrics(state, 'cascade');
+    const chain = getByKey(metrics, 'cascade-chain');
+    const bonus = getByKey(metrics, 'cascade-bonus');
+    const best = getByKey(metrics, 'cascade-best');
+
+    expect(chain?.visible).toBe(true);
+    expect(chain?.value).toBe('1');
+    expect(bonus?.visible).toBe(true);
+    expect(bonus?.value).toMatch(/^\+/);
+    expect(best?.visible).toBe(true);
+    expect(best?.value).toBe('1');
+  });
+
+  it('shows precision target, strikes, and streak metrics', () => {
+    const state = makeStateFromGrid([[1, 2], [3, 4]]);
+    state.setPrecisionTargetSize(4);
+    state.recordPrecisionMiss();
+    state.recordPrecisionExactHit();
+    const presenter = new HudPresenter();
+
+    const metrics = presenter.getMetrics(state, 'precision');
+    const target = getByKey(metrics, 'precision-target');
+    const strikes = getByKey(metrics, 'precision-strikes');
+    const streak = getByKey(metrics, 'precision-streak');
+
+    expect(target?.visible).toBe(true);
+    expect(target?.value).toBe('4');
+    expect(strikes?.visible).toBe(true);
+    expect(strikes?.value).toBe('1/3');
+    expect(streak?.visible).toBe(true);
+    expect(streak?.value).toBe('1');
+  });
 });

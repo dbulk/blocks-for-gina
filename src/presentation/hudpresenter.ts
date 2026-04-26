@@ -1,6 +1,6 @@
 import type GameState from '@/core/gamestate';
 import type { HudMetric } from '@/presentation/hudmetric';
-import { TIMED_MODE_DURATION_SECONDS, SPRINT_MODE_MAX_MOVES } from '@/core/moderules';
+import { TIMED_MODE_DURATION_SECONDS, SPRINT_MODE_MAX_MOVES, PRECISION_MAX_STRIKES } from '@/core/moderules';
 import { getModeMetadata } from '@/core/moderegistry';
 
 class HudPresenter {
@@ -56,6 +56,51 @@ class HudPresenter {
         tone: (SPRINT_MODE_MAX_MOVES - gameState.getTotalMoves()) <= 5 ? 'warning' : 'default',
         order: 8,
         visible: modeId === 'sprint'
+      },
+      {
+        key: 'cascade-chain',
+        label: 'Chain Depth',
+        value: `${gameState.getCascadeCurrentChainDepth()}`,
+        order: 8,
+        visible: modeId === 'cascade'
+      },
+      {
+        key: 'cascade-bonus',
+        label: 'Combo Bonus',
+        value: `+${gameState.getCascadeComboBonus()}`,
+        tone: gameState.getCascadeComboBonus() > 0 ? 'accent' : 'default',
+        order: 9,
+        visible: modeId === 'cascade'
+      },
+      {
+        key: 'cascade-best',
+        label: 'Best Chain',
+        value: `${gameState.getCascadeBestChainDepth()}`,
+        order: 11,
+        visible: modeId === 'cascade'
+      },
+      {
+        key: 'precision-target',
+        label: 'Target Size',
+        value: `${gameState.getPrecisionTargetSize()}`,
+        order: 8,
+        visible: modeId === 'precision'
+      },
+      {
+        key: 'precision-strikes',
+        label: 'Strikes',
+        value: `${gameState.getPrecisionStrikes()}/${PRECISION_MAX_STRIKES}`,
+        tone: gameState.getPrecisionStrikes() > 0 ? 'warning' : 'default',
+        order: 9,
+        visible: modeId === 'precision'
+      },
+      {
+        key: 'precision-streak',
+        label: 'Exact Streak',
+        value: `${gameState.getPrecisionStreak()}`,
+        tone: gameState.getPrecisionStreak() >= 2 ? 'accent' : 'default',
+        order: 11,
+        visible: modeId === 'precision'
       },
       {
         key: 'score',
