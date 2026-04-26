@@ -4,7 +4,7 @@ import { describe, expect, it, vi } from 'vitest';
 import GameCoordinator from '@/core/gamecoordinator';
 import GameSettings from '@/core/gamesettings';
 import GameEventBus from '@/events/eventbus';
-import { ARCADE_RUN_CONFIG } from '@/core/arcadeconfig';
+import { CLASSIC_RUN_CONFIG } from '@/core/classicconfig';
 import type { GameStartedEvent } from '@/events/events';
 
 const createCoordinator = (settings: GameSettings, bus: GameEventBus): { coordinator: GameCoordinator, canvas: HTMLCanvasElement } => {
@@ -78,22 +78,21 @@ const createCoordinator = (settings: GameSettings, bus: GameEventBus): { coordin
 };
 
 describe('#classic-default-config', () => {
-  it('ARCADE_RUN_CONFIG values are within valid board bounds', () => {
-    expect(ARCADE_RUN_CONFIG.numRows).toBeGreaterThanOrEqual(5);
-    expect(ARCADE_RUN_CONFIG.numRows).toBeLessThanOrEqual(100);
-    expect(ARCADE_RUN_CONFIG.numColumns).toBeGreaterThanOrEqual(5);
-    expect(ARCADE_RUN_CONFIG.numColumns).toBeLessThanOrEqual(100);
-    expect(ARCADE_RUN_CONFIG.numBlockTypes).toBeGreaterThanOrEqual(2);
-    expect(ARCADE_RUN_CONFIG.numBlockTypes).toBeLessThanOrEqual(8);
-    expect(ARCADE_RUN_CONFIG.clusterStrength).toBeGreaterThanOrEqual(0);
-    expect(ARCADE_RUN_CONFIG.clusterStrength).toBeLessThanOrEqual(1);
+  it('CLASSIC_RUN_CONFIG values are within valid board bounds', () => {
+    expect(CLASSIC_RUN_CONFIG.numRows).toBeGreaterThanOrEqual(5);
+    expect(CLASSIC_RUN_CONFIG.numRows).toBeLessThanOrEqual(100);
+    expect(CLASSIC_RUN_CONFIG.numColumns).toBeGreaterThanOrEqual(5);
+    expect(CLASSIC_RUN_CONFIG.numColumns).toBeLessThanOrEqual(100);
+    expect(CLASSIC_RUN_CONFIG.numBlockTypes).toBeGreaterThanOrEqual(2);
+    expect(CLASSIC_RUN_CONFIG.numBlockTypes).toBeLessThanOrEqual(8);
+    expect(CLASSIC_RUN_CONFIG.clusterStrength).toBeGreaterThanOrEqual(0);
+    expect(CLASSIC_RUN_CONFIG.clusterStrength).toBeLessThanOrEqual(1);
   });
 
-  it('classic start emits gameStarted with ARCADE_RUN_CONFIG values regardless of settings', () => {
+  it('classic start emits gameStarted with CLASSIC_RUN_CONFIG values regardless of settings', () => {
     const bus = new GameEventBus();
     const settings = new GameSettings();
     settings.modeId = 'classic';
-    // Mutate settings to unusual values to verify they are ignored
     settings.numRows = 99;
     settings.numColumns = 99;
     settings.numBlockTypes = 8;
@@ -105,14 +104,14 @@ describe('#classic-default-config', () => {
     createCoordinator(settings, bus);
 
     expect(captured).toBeDefined();
-    expect(captured!.rows).toBe(ARCADE_RUN_CONFIG.numRows);
-    expect(captured!.columns).toBe(ARCADE_RUN_CONFIG.numColumns);
-    expect(captured!.blockTypes).toBe(ARCADE_RUN_CONFIG.numBlockTypes);
+    expect(captured!.rows).toBe(CLASSIC_RUN_CONFIG.numRows);
+    expect(captured!.columns).toBe(CLASSIC_RUN_CONFIG.numColumns);
+    expect(captured!.blockTypes).toBe(CLASSIC_RUN_CONFIG.numBlockTypes);
     expect(captured!.modeId).toBe('classic');
     expect(captured!.runContext).toMatchObject({
       modeId: 'classic',
       source: 'modeSelect',
-      setup: ARCADE_RUN_CONFIG
+      setup: CLASSIC_RUN_CONFIG
     });
   });
 
@@ -144,10 +143,9 @@ describe('#classic-default-config', () => {
         clusterStrength: settings.clusterStrength
       }
     });
-    // Verify it did NOT use classic config (values differ from ARCADE_RUN_CONFIG)
-    expect(captured!.rows).not.toBe(ARCADE_RUN_CONFIG.numRows);
-    expect(captured!.columns).not.toBe(ARCADE_RUN_CONFIG.numColumns);
-    expect(captured!.blockTypes).not.toBe(ARCADE_RUN_CONFIG.numBlockTypes);
+    expect(captured!.rows).not.toBe(CLASSIC_RUN_CONFIG.numRows);
+    expect(captured!.columns).not.toBe(CLASSIC_RUN_CONFIG.numColumns);
+    expect(captured!.blockTypes).not.toBe(CLASSIC_RUN_CONFIG.numBlockTypes);
   });
 
   it('classic game-over persistence uses active run setup rather than mutable settings', () => {
@@ -241,8 +239,8 @@ describe('#classic-default-config', () => {
     (coordinator as unknown as { gameLoop: () => void }).gameLoop();
 
     expect(record).toHaveBeenCalledWith(expect.objectContaining({
-      rows: ARCADE_RUN_CONFIG.numRows,
-      columns: ARCADE_RUN_CONFIG.numColumns
+      rows: CLASSIC_RUN_CONFIG.numRows,
+      columns: CLASSIC_RUN_CONFIG.numColumns
     }), 'classic');
   });
 });

@@ -6,7 +6,7 @@ Last updated: 2026-04-19
 
 We are moving from one blended settings/gameplay experience to a two-track model:
 
-1. **Arcade**: curated/default board configuration intended for score competition.
+1. **Classic**: curated/default board configuration intended for score competition.
 2. **Sandbox**: player-defined board generation settings for experimentation/fun.
 
 This shift clarifies what counts for progression/leaderboards and gives us a clean entry point for additional game modes.
@@ -19,7 +19,7 @@ This shift clarifies what counts for progression/leaderboards and gives us a cle
 
 The player starts by choosing a game type/mode before entering gameplay.
 
-- Arcade
+- Classic
 - Sandbox
 - Future modes (Timed, Move-Limited, Infinite, Reverse Gravity, Daily Seed, etc.)
 
@@ -54,7 +54,7 @@ These affect gameplay rules and board generation, and belong to setup flow, not 
 - Board generation parameters.
 - Mode-specific knobs.
 
-### Arcade
+### Classic
 
 - Uses default/curated run config (fixed baseline).
 - Player does not tweak board generation before run.
@@ -72,7 +72,7 @@ These affect gameplay rules and board generation, and belong to setup flow, not 
 
 High scores are tracked by **game mode** where competition is meaningful and comparable:
 
-- Arcade (yes)
+- Classic (yes)
 - Timed (yes)
 - Move-Limited (yes)
 - Daily Seed (yes)
@@ -96,7 +96,7 @@ Rationale:
 
 ## Immediate
 
-1. Arcade (default curated classic baseline)
+1. Classic (default curated baseline)
 2. Sandbox (custom board setup)
 
 ## Near-term
@@ -168,7 +168,7 @@ UI should distinguish:
    - persistent preferences
    - run setup (Sandbox-focused)
 
-**Exit criteria**: player can clearly choose Arcade vs Sandbox; game-over routes back to selection.
+**Exit criteria**: player can clearly choose Classic vs Sandbox; game-over routes back to selection.
 
 ## Phase 2: score and policy alignment
 
@@ -213,7 +213,7 @@ Add targeted tests for:
 
 ## 10) Success Metrics
 
-- **Clarity**: users understand Arcade vs Sandbox before starting a run.
+- **Clarity**: users understand Classic vs Sandbox before starting a run.
 - **Integrity**: competitive boards remain comparable because Sandbox is separated.
 - **Velocity**: new modes plug into one shared selection/setup pipeline.
 - **Quality**: green typecheck/lint/test/build gate before release.

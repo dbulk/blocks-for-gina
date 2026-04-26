@@ -3,7 +3,7 @@
 Last updated: 2026-04-26
 
 ## Scope
-- Deliver Arcade/Sandbox experience flow from [roadmap.md](roadmap.md).
+- Deliver Classic/Sandbox experience flow from [roadmap.md](roadmap.md).
 - Keep mode architecture extensible for upcoming modes.
 - Preserve quality gates while reducing coordinator coupling.
 

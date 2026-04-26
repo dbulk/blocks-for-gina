@@ -1,7 +1,7 @@
 import GameState from '@/core/gamestate';
 import TimedEndHandler from '@/core/timedendhandler';
 import GameLoopManager from '@/core/gameloopmanager';
-import { ARCADE_RUN_CONFIG } from '@/core/arcadeconfig';
+import { CLASSIC_RUN_CONFIG } from '@/core/classicconfig';
 import EndOfRunFinalizer from '@/core/endofrunfinalizer';
 import { shouldEndGameForMode } from '@/core/moderules';
 import AudioController from '@/audio/audiocontroller';
@@ -188,7 +188,7 @@ class GameCoordinator {
 
   private getRunSetup (): RunSetup {
     if (this.settings.modeId === 'classic') {
-      return ARCADE_RUN_CONFIG;
+      return CLASSIC_RUN_CONFIG;
     }
 
     return {

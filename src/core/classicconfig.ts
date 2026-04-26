@@ -1,11 +1,11 @@
-interface ArcadeRunConfig {
+interface ClassicRunConfig {
   readonly numRows: number;
   readonly numColumns: number;
   readonly numBlockTypes: number;
   readonly clusterStrength: number;
 }
 
-export const ARCADE_RUN_CONFIG: ArcadeRunConfig = {
+export const CLASSIC_RUN_CONFIG: ClassicRunConfig = {
   numRows: 10,
   numColumns: 20,
   numBlockTypes: 5,
