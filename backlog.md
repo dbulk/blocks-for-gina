@@ -4,15 +4,9 @@
 
 See [ai-workflow.md](ai-workflow.md) for the full step-by-step execution process.
 
-## #leaderboard-per-mode
-Competitive leaderboard partitioning
-- Track scores by competitive mode
-- Keep per-mode top entries
-- Add migration-safe schema update
-
 ## #sprint-mode-v1
 Sprint mode first playable version
-- Fixed move budget (30 moves)
+- Fixed move budget (10 moves)
 - End condition on budget exhaustion
 - Mode-specific summary details
 
