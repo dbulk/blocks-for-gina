@@ -469,16 +469,19 @@ class GameState {
     return this.pendingPopList.length;
   }
 
-  popLargestCluster (options: { countMove?: boolean, scoreMultiplier?: number } = {}): number {
+  popLargestCluster (options: { countMove?: boolean, scoreMultiplier?: number, minClusterSize?: number } = {}): number {
     const clusters = this.collectRemovableClusters();
-    if (clusters.length === 0) {
+    const minClusterSize = Math.max(2, options.minClusterSize ?? 2);
+    const eligibleClusters = clusters.filter((cluster) => cluster.length >= minClusterSize);
+
+    if (eligibleClusters.length === 0) {
       return 0;
     }
 
-    let largest = clusters[0];
-    for (let i = 1; i < clusters.length; i++) {
-      if (clusters[i].length > largest.length) {
-        largest = clusters[i];
+    let largest = eligibleClusters[0];
+    for (let i = 1; i < eligibleClusters.length; i++) {
+      if (eligibleClusters[i].length > largest.length) {
+        largest = eligibleClusters[i];
       }
     }
 

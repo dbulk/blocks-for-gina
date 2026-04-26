@@ -17,6 +17,7 @@ import type Renderer from '@/rendering/renderer';
 
 const MOVERATE = 0.15;
 const GAME_OVER_FADE_STEP = 0.375;
+const CASCADE_AUTO_WAVE_MIN_CLUSTER_SIZE = 3;
 
 interface GameCoordinatorDependencies {
   eventBus?: GameEventBus
@@ -47,6 +48,8 @@ class GameCoordinator {
   private activeRunContext: RunContext | null = null;
   private readonly runSource: RunSource;
   private precisionNeedsNewTarget: boolean = false;
+  private cascadeAutoWavePending: boolean = false;
+  private cascadeAutoWaveMinClusterSize: number = CASCADE_AUTO_WAVE_MIN_CLUSTER_SIZE;
   private readonly highScores: LocalHighScores;
   private readonly sandboxBest: LocalSandboxBest;
   private readonly eventBus: GameEventBus;
@@ -138,11 +141,13 @@ class GameCoordinator {
     this.gameState.resetModeRuntimeStats();
     this.gameState.resetUndo();
     if (runContext.modeId === 'precision') {
-      this.assignNextPrecisionTarget();
+      this.ensurePrecisionTargetAvailable(true);
       this.precisionNeedsNewTarget = false;
     } else {
       this.precisionNeedsNewTarget = false;
     }
+    this.cascadeAutoWavePending = false;
+    this.cascadeAutoWaveMinClusterSize = CASCADE_AUTO_WAVE_MIN_CLUSTER_SIZE;
     this.scoreBoard.update(runContext.modeId);
     this.renderer.adjustCanvasSize(this.page.getCanvasSizeConstraints());
     this.page.resize();
@@ -204,9 +209,13 @@ class GameCoordinator {
     };
     const modeId = activeRunContext.modeId;
 
-    if (modeId === 'cascade' && !this.gameState.animating && this.gameState.getCascadeCurrentChainDepth() > 0) {
+    if (modeId === 'cascade' && !this.gameState.animating && this.cascadeAutoWavePending) {
       const nextMultiplier = this.gameState.getCascadeCurrentChainDepth() + 1;
-      const popped = this.gameState.popLargestCluster({ countMove: false, scoreMultiplier: nextMultiplier });
+      const popped = this.gameState.popLargestCluster({
+        countMove: false,
+        scoreMultiplier: nextMultiplier,
+        minClusterSize: this.cascadeAutoWaveMinClusterSize
+      });
       if (popped > 0) {
         this.gameState.recordCascadeWave(popped, nextMultiplier);
         const poppedEvent: BlocksPoppedEvent = {
@@ -217,11 +226,16 @@ class GameCoordinator {
         };
         this.eventBus.emit('blocksPopped', poppedEvent);
       }
+      this.cascadeAutoWavePending = false;
     }
 
     if (modeId === 'precision' && !this.gameState.animating && this.precisionNeedsNewTarget) {
-      this.assignNextPrecisionTarget();
+      this.ensurePrecisionTargetAvailable(true);
       this.precisionNeedsNewTarget = false;
+    }
+
+    if (modeId === 'precision' && !this.gameState.animating && !this.precisionNeedsNewTarget) {
+      this.ensurePrecisionTargetAvailable(false);
     }
 
     if (modeId === 'infinite') {
@@ -354,6 +368,11 @@ class GameCoordinator {
         const popped = this.gameState.doPop();
         if (popped > 0) {
           this.gameState.recordCascadeWave(popped, 1);
+          this.cascadeAutoWaveMinClusterSize = Math.max(CASCADE_AUTO_WAVE_MIN_CLUSTER_SIZE, popped);
+          this.cascadeAutoWavePending = true;
+        } else {
+          this.cascadeAutoWaveMinClusterSize = CASCADE_AUTO_WAVE_MIN_CLUSTER_SIZE;
+          this.cascadeAutoWavePending = false;
         }
       } else {
         this.gameState.doPop();
@@ -467,15 +486,30 @@ class GameCoordinator {
     return `${h}${m}:${s}`;
   }
 
-  private assignNextPrecisionTarget (): void {
+  private assignNextPrecisionTarget (availableSizes?: number[]): void {
+    const sizes = availableSizes ?? this.gameState.getAvailableClusterSizes();
+    if (sizes.length === 0) {
+      this.gameState.setPrecisionTargetSize(2);
+      return;
+    }
+
+    const nextIndex = (this.gameState.getTotalMoves() + this.gameState.getPrecisionStrikes() + this.gameState.getPrecisionStreak()) % sizes.length;
+    this.gameState.setPrecisionTargetSize(sizes[nextIndex]);
+  }
+
+  private ensurePrecisionTargetAvailable (forceReselect: boolean): void {
     const availableSizes = this.gameState.getAvailableClusterSizes();
     if (availableSizes.length === 0) {
       this.gameState.setPrecisionTargetSize(2);
       return;
     }
 
-    const nextIndex = (this.gameState.getTotalMoves() + this.gameState.getPrecisionStrikes() + this.gameState.getPrecisionStreak()) % availableSizes.length;
-    this.gameState.setPrecisionTargetSize(availableSizes[nextIndex]);
+    const currentTarget = this.gameState.getPrecisionTargetSize();
+    if (!forceReselect && availableSizes.includes(currentTarget)) {
+      return;
+    }
+
+    this.assignNextPrecisionTarget(availableSizes);
   }
 
   serialize (): void {
@@ -501,8 +535,8 @@ class GameCoordinator {
     this.settings.deserialize(snapshot.settings as Parameters<typeof this.settings.deserialize>[0]);
     this.settingsPresenter.settingsToUI();
     this.gameState.deserialize(snapshot.state as Parameters<typeof this.gameState.deserialize>[0]);
-    if (this.settings.modeId === 'precision' && this.gameState.getPrecisionTargetSize() < 2) {
-      this.assignNextPrecisionTarget();
+    if (this.settings.modeId === 'precision') {
+      this.ensurePrecisionTargetAvailable(false);
     }
     this.scoreBoard.update(this.settings.modeId);
     this.setAudioState();
