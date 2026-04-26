@@ -1,6 +1,22 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import SessionStorage from '@/persistence/sessionstorage';
 
+const makeStateSnapshot = (overrides: Record<string, unknown> = {}) => ({
+  griddata: [[1, 1], [2, 3]],
+  score: 10,
+  serializedGameDuration: 1000,
+  ...overrides
+});
+
+const makeSettingsSnapshot = (overrides: Record<string, unknown> = {}) => ({
+  numColumns: 20,
+  numRows: 10,
+  numBlockTypes: 5,
+  clusterStrength: 0.2,
+  modeId: 'classic',
+  ...overrides
+});
+
 class LocalStorageMock implements Storage {
   private store = new Map<string, string>();
   get length (): number {
@@ -39,13 +55,13 @@ describe('SessionStorage', () => {
 
   it('persists and loads versioned session snapshots', () => {
     const sessionStorage = new SessionStorage('test-key');
-    sessionStorage.save({ score: 10 }, { rows: 10 });
+    sessionStorage.save(makeStateSnapshot(), makeSettingsSnapshot());
 
     const snapshot = sessionStorage.load();
     expect(snapshot).not.toBeNull();
     expect(snapshot?.version).toBe(2);
-    expect(snapshot?.state).toEqual({ score: 10 });
-    expect(snapshot?.settings).toEqual({ rows: 10 });
+    expect(snapshot?.state).toEqual(makeStateSnapshot());
+    expect(snapshot?.settings).toEqual(makeSettingsSnapshot());
   });
 
   it('returns null for malformed payloads', () => {
@@ -56,14 +72,21 @@ describe('SessionStorage', () => {
 
   it('maps legacy zen mode id to infinite for resume compatibility', () => {
     const sessionStorage = new SessionStorage('test-key');
-    sessionStorage.save({ score: 10 }, { modeId: 'zen' });
+    localStorage.setItem('test-key', JSON.stringify({
+      version: 2,
+      state: makeStateSnapshot(),
+      settings: makeSettingsSnapshot({ modeId: 'zen' })
+    }));
 
     expect(sessionStorage.getSavedModeId()).toBe('infinite');
   });
 
   it('does not show resume for completed timed sessions by elapsed time', () => {
     const sessionStorage = new SessionStorage('test-key');
-    sessionStorage.save({ serializedGameDuration: 60000, griddata: [[1, 1], [2, 3]] }, { modeId: 'timed' });
+    sessionStorage.save(
+      makeStateSnapshot({ serializedGameDuration: 60000 }),
+      makeSettingsSnapshot({ modeId: 'timed' })
+    );
 
     expect(sessionStorage.hasSavedGame()).toBe(false);
     expect(sessionStorage.getSavedModeId()).toBeNull();
@@ -71,7 +94,10 @@ describe('SessionStorage', () => {
 
   it('does not show resume for timed sessions with no available moves', () => {
     const sessionStorage = new SessionStorage('test-key');
-    sessionStorage.save({ serializedGameDuration: 1000, griddata: [[0, 1], [2, 3]] }, { modeId: 'timed' });
+    sessionStorage.save(
+      makeStateSnapshot({ griddata: [[0, 1], [2, 3]] }),
+      makeSettingsSnapshot({ modeId: 'timed' })
+    );
 
     expect(sessionStorage.hasSavedGame()).toBe(false);
     expect(sessionStorage.getSavedModeId()).toBeNull();
@@ -79,7 +105,10 @@ describe('SessionStorage', () => {
 
   it('keeps resume for timed sessions that still have time and moves', () => {
     const sessionStorage = new SessionStorage('test-key');
-    sessionStorage.save({ serializedGameDuration: 1000, griddata: [[0, 0], [2, 3]] }, { modeId: 'timed' });
+    sessionStorage.save(
+      makeStateSnapshot({ griddata: [[0, 0], [2, 3]] }),
+      makeSettingsSnapshot({ modeId: 'timed' })
+    );
 
     expect(sessionStorage.hasSavedGame()).toBe(true);
     expect(sessionStorage.getSavedModeId()).toBe('timed');

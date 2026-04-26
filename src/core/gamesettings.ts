@@ -1,4 +1,4 @@
-interface serializationPayload {
+interface GameSettingsSnapshot {
   numColumns: number
   numRows: number
   numBlockTypes: number
@@ -27,22 +27,15 @@ class GameSettings {
     this.modeId = 'classic';
   }
 
-  deserialize (settings: serializationPayload): void {
+  deserialize (settings: GameSettingsSnapshot): void {
     this.numColumns = 'numColumns' in settings ? settings.numColumns : 20;
     this.numRows = 'numRows' in settings ? settings.numRows : 10;
     this.numBlockTypes = 'numBlockTypes' in settings ? settings.numBlockTypes : 5;
     this.clusterStrength = 'clusterStrength' in settings ? settings.clusterStrength : 0.2;
-    const deserializedModeId = typeof settings.modeId === 'string' ? settings.modeId : 'classic';
-    if (deserializedModeId === 'zen') {
-      this.modeId = 'infinite';
-    } else if (deserializedModeId === 'arcade') {
-      this.modeId = 'classic';
-    } else {
-      this.modeId = deserializedModeId;
-    }
+    this.modeId = typeof settings.modeId === 'string' ? settings.modeId : 'classic';
   }
 
-  serialize (): serializationPayload {
+  serialize (): GameSettingsSnapshot {
     return {
       numColumns: this.numColumns,
       numRows: this.numRows,
@@ -57,3 +50,4 @@ class GameSettings {
   }
 }
 export default GameSettings;
+export type { GameSettingsSnapshot };

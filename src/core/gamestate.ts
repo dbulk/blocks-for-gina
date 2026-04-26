@@ -20,7 +20,7 @@ interface coordinate {
   row: number
   col: number
 }
-interface serializationPayload extends Partial<ModeRuntimeState> {
+interface GameStateSnapshot extends Partial<ModeRuntimeState> {
   griddata: Array<Array<(number | null)>>
   score: number
   serializedGameDuration: number
@@ -68,8 +68,8 @@ class GameState {
   private numColumns: number = 0;
   private selectionCache: coordinate = { row: -1, col: -1 };
   private readonly soundEffectCallback: () => void;
-  private undostack: serializationPayload[] = [];
-  private redostack: serializationPayload[] = [];
+  private undostack: GameStateSnapshot[] = [];
+  private redostack: GameStateSnapshot[] = [];
 
   constructor (soundEffectCallback: () => void) { this.soundEffectCallback = soundEffectCallback; }
 
@@ -703,7 +703,7 @@ class GameState {
     return hasOffset;
   }
 
-  serialize (): serializationPayload {
+  serialize (): GameStateSnapshot {
     return {
       griddata: this.grid.map((x) => x.map((y) => y.id)),
       score: this.score,
@@ -715,7 +715,7 @@ class GameState {
     };
   }
 
-  deserialize (payload: serializationPayload): void {
+  deserialize (payload: GameStateSnapshot): void {
     const data = payload.griddata;
     this.initializeGrid(data.length, data[0].length, 1, 0);
 
@@ -740,3 +740,4 @@ class GameState {
 }
 
 export default GameState;
+export type { GameStateSnapshot };
