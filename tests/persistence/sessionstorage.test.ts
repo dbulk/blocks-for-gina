@@ -53,4 +53,11 @@ describe('SessionStorage', () => {
     localStorage.setItem('test-key', '{bad-json}');
     expect(sessionStorage.load()).toBeNull();
   });
+
+  it('maps legacy zen mode id to infinite for resume compatibility', () => {
+    const sessionStorage = new SessionStorage('test-key');
+    sessionStorage.save({ score: 10 }, { modeId: 'zen' });
+
+    expect(sessionStorage.getSavedModeId()).toBe('infinite');
+  });
 });

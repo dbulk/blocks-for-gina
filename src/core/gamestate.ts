@@ -463,6 +463,37 @@ class GameState {
     this.assertInvariants('updateBlocks');
   }
 
+  refillNullBlocksFromTop (numBlockTypes: number): void {
+    if (numBlockTypes <= 0 || this.numRows === 0 || this.numColumns === 0) {
+      return;
+    }
+
+    let addedAny = false;
+    for (let row = 0; row < this.numRows; row++) {
+      for (let col = 0; col < this.numColumns; col++) {
+        const block = this.grid[row][col];
+        if (block.id !== null) {
+          continue;
+        }
+
+        block.id = Math.floor(Math.random() * numBlockTypes);
+        block.xoffset = 0;
+        block.yoffset = row + 1;
+        addedAny = true;
+      }
+    }
+
+    if (!addedAny) {
+      return;
+    }
+
+    this.numBlocksInColumn = new Array(this.numColumns).fill(this.numRows);
+    this.blocksDirty = true;
+    this.hasMoreMovesDirty = true;
+    this.animating = true;
+    this.assertInvariants('refillNullBlocksFromTop');
+  }
+
   undo (): void {
     const state = this.undostack.pop();
     if (state !== undefined) {

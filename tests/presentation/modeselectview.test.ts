@@ -11,7 +11,7 @@ const ALL_MODES = [
   { id: 'antigravity', name: 'Antigravity', description: 'Blocks float upward.', implemented: false },
   { id: 'cascade', name: 'Cascade', description: 'Chain reactions.', implemented: false },
   { id: 'precision', name: 'Precision', description: 'Min cluster size required.', implemented: false },
-  { id: 'zen', name: 'Zen', description: 'No pressure.', implemented: false }
+  { id: 'infinite', name: 'Infinite', description: 'No pressure.', implemented: true }
 ];
 
 describe('ModeSelectView', () => {

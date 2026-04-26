@@ -195,6 +195,9 @@ class GameCoordinator {
       setup: this.getRunSetup()
     };
     const modeId = activeRunContext.modeId;
+    if (modeId === 'infinite') {
+      this.gameState.refillNullBlocksFromTop(activeRunContext.setup.numBlockTypes);
+    }
     const hasMoreMoves = this.gameState.hasMoreMoves();
     const isGameOver = shouldEndGameForMode(modeId, this.gameState, hasMoreMoves);
 

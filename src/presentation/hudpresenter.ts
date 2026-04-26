@@ -47,7 +47,7 @@ class HudPresenter {
           : formatTime(elapsedSeconds),
         tone: modeId === 'timed' && (TIMED_MODE_DURATION_SECONDS - elapsedSeconds) <= 30 ? 'warning' : 'default',
         order: modeId === 'timed' ? 8 : 20,
-        visible: modeId !== 'sprint'
+        visible: modeId !== 'sprint' && modeId !== 'infinite'
       },
       {
         key: 'moves',

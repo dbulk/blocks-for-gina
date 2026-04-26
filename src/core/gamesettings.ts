@@ -32,7 +32,8 @@ class GameSettings {
     this.numRows = 'numRows' in settings ? settings.numRows : 10;
     this.numBlockTypes = 'numBlockTypes' in settings ? settings.numBlockTypes : 5;
     this.clusterStrength = 'clusterStrength' in settings ? settings.clusterStrength : 0.2;
-    this.modeId = typeof settings.modeId === 'string' ? settings.modeId : 'classic';
+    const deserializedModeId = typeof settings.modeId === 'string' ? settings.modeId : 'classic';
+    this.modeId = deserializedModeId === 'zen' ? 'infinite' : deserializedModeId;
   }
 
   serialize (): serializationPayload {
