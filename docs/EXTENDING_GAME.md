@@ -11,10 +11,12 @@
 
 ## Add a New Game Mode (Planned)
 
-1. Introduce mode contract and mode registry.
-2. Keep mode logic in core; avoid embedding mode rules in presentation.
-3. Extend game-over summaries and persistence schema per mode.
-4. Add mode-specific tests for win/lose conditions.
+Use the canonical mode guide: `docs/MODE_EXTENSION_API.md`.
+
+Quick flow:
+1. Register mode metadata and hooks using the contracts in the canonical guide.
+2. Keep mode-specific logic in core and avoid presentation-layer rule branching.
+3. Add mode-focused unit and integration tests listed in the canonical guide.
 
 ## Add New Settings
 

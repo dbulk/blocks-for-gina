@@ -38,3 +38,5 @@ This project is organized around clear module boundaries so gameplay changes do 
 ## Roadmap Link
 
 See roadmap.md for delivery phases and feature direction.
+
+For implementation details when adding new game modes, use `docs/MODE_EXTENSION_API.md`.

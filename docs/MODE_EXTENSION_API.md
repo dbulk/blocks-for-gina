@@ -1,6 +1,11 @@
-# Mode Extension API
+# Mode Extension Guide (Canonical)
 
-Use this guide when adding a new mode with minimal cross-cutting edits.
+This is the canonical guide for adding a new game mode.
+Reference this document from other docs instead of duplicating mode-extension checklists.
+
+## Scope
+
+Use this guide when a change introduces a new mode id, mode-specific rules, or mode-specific summary behavior.
 
 ## Core Contracts
 
@@ -51,3 +56,8 @@ Add/extend tests to cover:
 - [ ] Added/updated unit tests
 - [ ] Added/updated integration flow test
 - [ ] `npm test` and `npm run build` pass
+
+## Related Docs
+
+- For high-level architecture boundaries, see `docs/ARCHITECTURE.md`.
+- For general feature extension guidance (non-mode), see `docs/EXTENDING_GAME.md`.
