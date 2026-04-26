@@ -223,7 +223,7 @@ class GameCoordinator {
           playedAt: Date.now()
         };
         const recordResult = isCompetitiveMode(modeId)
-          ? this.highScores.record(entry)
+          ? this.highScores.record(entry, modeId)
           : { rank: null, topEntries: [] };
         const sandboxBestResult = isCompetitiveMode(modeId)
           ? null

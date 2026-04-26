@@ -243,6 +243,6 @@ describe('#arcade-default-config', () => {
     expect(record).toHaveBeenCalledWith(expect.objectContaining({
       rows: ARCADE_RUN_CONFIG.numRows,
       columns: ARCADE_RUN_CONFIG.numColumns
-    }));
+    }), 'arcade');
   });
 });
