@@ -112,6 +112,9 @@ class GameCoordinator {
     this.page.ui.setInputColors(this.prefs.blockColors);
 
     const runSetup = this.getRunSetup();
+    this.settings.numRows = runSetup.numRows;
+    this.settings.numColumns = runSetup.numColumns;
+    this.settings.numBlockTypes = runSetup.numBlockTypes;
     const runContext: RunContext = {
       modeId: this.settings.modeId,
       source: this.runSource,
@@ -222,6 +225,7 @@ class GameCoordinator {
           ? null
           : this.sandboxBest.record(entry);
 
+        this.sessionStorage.clear();
         this.page.setSessionUIState('gameOverSummary');
         this.page.setGameOverSummary(
           modeId,

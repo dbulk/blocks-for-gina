@@ -82,7 +82,7 @@ const createCoordinator = (modeId: string, bus: GameEventBus): { coordinator: Ga
   const dependencies = {
     eventBus: bus,
     gameLoopManager: { start: () => {}, stop: () => {} },
-    sessionStorage: { save: () => {}, load: () => null },
+    sessionStorage: { save: () => {}, load: () => null, clear: () => {} },
     audioController: { applySettings: () => {}, playSoundEffect: () => {} },
     highScores: { record: () => ({ rank: null, topEntries: [] }) },
     autoStartLoop: false,
@@ -315,7 +315,7 @@ describe('GameCoordinator event sequencing', () => {
       {
         eventBus: new GameEventBus(),
         gameLoopManager: { start: () => {}, stop: () => {} } as never,
-        sessionStorage: { save: () => {}, load: () => null } as never,
+        sessionStorage: { save: () => {}, load: () => null, clear: () => {} } as never,
         audioController: { applySettings: () => {}, playSoundEffect: () => {} } as never,
         highScores: { record } as never,
         autoStartLoop: false,
@@ -425,7 +425,7 @@ describe('GameCoordinator event sequencing', () => {
       {
         eventBus: new GameEventBus(),
         gameLoopManager: { start: () => {}, stop: () => {} } as never,
-        sessionStorage: { save, load: () => null } as never,
+        sessionStorage: { save, load: () => null, clear: () => {} } as never,
         audioController: { applySettings: () => {}, playSoundEffect: () => {} } as never,
         highScores: { record: () => ({ rank: null, topEntries: [] }) } as never,
         sandboxBest: { record: () => ({ bestEntry: null, isNewBest: false }) } as never,
@@ -514,7 +514,7 @@ describe('GameCoordinator event sequencing', () => {
       {
         eventBus: new GameEventBus(),
         gameLoopManager: { start: () => {}, stop: () => {} } as never,
-        sessionStorage: { save: () => {}, load: () => null } as never,
+        sessionStorage: { save: () => {}, load: () => null, clear: () => {} } as never,
         audioController: { applySettings: () => {}, playSoundEffect: () => {} } as never,
         highScores: { record: () => ({ rank: null, topEntries: [] }) } as never,
         sandboxBest: { record: () => ({ bestEntry: null, isNewBest: false }) } as never,

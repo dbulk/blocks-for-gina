@@ -60,6 +60,10 @@ class SessionStorage {
     );
   }
 
+  clear (): void {
+    localStorage.removeItem(this.storageKey);
+  }
+
   hasSavedGame (): boolean {
     const snapshot = this.load();
     if (snapshot === null) return false;
