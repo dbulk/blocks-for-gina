@@ -125,108 +125,10 @@ class UINodes {
     const appearanceSection = this.createSettingsSection('Appearance');
     const actionsSection = this.createSettingsSection('Actions');
 
-    {
-      const d = this.createSettingsRow(boardSection);
-      d.classList.add('settings-row-grid');
-
-      const rowsField = document.createElement('div');
-      rowsField.className = 'settings-field';
-      rowsField.appendChild(setInputProperties(this.inputRows, 'number', 'Rows', 'rows', 5, 100, 10));
-      this.inputRows.className = 'settings-number';
-      rowsField.appendChild(this.inputRows);
-
-      const columnsField = document.createElement('div');
-      columnsField.className = 'settings-field';
-      columnsField.appendChild(setInputProperties(this.inputColumns, 'number', 'Columns', 'columns', 5, 100, 20));
-      this.inputColumns.className = 'settings-number';
-      columnsField.appendChild(this.inputColumns);
-
-      d.appendChild(rowsField);
-      d.appendChild(columnsField);
-    }
-
-    {
-      const d = this.createSettingsRow(generationSection);
-      d.classList.add('settings-row-cluster');
-      d.appendChild(setInputProperties(this.inputClusterStrength, 'range', 'Clustering:', 'clusterstrength', 0, 1, 0.2));
-      this.inputClusterStrength.step = '0.05';
-      this.inputClusterStrength.className = 'settings-range';
-      d.appendChild(this.inputClusterStrength);
-      this.clusterValue.className = 'cluster-value';
-      this.clusterValue.textContent = '20%';
-      d.appendChild(this.clusterValue);
-      this.inputClusterStrength.addEventListener('input', () => {
-        this.updateClusterValue();
-      });
-    }
-
-    {
-      const d = this.createSettingsRow(generationSection);
-      d.classList.add('settings-row-style');
-
-      const label = document.createElement('label');
-      label.setAttribute('for', 'game-mode');
-      label.textContent = 'Mode:';
-      d.appendChild(label);
-
-      this.inputMode.id = 'game-mode';
-      this.inputMode.className = 'settings-select';
-      this.refreshModeOptions();
-
-      d.appendChild(this.inputMode);
-    }
-
-    {
-      const d = this.createSettingsRow(actionsSection, true);
-      d.classList.add('settings-row-inline', 'settings-row-actions');
-
-      this.cmdApplySettings.textContent = 'Apply & New Game';
-      this.cmdResetSettings.textContent = 'Reset Defaults';
-      this.cmdApplySettings.className = 'settings-mini settings-primary';
-      this.cmdResetSettings.className = 'settings-mini';
-      d.appendChild(this.cmdApplySettings);
-      d.appendChild(this.cmdResetSettings);
-    }
-
-    {
-      const d = this.createSettingsRow(appearanceSection);
-      d.classList.add('settings-row-style');
-
-      const label = document.createElement('label');
-      label.setAttribute('for', 'block-style');
-      label.textContent = 'Block style:';
-      d.appendChild(label);
-
-      this.inputBlockStyle.id = 'block-style';
-      this.inputBlockStyle.className = 'settings-select';
-      for (const style of BLOCK_STYLES) {
-        const option = document.createElement('option');
-        option.value = style;
-        option.textContent = style;
-        this.inputBlockStyle.appendChild(option);
-      }
-      this.inputBlockStyle.value = DEFAULT_BLOCK_STYLE;
-      d.appendChild(this.inputBlockStyle);
-    }
-
-    {
-      const d = this.createSettingsRow(appearanceSection);
-      d.classList.add('settings-row-colors');
-      makeColorInputs(this.inputColors, SANDBOX_MAX_BLOCK_TYPES);
-
-      const div = document.createElement('div');
-      div.className = 'settings-colors';
-
-      div.id = 'colors';
-      const label = document.createElement('label');
-      label.setAttribute('for', div.id);
-      label.textContent = 'Colors:';
-      for (const i of this.inputColors) {
-        div.appendChild(i);
-      }
-      d.appendChild(label);
-      d.appendChild(div);
-    }
+    this.buildBoardSection(boardSection);
+    this.buildGenerationSection(generationSection);
+    this.buildAppearanceSection(appearanceSection);
+    this.buildActionsSection(actionsSection);
 
     this.setColorInputCount(5);
 
@@ -409,6 +311,104 @@ class UINodes {
   private updateClusterValue (): void {
     const pct = Math.round(this.getInputClusterStrength() * 100);
     this.clusterValue.textContent = `${pct}%`;
+  }
+
+  private buildBoardSection (boardSection: HTMLDivElement): void {
+    const row = this.createSettingsRow(boardSection);
+    row.classList.add('settings-row-grid');
+
+    const rowsField = document.createElement('div');
+    rowsField.className = 'settings-field';
+    rowsField.appendChild(setInputProperties(this.inputRows, 'number', 'Rows', 'rows', 5, 100, 10));
+    this.inputRows.className = 'settings-number';
+    rowsField.appendChild(this.inputRows);
+
+    const columnsField = document.createElement('div');
+    columnsField.className = 'settings-field';
+    columnsField.appendChild(setInputProperties(this.inputColumns, 'number', 'Columns', 'columns', 5, 100, 20));
+    this.inputColumns.className = 'settings-number';
+    columnsField.appendChild(this.inputColumns);
+
+    row.appendChild(rowsField);
+    row.appendChild(columnsField);
+  }
+
+  private buildGenerationSection (generationSection: HTMLDivElement): void {
+    const clusterRow = this.createSettingsRow(generationSection);
+    clusterRow.classList.add('settings-row-cluster');
+    clusterRow.appendChild(setInputProperties(this.inputClusterStrength, 'range', 'Clustering:', 'clusterstrength', 0, 1, 0.2));
+    this.inputClusterStrength.step = '0.05';
+    this.inputClusterStrength.className = 'settings-range';
+    clusterRow.appendChild(this.inputClusterStrength);
+    this.clusterValue.className = 'cluster-value';
+    this.clusterValue.textContent = '20%';
+    clusterRow.appendChild(this.clusterValue);
+    this.inputClusterStrength.addEventListener('input', () => {
+      this.updateClusterValue();
+    });
+
+    const modeRow = this.createSettingsRow(generationSection);
+    modeRow.classList.add('settings-row-style');
+
+    const label = document.createElement('label');
+    label.setAttribute('for', 'game-mode');
+    label.textContent = 'Mode:';
+    modeRow.appendChild(label);
+
+    this.inputMode.id = 'game-mode';
+    this.inputMode.className = 'settings-select';
+    this.refreshModeOptions();
+    modeRow.appendChild(this.inputMode);
+  }
+
+  private buildAppearanceSection (appearanceSection: HTMLDivElement): void {
+    const styleRow = this.createSettingsRow(appearanceSection);
+    styleRow.classList.add('settings-row-style');
+
+    const styleLabel = document.createElement('label');
+    styleLabel.setAttribute('for', 'block-style');
+    styleLabel.textContent = 'Block style:';
+    styleRow.appendChild(styleLabel);
+
+    this.inputBlockStyle.id = 'block-style';
+    this.inputBlockStyle.className = 'settings-select';
+    for (const style of BLOCK_STYLES) {
+      const option = document.createElement('option');
+      option.value = style;
+      option.textContent = style;
+      this.inputBlockStyle.appendChild(option);
+    }
+    this.inputBlockStyle.value = DEFAULT_BLOCK_STYLE;
+    styleRow.appendChild(this.inputBlockStyle);
+
+    const colorsRow = this.createSettingsRow(appearanceSection);
+    colorsRow.classList.add('settings-row-colors');
+    makeColorInputs(this.inputColors, SANDBOX_MAX_BLOCK_TYPES);
+
+    const colorsContainer = document.createElement('div');
+    colorsContainer.className = 'settings-colors';
+    colorsContainer.id = 'colors';
+
+    const colorsLabel = document.createElement('label');
+    colorsLabel.setAttribute('for', colorsContainer.id);
+    colorsLabel.textContent = 'Colors:';
+    for (const input of this.inputColors) {
+      colorsContainer.appendChild(input);
+    }
+    colorsRow.appendChild(colorsLabel);
+    colorsRow.appendChild(colorsContainer);
+  }
+
+  private buildActionsSection (actionsSection: HTMLDivElement): void {
+    const row = this.createSettingsRow(actionsSection, true);
+    row.classList.add('settings-row-inline', 'settings-row-actions');
+
+    this.cmdApplySettings.textContent = 'Apply & New Game';
+    this.cmdResetSettings.textContent = 'Reset Defaults';
+    this.cmdApplySettings.className = 'settings-mini settings-primary';
+    this.cmdResetSettings.className = 'settings-mini';
+    row.appendChild(this.cmdApplySettings);
+    row.appendChild(this.cmdResetSettings);
   }
 
   private createSettingsSection (title: string): HTMLDivElement {
