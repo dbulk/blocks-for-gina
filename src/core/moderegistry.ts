@@ -16,22 +16,52 @@ interface ModeRegistration {
 
 const normalizeModeId = (modeId: string): string => modeId.trim();
 
+const describeValue = (value: unknown): string => {
+  const serialized = JSON.stringify(value);
+  return serialized ?? String(value);
+};
+
+const createRegistrationError = (
+  field: keyof ModeRegistration,
+  reason: string,
+  received: unknown,
+  modeId?: string
+): Error => {
+  const modeContext = modeId !== undefined ? `; modeId=${describeValue(modeId)}` : '';
+  return new Error(`Invalid mode registration (${field}): ${reason}; received=${describeValue(received)}${modeContext}`);
+};
+
 class ModeRegistry {
   private readonly modes = new Map<string, GameMode>();
 
   register (mode: ModeRegistration): void {
+    if (typeof mode.id !== 'string') {
+      throw createRegistrationError('id', 'must be a non-empty string', mode.id);
+    }
+
     const id = normalizeModeId(mode.id);
     if (id === '') {
-      throw new Error('Mode id is required');
+      throw createRegistrationError('id', 'must be a non-empty string', mode.id);
     }
-    if (mode.name.trim() === '') {
-      throw new Error(`Mode name is required: ${id}`);
+
+    if (typeof mode.name !== 'string' || mode.name.trim() === '') {
+      throw createRegistrationError('name', 'must be a non-empty string', mode.name, id);
     }
-    if (mode.description.trim() === '') {
-      throw new Error(`Mode description is required: ${id}`);
+
+    if (typeof mode.description !== 'string' || mode.description.trim() === '') {
+      throw createRegistrationError('description', 'must be a non-empty string', mode.description, id);
     }
+
+    if (mode.implemented !== undefined && typeof mode.implemented !== 'boolean') {
+      throw createRegistrationError('implemented', 'must be a boolean when provided', mode.implemented, id);
+    }
+
+    if (mode.competitive !== undefined && typeof mode.competitive !== 'boolean') {
+      throw createRegistrationError('competitive', 'must be a boolean when provided', mode.competitive, id);
+    }
+
     if (this.modes.has(id)) {
-      throw new Error(`Mode already registered: ${id}`);
+      throw createRegistrationError('id', 'must be unique (mode already registered)', mode.id, id);
     }
 
     this.modes.set(id, {
