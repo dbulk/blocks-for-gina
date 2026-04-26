@@ -28,6 +28,8 @@ class Blocks4Gina extends HTMLElement {
       page.resize();
     };
     window.addEventListener('resize', resizeLayout);
+    window.visualViewport?.addEventListener('resize', resizeLayout);
+    page.addLayoutChangeListener(resizeLayout);
     resizeLayout();
     page.resize();
 

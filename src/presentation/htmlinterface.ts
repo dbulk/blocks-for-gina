@@ -136,6 +136,10 @@ class HTMLInterface {
     this.modeSelectShownListeners.push(callback);
   }
 
+  addLayoutChangeListener (callback: () => void): void {
+    this.ui.addLayoutChangeListener(callback);
+  }
+
   setSessionUIState (state: SessionUIState): void {
     this.sessionUIState = state;
     this.overlayManager.setState(state);
@@ -158,12 +162,13 @@ class HTMLInterface {
   getCanvasSizeConstraints (): CanvasSizeConstraints {
     const viewportHeight = window.visualViewport?.height ?? window.innerHeight;
     const playfieldTop = this.playfield.getBoundingClientRect().top;
+    const toolbarHeight = this.ui.getLayoutHeight();
     const width = this.playfield.parentElement?.clientWidth ?? window.innerWidth;
-    const height = viewportHeight - playfieldTop - 8;
+    const height = viewportHeight - playfieldTop - toolbarHeight - 8;
 
     return {
       width,
-      height
+      height: Math.max(120, height)
     };
   }
 }

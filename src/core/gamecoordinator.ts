@@ -132,6 +132,7 @@ class GameCoordinator {
     this.gameState.resetScore();
     this.gameState.resetRoundStats();
     this.gameState.resetUndo();
+    this.scoreBoard.update();
     this.renderer.adjustCanvasSize(this.page.getCanvasSizeConstraints());
     this.page.resize();
     this.gameOverAnimationState = 0;
@@ -410,6 +411,7 @@ class GameCoordinator {
     this.settings.deserialize(snapshot.settings as Parameters<typeof this.settings.deserialize>[0]);
     this.settingsPresenter.settingsToUI();
     this.gameState.deserialize(snapshot.state as Parameters<typeof this.gameState.deserialize>[0]);
+    this.scoreBoard.update();
     this.setAudioState();
     this.renderer.adjustCanvasSize(this.page.getCanvasSizeConstraints());
     this.page.resize();
