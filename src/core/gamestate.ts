@@ -177,6 +177,11 @@ class GameState {
   initializeGrid (numRows: number, numColumns: number, numBlockTypes: number, clusterStrength: number): void {
     this.numRows = numRows;
     this.numColumns = numColumns;
+    this.popList = [];
+    this.pendingPopList = [];
+    this.selectionCache = { row: -1, col: -1 };
+    this.needsPop = false;
+    this.animating = false;
 
     this.grid = [];
     for (let row = 0; row < this.numRows; row++) {

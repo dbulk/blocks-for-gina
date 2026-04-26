@@ -66,6 +66,25 @@ describe('GameState', () => {
     expect(state.getPopListScore()).toBe(state.computeScore(2));
   });
 
+  it('clears preview and pending pop state when a new grid is initialized', () => {
+    const state = makeStateFromGrid([
+      [1, 2, 3],
+      [1, 4, 5],
+      [6, 7, 8]
+    ]);
+
+    state.updateSelection({ row: 0, col: 0 });
+    state.doPop();
+
+    expect(state.getNumBlocksToPop()).toBe(2);
+
+    state.initializeGrid(3, 3, 3, 0);
+
+    expect(state.getNumBlocksToPop()).toBe(0);
+    expect(state.animating).toBe(false);
+    expect(state.getNumBlocksRemaining()).toBe(9);
+  });
+
   it('applies pop, updates score, and supports undo', () => {
     let soundCalls = 0;
     const state = new GameState(() => { soundCalls++; });
