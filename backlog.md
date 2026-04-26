@@ -4,12 +4,6 @@
 
 See [ai-workflow.md](ai-workflow.md) for the full step-by-step execution process.
 
-## #timed-mode-v1
-Timed mode first playable version
-- 60 second match timer
-- End condition on timer expiry
-- Mode-specific game-over summary
-
 ## #leaderboard-per-mode
 Competitive leaderboard partitioning
 - Track scores by competitive mode
