@@ -34,6 +34,12 @@ describe('ModeRegistry', () => {
     expect(registry.get('antigravity')?.implemented).toBe(true);
   });
 
+  it('places sandbox mode last in default ordering', () => {
+    const registry = createDefaultModeRegistry();
+    const ids = registry.list().map((mode) => mode.id);
+    expect(ids.at(-1)).toBe('sandbox');
+  });
+
   it('defaults competitive and implemented flags when omitted', () => {
     const registry = new ModeRegistry();
     registry.register({ id: 'custom', name: 'Custom', description: 'Custom mode' });
