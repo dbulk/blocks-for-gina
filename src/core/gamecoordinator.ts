@@ -205,6 +205,10 @@ class GameCoordinator {
         this.hasShownGameOverSummary = false;
       }
     } else {
+      if (!this.hasShownGameOverSummary) {
+        // Refresh HUD once at game end so timed countdown lands on 00:00.
+        this.scoreBoard.update(modeId);
+      }
       // show game over screen (todo: break out of the loop, but need a way to know whether it's running and start it again)
       this.gameOverAnimationState = Math.min(this.gameOverAnimationState + GAME_OVER_FADE_STEP, 90);
       this.renderer.showGameOver(this.gameOverAnimationState / 100);
