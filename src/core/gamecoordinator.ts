@@ -397,16 +397,6 @@ class GameCoordinator {
       }
     );
 
-    this.page.ui.addApplySettingsListener(() => {
-      this.startNewGameFromUI();
-    });
-
-    this.page.ui.addResetSettingsListener(() => {
-      this.settingsPresenter.resetToDefaults();
-      this.setAudioState();
-      this.gameState.blocksDirty = true;
-    });
-
     this.page.addPlayAgainClickListener(() => {
       this.returnToModeSelect();
     });
@@ -449,12 +439,6 @@ class GameCoordinator {
       this.prefs.save();
       this.gameState.blocksDirty = true;
     });
-  }
-
-  private startNewGameFromUI (): void {
-    this.settingsPresenter.uiToSettings();
-    this.prefs.ensureBlockColorCapacity(this.settings.numBlockTypes);
-    this.newGame();
   }
 
   private returnToModeSelect (): void {
