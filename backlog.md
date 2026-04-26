@@ -4,11 +4,6 @@
 
 See [ai-workflow.md](ai-workflow.md) for the full step-by-step execution process.
 
-## #mode-registration-error-ergonomics
-Improve mode registration validation diagnostics
-- Include field and value context consistently in validation errors
-- Keep errors actionable for mode authoring
-
 ## #tweaks
 - rename arcade to classic, make sure to do it in refs in source as well as in player-facing behavior
 - timed games should end when out of moves, even if there's time remaining, ideally we could show the timer really quickly count down to zero as a cool visual effect when this happens, and we should give 100 points per second. 
