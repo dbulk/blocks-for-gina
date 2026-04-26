@@ -84,29 +84,7 @@ styleElement.textContent = `
     color: #dff;
   }
 
-  div.settings-expandy {
-    color: #0089b3;
-    display: inline-flex;
-    flex-direction: column;
-    gap: 6px;
-    border: 2px solid;
-    border-radius: 8px;
-    height: 100%;
-    position: relative;
-    padding: 8px;
-    margin-top: 4px;
-    min-width: 320px;
-    box-sizing: border-box;
-  }
-
-  .settings-panel {
-    background-color: rgba(0, 0, 0, 0.2);
-  }
-
-  .settings-section-board,
-  .settings-section-generation,
-  .settings-section-appearance,
-  .settings-section-actions {
+  .settings-section-appearance {
     flex: 1 1 220px;
   }
 
@@ -147,28 +125,6 @@ styleElement.textContent = `
 
   .settings-row-inline {
     gap: 6px;
-  }
-
-  .settings-row-grid {
-    display: grid;
-    grid-template-columns: repeat(2, max-content);
-    gap: 10px;
-    justify-content: start;
-    align-items: end;
-  }
-
-  .settings-field {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-  }
-
-  input.settings-number {
-    width: 80px;
-  }
-
-  input.settings-range {
-    width: 140px;
   }
 
   .settings-colors {
@@ -632,26 +588,9 @@ styleElement.textContent = `
       gap: 6px;
     }
 
-    div.settings-expandy {
-      min-width: 0;
-      width: 100%;
-      gap: 8px;
-      padding: 8px;
-    }
-
     .settings-section {
       flex: 1 1 160px;
       padding: 8px;
-    }
-
-    .settings-section-board {
-      flex-basis: 132px;
-      max-width: 132px;
-    }
-
-    .settings-section-generation,
-    .settings-section-actions {
-      flex-basis: calc(100% - 140px);
     }
 
     .settings-section-appearance {
@@ -674,25 +613,6 @@ styleElement.textContent = `
       font-size: 13px;
     }
 
-    .settings-field {
-      min-width: 0;
-    }
-
-    input.settings-number {
-      width: 100%;
-      max-width: none;
-      margin: 2px 0 0 0;
-      padding: 10px 0;
-      font-size: 15px;
-    }
-
-    input.settings-range {
-      flex: 1 1 132px;
-      width: auto;
-      max-width: none;
-      min-width: 0;
-    }
-
     select.settings-select {
       flex: 1 1 148px;
       min-width: 0;
@@ -702,8 +622,7 @@ styleElement.textContent = `
     }
 
     .settings-row-style,
-    .settings-row-colors,
-    .settings-row-cluster {
+    .settings-row-colors {
       align-items: center;
     }
 
@@ -712,20 +631,10 @@ styleElement.textContent = `
       row-gap: 4px;
     }
 
-    .settings-row-actions {
-      flex-wrap: wrap;
-    }
-
     .settings-colors {
       flex: 1 1 160px;
       min-width: 0;
       gap: 6px;
-    }
-
-    span.cluster-value {
-      margin-left: 0;
-      min-width: 34px;
-      font-size: 12px;
     }
 
     button.settings-mini {
