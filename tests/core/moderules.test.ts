@@ -6,13 +6,11 @@ type PlayedDuration = { hours: number, minutes: number, seconds: number };
 type FakeGameState = {
   getPlayedDuration: () => PlayedDuration
   getTotalMoves: () => number
-  getPrecisionStrikes: () => number
 };
 
-const makeState = (seconds: number, moves: number, precisionStrikes: number = 0): FakeGameState => ({
+const makeState = (seconds: number, moves: number): FakeGameState => ({
   getPlayedDuration: () => ({ hours: 0, minutes: Math.floor(seconds / 60), seconds: seconds % 60 }),
-  getTotalMoves: () => moves,
-  getPrecisionStrikes: () => precisionStrikes
+  getTotalMoves: () => moves
 });
 
 describe('mode rules', () => {
@@ -42,10 +40,5 @@ describe('mode rules', () => {
   it('never ends infinite mode by timer or move exhaustion', () => {
     expect(shouldEndGameForMode('infinite', makeState(0, 999) as never, false)).toBe(false);
     expect(shouldEndGameForMode('infinite', makeState(9999, 999) as never, true)).toBe(false);
-  });
-
-  it('ends precision mode at three strikes', () => {
-    expect(shouldEndGameForMode('precision', makeState(0, 0, 2) as never, true)).toBe(false);
-    expect(shouldEndGameForMode('precision', makeState(0, 0, 3) as never, true)).toBe(true);
   });
 });

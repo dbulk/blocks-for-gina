@@ -17,9 +17,6 @@ interface serializationPayload {
   cascadeCurrentChainDepth?: number
   cascadeBestChainDepth?: number
   cascadeComboBonus?: number
-  precisionTargetSize?: number
-  precisionStrikes?: number
-  precisionStreak?: number
 }
 interface xy {
   x: number
@@ -55,9 +52,6 @@ class GameState {
   private cascadeCurrentChainDepth: number = 0;
   private cascadeBestChainDepth: number = 0;
   private cascadeComboBonus: number = 0;
-  private precisionTargetSize: number = 2;
-  private precisionStrikes: number = 0;
-  private precisionStreak: number = 0;
 
   private numRows: number = 0;
   private numColumns: number = 0;
@@ -170,18 +164,6 @@ class GameState {
     return this.cascadeComboBonus;
   }
 
-  getPrecisionTargetSize (): number {
-    return this.precisionTargetSize;
-  }
-
-  getPrecisionStrikes (): number {
-    return this.precisionStrikes;
-  }
-
-  getPrecisionStreak (): number {
-    return this.precisionStreak;
-  }
-
   resetScore (): void {
     this.score = 0;
   }
@@ -206,9 +188,6 @@ class GameState {
     this.cascadeCurrentChainDepth = 0;
     this.cascadeBestChainDepth = 0;
     this.cascadeComboBonus = 0;
-    this.precisionTargetSize = 2;
-    this.precisionStrikes = 0;
-    this.precisionStreak = 0;
   }
 
   startCascadeTurn (): void {
@@ -223,23 +202,6 @@ class GameState {
     this.cascadeCurrentChainDepth++;
     this.cascadeBestChainDepth = Math.max(this.cascadeBestChainDepth, this.cascadeCurrentChainDepth);
     this.cascadeComboBonus += Math.floor(this.computeScore(clusterSize) * Math.max(0, scoreMultiplier - 1));
-  }
-
-  setPrecisionTargetSize (size: number): void {
-    this.precisionTargetSize = Math.max(2, Math.floor(size));
-  }
-
-  recordPrecisionMiss (): void {
-    this.precisionStrikes = Math.min(3, this.precisionStrikes + 1);
-    this.precisionStreak = 0;
-  }
-
-  getPrecisionHitMultiplier (): number {
-    return 1 + Math.min(4, this.precisionStreak) * 0.25;
-  }
-
-  recordPrecisionExactHit (): void {
-    this.precisionStreak++;
   }
 
   hasUndo (): boolean {
@@ -655,10 +617,7 @@ class GameState {
       blocksPopped: this.blocksPopped,
       cascadeCurrentChainDepth: this.cascadeCurrentChainDepth,
       cascadeBestChainDepth: this.cascadeBestChainDepth,
-      cascadeComboBonus: this.cascadeComboBonus,
-      precisionTargetSize: this.precisionTargetSize,
-      precisionStrikes: this.precisionStrikes,
-      precisionStreak: this.precisionStreak
+      cascadeComboBonus: this.cascadeComboBonus
     };
   }
 
@@ -681,9 +640,6 @@ class GameState {
     this.cascadeCurrentChainDepth = 'cascadeCurrentChainDepth' in payload ? payload.cascadeCurrentChainDepth ?? 0 : 0;
     this.cascadeBestChainDepth = 'cascadeBestChainDepth' in payload ? payload.cascadeBestChainDepth ?? 0 : 0;
     this.cascadeComboBonus = 'cascadeComboBonus' in payload ? payload.cascadeComboBonus ?? 0 : 0;
-    this.precisionTargetSize = 'precisionTargetSize' in payload ? Math.max(2, payload.precisionTargetSize ?? 2) : 2;
-    this.precisionStrikes = 'precisionStrikes' in payload ? Math.max(0, payload.precisionStrikes ?? 0) : 0;
-    this.precisionStreak = 'precisionStreak' in payload ? Math.max(0, payload.precisionStreak ?? 0) : 0;
     this.blocksDirty = true;
     this.hasMoreMovesDirty = true;
     this.serializedGameDuration = 'serializedGameDuration' in payload ? payload.serializedGameDuration : 0;

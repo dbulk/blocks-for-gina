@@ -188,24 +188,4 @@ describe('HudPresenter', () => {
     expect(best?.visible).toBe(true);
     expect(best?.value).toBe('1');
   });
-
-  it('shows precision target, strikes, and streak metrics', () => {
-    const state = makeStateFromGrid([[1, 2], [3, 4]]);
-    state.setPrecisionTargetSize(4);
-    state.recordPrecisionMiss();
-    state.recordPrecisionExactHit();
-    const presenter = new HudPresenter();
-
-    const metrics = presenter.getMetrics(state, 'precision');
-    const target = getByKey(metrics, 'precision-target');
-    const strikes = getByKey(metrics, 'precision-strikes');
-    const streak = getByKey(metrics, 'precision-streak');
-
-    expect(target?.visible).toBe(true);
-    expect(target?.value).toBe('4');
-    expect(strikes?.visible).toBe(true);
-    expect(strikes?.value).toBe('1/3');
-    expect(streak?.visible).toBe(true);
-    expect(streak?.value).toBe('1');
-  });
 });

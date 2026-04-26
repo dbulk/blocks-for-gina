@@ -25,11 +25,9 @@ describe('ModeRegistry', () => {
     expect(registry.get('timed')).not.toBeNull();
     expect(registry.get('sprint')).not.toBeNull();
     expect(registry.get('cascade')).not.toBeNull();
-    expect(registry.get('precision')).not.toBeNull();
     expect(registry.get('infinite')).not.toBeNull();
     expect(registry.get('sprint')?.implemented).toBe(true);
     expect(registry.get('cascade')?.implemented).toBe(true);
-    expect(registry.get('precision')?.implemented).toBe(true);
     expect(registry.get('antigravity')).not.toBeNull();
   });
 
