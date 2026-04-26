@@ -12,13 +12,13 @@ Gina was playing blocks at 1001games, I thought the game was ugly and it would b
 
 ## Project Structure
 
-- src/bootstrap: entrypoint and app composition.
-- src/core: game rules/state/loop orchestration.
+- src/bootstrap: entrypoint, mode-select flow, and resume wiring.
+- src/core: game rules/state/loop orchestration plus extracted coordinator helpers.
 - src/presentation: overlays, HUD, and UI controls.
 - src/rendering: canvas renderer and block styles.
-- src/persistence: high scores and scoreboard integration.
+- src/persistence: high scores and versioned session snapshot translation.
 - src/audio: music and sound control.
-- src/events: typed event contracts for future event bus work.
+- src/events: typed event contracts and the event bus used by runtime flows.
 - src/styling: stylesheets and style element definitions.
 - tests: centralized test tree by responsibility.
 
@@ -26,6 +26,7 @@ Gina was playing blocks at 1001games, I thought the game was ugly and it would b
 
 - docs/ARCHITECTURE.md
 - docs/ARCHITECTURAL_ROADMAP.md
+- docs/REFACTOR_GUARD_CHECKLIST.md
 - docs/MODULES.md
 - docs/EXTENDING_GAME.md
 - docs/MODE_EXTENSION_API.md
