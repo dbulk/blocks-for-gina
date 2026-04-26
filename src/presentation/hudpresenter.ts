@@ -1,17 +1,7 @@
 import type GameState from '@/core/gamestate';
 import type { HudMetric } from '@/presentation/hudmetric';
 import { TIMED_MODE_DURATION_SECONDS, SPRINT_MODE_MAX_MOVES } from '@/core/moderules';
-
-const MODE_LABELS: Record<string, string> = {
-  arcade: 'Arcade',
-  sandbox: 'Sandbox',
-  timed: 'Timed',
-  sprint: 'Sprint',
-  cascade: 'Cascade',
-  precision: 'Precision',
-  antigravity: 'Antigravity',
-  zen: 'Zen'
-};
+import { getModeMetadata } from '@/core/moderegistry';
 
 class HudPresenter {
   getMetrics (gameState: GameState, modeId: string = 'arcade'): HudMetric[] {
@@ -30,7 +20,7 @@ class HudPresenter {
       return (h > 0 ? `${h}:` : '') + m.toString().padStart(2, '0') + ':' + s.toString().padStart(2, '0');
     };
 
-    const modeLabel = MODE_LABELS[modeId] ?? modeId;
+    const modeLabel = getModeMetadata(modeId)?.name ?? modeId;
 
     const metrics: HudMetric[] = [
       {

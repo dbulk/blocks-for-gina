@@ -52,8 +52,7 @@ class ModeRegistry {
   }
 }
 
-const createDefaultModeRegistry = (): ModeRegistry => {
-  const registry = new ModeRegistry();
+const registerDefaultModes = (registry: ModeRegistry): void => {
   registry.register({ id: 'arcade', name: 'Arcade', description: 'Play until there are no valid moves. Compare your best runs.', implemented: true, competitive: true });
   registry.register({ id: 'sandbox', name: 'Sandbox', description: 'Custom board size and generation. Explore freely.', implemented: true, competitive: false });
   registry.register({ id: 'timed', name: 'Timed', description: 'Score as much as possible before time runs out.', implemented: true, competitive: true });
@@ -62,13 +61,22 @@ const createDefaultModeRegistry = (): ModeRegistry => {
   registry.register({ id: 'cascade', name: 'Cascade', description: 'Every pop triggers a chain reaction. Combos are everything.', implemented: false });
   registry.register({ id: 'precision', name: 'Precision', description: 'Only pops of a minimum cluster size score. Think before you click.', implemented: false });
   registry.register({ id: 'zen', name: 'Zen', description: 'No pressure, no timer, no game over. Just pop blocks.', implemented: false });
+};
+
+const createDefaultModeRegistry = (): ModeRegistry => {
+  const registry = new ModeRegistry();
+  registerDefaultModes(registry);
   return registry;
 };
 
 const defaultModeRegistry = createDefaultModeRegistry();
 
-const isCompetitiveMode = (modeId: string): boolean => defaultModeRegistry.get(modeId)?.competitive ?? true;
+const getDefaultModeRegistry = (): ModeRegistry => defaultModeRegistry;
+
+const getModeMetadata = (modeId: string): GameMode | null => getDefaultModeRegistry().get(modeId);
+
+const isCompetitiveMode = (modeId: string): boolean => getModeMetadata(modeId)?.competitive ?? true;
 
 export default ModeRegistry;
-export { createDefaultModeRegistry, isCompetitiveMode };
+export { createDefaultModeRegistry, getDefaultModeRegistry, getModeMetadata, isCompetitiveMode };
 export type { GameMode, ModeRegistration };

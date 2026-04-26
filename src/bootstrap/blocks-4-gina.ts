@@ -3,7 +3,7 @@ import GameRunner from '@/core/gamerunner';
 import GameSettings from '@/core/gamesettings';
 import UserPreferences from '@/core/userpreferences';
 import PreferencesPresenter from '@/presentation/preferencespresenter';
-import { createDefaultModeRegistry } from '@/core/moderegistry';
+import { getDefaultModeRegistry } from '@/core/moderegistry';
 import SettingsPresenter from '@/presentation/settingspresenter';
 import Renderer from '@/rendering/renderer';
 import SessionStorage from '@/persistence/sessionstorage';
@@ -14,7 +14,7 @@ class Blocks4Gina extends HTMLElement {
     const page = new HTMLInterface(shadow);
     const canvas = page.canvas;
     const ui = page.ui;
-    const modeRegistry = createDefaultModeRegistry();
+    const modeRegistry = getDefaultModeRegistry();
     page.setAvailableModes(modeRegistry.list());
     const gameSettings = new GameSettings();
     const prefs = new UserPreferences();
