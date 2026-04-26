@@ -60,4 +60,28 @@ describe('SessionStorage', () => {
 
     expect(sessionStorage.getSavedModeId()).toBe('infinite');
   });
+
+  it('does not show resume for completed timed sessions by elapsed time', () => {
+    const sessionStorage = new SessionStorage('test-key');
+    sessionStorage.save({ serializedGameDuration: 60000, griddata: [[1, 1], [2, 3]] }, { modeId: 'timed' });
+
+    expect(sessionStorage.hasSavedGame()).toBe(false);
+    expect(sessionStorage.getSavedModeId()).toBeNull();
+  });
+
+  it('does not show resume for timed sessions with no available moves', () => {
+    const sessionStorage = new SessionStorage('test-key');
+    sessionStorage.save({ serializedGameDuration: 1000, griddata: [[0, 1], [2, 3]] }, { modeId: 'timed' });
+
+    expect(sessionStorage.hasSavedGame()).toBe(false);
+    expect(sessionStorage.getSavedModeId()).toBeNull();
+  });
+
+  it('keeps resume for timed sessions that still have time and moves', () => {
+    const sessionStorage = new SessionStorage('test-key');
+    sessionStorage.save({ serializedGameDuration: 1000, griddata: [[0, 0], [2, 3]] }, { modeId: 'timed' });
+
+    expect(sessionStorage.hasSavedGame()).toBe(true);
+    expect(sessionStorage.getSavedModeId()).toBe('timed');
+  });
 });
