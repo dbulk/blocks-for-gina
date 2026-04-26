@@ -134,6 +134,7 @@ class GameCoordinator {
 
     this.page.setSessionUIState('inGame');
     this.renderer.setGameState(this.gameState);
+    this.gameState.setGravityDirection(this.getGravityDirectionForMode(runContext.modeId));
     this.gameState.initializeGrid(runSetup.numRows, runSetup.numColumns, runSetup.numBlockTypes, runSetup.clusterStrength);
     this.gameState.resetClock();
     this.gameState.resetScore();
@@ -184,6 +185,10 @@ class GameCoordinator {
       numBlockTypes: this.settings.numBlockTypes,
       clusterStrength: this.settings.clusterStrength
     };
+  }
+
+  private getGravityDirectionForMode (modeId: string): 'down' | 'up' {
+    return modeId === 'antigravity' ? 'up' : 'down';
   }
 
   private gameLoop (): void {
@@ -534,6 +539,7 @@ class GameCoordinator {
 
     this.settings.deserialize(snapshot.settings as Parameters<typeof this.settings.deserialize>[0]);
     this.settingsPresenter.settingsToUI();
+    this.gameState.setGravityDirection(this.getGravityDirectionForMode(this.settings.modeId));
     this.gameState.deserialize(snapshot.state as Parameters<typeof this.gameState.deserialize>[0]);
     if (this.settings.modeId === 'precision') {
       this.ensurePrecisionTargetAvailable(false);

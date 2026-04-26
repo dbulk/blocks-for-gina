@@ -32,6 +32,8 @@ interface time {
   seconds: number
 }
 
+type GravityDirection = 'down' | 'up';
+
 const isEqual = (a: coordinate, b: coordinate): boolean =>
   a.row === b.row && a.col === b.col;
 
@@ -58,6 +60,7 @@ class GameState {
   private precisionTargetSize: number = 2;
   private precisionStrikes: number = 0;
   private precisionStreak: number = 0;
+  private gravityDirection: GravityDirection = 'down';
 
   private numRows: number = 0;
   private numColumns: number = 0;
@@ -86,21 +89,25 @@ class GameState {
 
     for (let col = 0; col < this.numColumns; col++) {
       let blockCount = 0;
-      let seenGapBelow = false;
+      let seenGapInGravityDirection = false;
 
-      for (let row = this.numRows - 1; row >= 0; row--) {
+      const startRow = this.gravityDirection === 'down' ? this.numRows - 1 : 0;
+      const endRow = this.gravityDirection === 'down' ? -1 : this.numRows;
+      const step = this.gravityDirection === 'down' ? -1 : 1;
+
+      for (let row = startRow; row !== endRow; row += step) {
         const block = this.grid[row][col];
         if (block.id === null) {
-          seenGapBelow = true;
+          seenGapInGravityDirection = true;
         } else {
           blockCount++;
-          if (seenGapBelow) {
+          if (seenGapInGravityDirection) {
             throw new Error(`Invariant failed (${context}): floating block at row ${row}, col ${col}`);
           }
         }
 
-        if (block.xoffset < 0 || block.yoffset < 0) {
-          throw new Error(`Invariant failed (${context}): negative offset at row ${row}, col ${col}`);
+        if (block.xoffset < 0) {
+          throw new Error(`Invariant failed (${context}): negative x-offset at row ${row}, col ${col}`);
         }
       }
 
@@ -209,6 +216,10 @@ class GameState {
     this.precisionTargetSize = 2;
     this.precisionStrikes = 0;
     this.precisionStreak = 0;
+  }
+
+  setGravityDirection (direction: GravityDirection): void {
+    this.gravityDirection = direction;
   }
 
   startCascadeTurn (): void {
@@ -496,11 +507,21 @@ class GameState {
 
   private removeBlock (coord: coordinate, dropMap: Map<string, number>): void {
     this.markBlockNull(coord);
-    for (let row = 0; row < coord.row; row++) {
-      const key = `${row},${coord.col}`;
-      const prevValue = dropMap.get(key);
-      dropMap.set(key, prevValue === undefined ? 1 : prevValue + 1);
+
+    if (this.gravityDirection === 'down') {
+      for (let row = 0; row < coord.row; row++) {
+        const key = `${row},${coord.col}`;
+        const prevValue = dropMap.get(key);
+        dropMap.set(key, prevValue === undefined ? 1 : prevValue + 1);
+      }
+    } else {
+      for (let row = coord.row + 1; row < this.numRows; row++) {
+        const key = `${row},${coord.col}`;
+        const prevValue = dropMap.get(key);
+        dropMap.set(key, prevValue === undefined ? 1 : prevValue + 1);
+      }
     }
+
     this.numBlocksInColumn[coord.col]--;
   }
 
@@ -514,8 +535,33 @@ class GameState {
   }
 
   private applyDrop (dropMap: Map<string, number>): void {
-    // note: it's important to apply the drop from bottom to top...
-    for (let row = this.grid.length - 2; row >= 0; row--) {
+    if (this.gravityDirection === 'down') {
+      // note: it's important to apply the drop from bottom to top...
+      for (let row = this.grid.length - 2; row >= 0; row--) {
+        for (let col = 0; col < this.grid[0].length; col++) {
+          const key = `${row},${col}`;
+          const val = dropMap.get(key);
+          if (val !== undefined) {
+            const thisBlock = this.grid[row][col];
+            if (thisBlock.id === null) {
+              continue;
+            }
+            const destinationBlock = this.grid[row + val][col];
+            destinationBlock.id = thisBlock.id;
+            destinationBlock.xoffset = thisBlock.xoffset;
+            thisBlock.id = null;
+            thisBlock.xoffset = 0;
+            thisBlock.yoffset = 0;
+            destinationBlock.yoffset = val;
+            this.animating = true;
+          }
+        }
+      }
+      return;
+    }
+
+    // antigravity settles from top to bottom so lower blocks float upward.
+    for (let row = 1; row < this.grid.length; row++) {
       for (let col = 0; col < this.grid[0].length; col++) {
         const key = `${row},${col}`;
         const val = dropMap.get(key);
@@ -524,13 +570,13 @@ class GameState {
           if (thisBlock.id === null) {
             continue;
           }
-          const aboveBlock = this.grid[row + val][col];
-          aboveBlock.id = thisBlock.id;
-          aboveBlock.xoffset = thisBlock.xoffset;
+          const destinationBlock = this.grid[row - val][col];
+          destinationBlock.id = thisBlock.id;
+          destinationBlock.xoffset = thisBlock.xoffset;
           thisBlock.id = null;
           thisBlock.xoffset = 0;
           thisBlock.yoffset = 0;
-          aboveBlock.yoffset = val;
+          destinationBlock.yoffset = -val;
           this.animating = true;
         }
       }
@@ -639,8 +685,12 @@ class GameState {
     for (const row of this.grid) {
       for (const block of row) {
         block.xoffset = Math.max(block.xoffset - amount, 0);
-        block.yoffset = Math.max(block.yoffset - amount, 0);
-        if (block.xoffset > 0 || block.yoffset > 0) {
+        if (block.yoffset > 0) {
+          block.yoffset = Math.max(block.yoffset - amount, 0);
+        } else if (block.yoffset < 0) {
+          block.yoffset = Math.min(block.yoffset + amount, 0);
+        }
+        if (block.xoffset !== 0 || block.yoffset !== 0) {
           hasOffset = true;
         }
       }

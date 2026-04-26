@@ -31,6 +31,7 @@ describe('ModeRegistry', () => {
     expect(registry.get('cascade')?.implemented).toBe(true);
     expect(registry.get('precision')?.implemented).toBe(true);
     expect(registry.get('antigravity')).not.toBeNull();
+    expect(registry.get('antigravity')?.implemented).toBe(true);
   });
 
   it('defaults competitive and implemented flags when omitted', () => {
