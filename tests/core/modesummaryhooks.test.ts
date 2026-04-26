@@ -1,7 +1,11 @@
-import { describe, expect, it } from 'vitest';
-import { getModeSummaryHooks, registerModeSummaryHooks } from '@/core/modesummaryhooks';
+import { beforeEach, describe, expect, it } from 'vitest';
+import { getModeSummaryHooks, registerModeSummaryHooks, resetModeSummaryHooks } from '@/core/modesummaryhooks';
 
 describe('mode summary hooks', () => {
+  beforeEach(() => {
+    resetModeSummaryHooks();
+  });
+
   it('provides timed defaults for title and hidden blocks remaining', () => {
     const hooks = getModeSummaryHooks('timed');
     expect(hooks.title).toBe("Time's Up!");

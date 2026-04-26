@@ -1,5 +1,5 @@
-import { describe, expect, it } from 'vitest';
-import { registerModeEndRuleHook, shouldEndGameForMode } from '@/core/moderules';
+import { beforeEach, describe, expect, it } from 'vitest';
+import { registerModeEndRuleHook, resetModeEndRuleHooks, shouldEndGameForMode } from '@/core/moderules';
 
 type PlayedDuration = { hours: number, minutes: number, seconds: number };
 
@@ -16,6 +16,10 @@ const makeState = (seconds: number, moves: number, precisionStrikes: number = 0)
 });
 
 describe('mode rules', () => {
+  beforeEach(() => {
+    resetModeEndRuleHooks();
+  });
+
   it('uses no-more-moves for arcade mode', () => {
     const state = makeState(0, 0);
     expect(shouldEndGameForMode('arcade', state as never, false)).toBe(true);

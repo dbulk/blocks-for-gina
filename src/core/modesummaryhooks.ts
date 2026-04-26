@@ -21,7 +21,14 @@ const modeSummaryHooks = new Map<string, ModeSummaryHookRegistration>([
   ['sprint', { title: 'Sprint Complete!', formatMoves: (totalMoves: number) => `${totalMoves}/${SPRINT_MODE_MAX_MOVES}` }]
 ]);
 
+const builtInModeSummaryHooks = new Map(modeSummaryHooks);
+
 const normalizeModeId = (modeId: string): string => modeId.trim();
+
+const resetModeSummaryHooks = (): void => {
+  modeSummaryHooks.clear();
+  builtInModeSummaryHooks.forEach((hooks, id) => modeSummaryHooks.set(id, hooks));
+};
 
 const registerModeSummaryHooks = (modeId: string, hooks: ModeSummaryHookRegistration): void => {
   const normalizedId = normalizeModeId(modeId);
@@ -40,5 +47,5 @@ const getModeSummaryHooks = (modeId: string): ModeSummaryHooks => {
   };
 };
 
-export { getModeSummaryHooks, registerModeSummaryHooks };
+export { getModeSummaryHooks, registerModeSummaryHooks, resetModeSummaryHooks };
 export type { ModeSummaryHooks, ModeSummaryHookRegistration };
